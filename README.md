@@ -62,13 +62,16 @@ delete from public.pm_login_attempts;  -- clears any lockouts
 
 ```sql
 insert into public.pm_people (name, initials, color, role, sort_order)
-values ('Lena', 'LE', '#4C9A8F', 'Design', 8);
+values ('Lena', 'LE', '#3E8E9C', 'Design', 9);
 
 update public.pm_people set active = false where name = 'Simon';  -- hide, keep history
 ```
 
-The name dropdown on the login screen is a short list near the bottom of `index.html`
-(`function fillWho`) — add new names there too.
+That is the whole job — no code change and no redeploy. The board reads the roster from
+`pm_people` on every load, so a new teammate shows up in the identity picker, the owner
+checkboxes, the person filter and the By-person view as soon as anyone refreshes.
+
+Pick a colour that isn't already taken; the current ones are listed in `pm_people.color`.
 
 ## Data model
 

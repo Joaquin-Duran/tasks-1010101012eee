@@ -178,10 +178,6 @@ main{flex:1;overflow:auto;padding:20px}
       <label for="pass">Team passcode</label>
       <input class="input" type="password" id="pass" autocomplete="current-password" required>
     </div>
-    <div class="field">
-      <label for="whoami">You are</label>
-      <select class="input" id="whoami"></select>
-    </div>
     <button class="btn btn-primary btn-block" type="submit" id="loginBtn">Open the board</button>
     <div class="err" id="loginErr"></div>
   </form>
@@ -203,7 +199,8 @@ main{flex:1;overflow:auto;padding:20px}
       </nav>
       <div class="spacer"></div>
       <div class="who">
-        <span id="whoLabel"></span>
+        <span class="av" id="whoAv" title="Actions are logged under this name"></span>
+        <select class="input" id="whoSel" style="padding:6px 9px;font-size:12.5px;width:auto" title="Who are you?"></select>
         <button class="btn btn-ghost" id="refreshBtn" title="Reload from the database" style="padding:7px 12px">Refresh</button>
         <button class="btn btn-primary" id="newBtn" style="padding:8px 14px">+ New task</button>
       </div>
@@ -630,6 +627,7 @@ async function refresh(quiet){
     const d = await rpc("pm_bootstrap", { p_token:TOKEN });
     DATA = { people:d.people||[], phases:d.phases||[], tasks:d.tasks||[], activity:d.activity||[] };
     buildFilters();
+    populateWho();
     render();
     if (!quiet) toast("Up to date");
   } catch(err){
@@ -671,17 +669,25 @@ function logout(msg){
 function startApp(){
   $("#login").classList.add("hidden");
   $("#app").classList.remove("hidden");
-  $("#whoLabel").innerHTML = ME
-    ? '<span class="av" style="background:' + personColor(ME) + ';border-color:transparent">' +
-      esc(initials(ME)) + '</span> ' + esc(ME)
-    : "";
   refresh(true);
 }
 
-function fillWho(){
-  const names = ["Joaquin","Oscar","Nico","Marc","Karthik","Simon","Seba"];
-  $("#whoami").innerHTML = names.map(n =>
+/* The roster comes from pm_people, so adding a teammate is a database change only. */
+function populateWho(){
+  const names = DATA.people.filter(p => p.active).map(p => p.name);
+  if (!names.length) return;
+  if (!names.includes(ME)) ME = names[0];
+  store.set("gp_me", ME);
+  $("#whoSel").innerHTML = names.map(n =>
     '<option' + (n === ME ? " selected" : "") + '>' + esc(n) + '</option>').join("");
+  paintWho();
+}
+
+function paintWho(){
+  const a = $("#whoAv");
+  a.textContent = initials(ME);
+  a.style.background = personColor(ME);
+  a.style.borderColor = "transparent";
 }
 
 $("#loginForm").addEventListener("submit", async e => {
@@ -705,9 +711,7 @@ $("#loginForm").addEventListener("submit", async e => {
       return;
     }
     TOKEN = r.token;
-    ME = $("#whoami").value;
     store.set("gp_token", TOKEN);
-    store.set("gp_me", ME);
     startApp();
   } catch(err){
     $("#loginErr").textContent = "Could not sign in: " + err.message;
@@ -729,10 +733,15 @@ $("#fCat").addEventListener("change", e => { F.cat = e.target.value; render(); }
 $("#fPhase").addEventListener("change", e => { F.phase = e.target.value; render(); });
 $("#fMine").addEventListener("click", e => { F.mine = !F.mine; e.target.classList.toggle("on"); render(); });
 $("#fOpen").addEventListener("click", e => { F.open = !F.open; e.target.classList.toggle("on"); render(); });
+$("#whoSel").addEventListener("change", e => {
+  ME = e.target.value;
+  store.set("gp_me", ME);
+  paintWho();
+  render();
+});
 $("#refreshBtn").addEventListener("click", () => refresh());
 $("#newBtn").addEventListener("click", () => openTask(null));
 
-fillWho();
 if (TOKEN) startApp();
 </script>
 </body>
