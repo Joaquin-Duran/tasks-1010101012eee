@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GoPrep · Team Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23EF6E45'/><text x='16' y='22' font-family='Poppins,sans-serif' font-size='15' font-weight='700' fill='%23EEEAE1' text-anchor='middle'>GP</text></svg>">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --cream:#EEEAE1; --paper:#F7F5F1; --white:#FFFDFA;
+  --orange:#EF6E45; --orange-soft:#FBE4DC; --ink:#2B2C2C; --ink-2:#5A5B5B; --ink-3:#8A8A8A;
+  --line:rgba(43,44,44,.13); --line-2:rgba(43,44,44,.07);
+  --s-not:#8A8A8A; --s-prog:#EF6E45; --s-block:#C7625B; --s-done:#4C9A8F;
+  --p0:#C7383B; --p1:#EF6E45; --p2:#D69A22; --p3:#8A8A8A;
+  --shadow:0 1px 2px rgba(43,44,44,.05),0 4px 14px rgba(43,44,44,.06);
+  --shadow-lg:0 8px 40px rgba(43,44,44,.16);
+  --r:12px;
+}
+html,body{height:100%}
+body{
+  margin:0; font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--cream); color:var(--ink); font-size:14px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-.01em}
+a{color:var(--orange)}
+.hidden{display:none !important}
+
+/* ---------- login ---------- */
+#login{position:fixed;inset:0;display:grid;place-items:center;background:var(--cream);z-index:100;padding:24px}
+.login-card{width:100%;max-width:380px;background:var(--white);border:1px solid var(--line);border-radius:18px;padding:34px 30px;box-shadow:var(--shadow-lg);text-align:center}
+.logo{width:52px;height:52px;border-radius:14px;background:var(--orange);color:var(--cream);display:grid;place-items:center;font-weight:700;font-size:19px;margin:0 auto 16px;letter-spacing:.02em}
+.login-card h1{font-size:20px;margin-bottom:4px}
+.login-card p{color:var(--ink-3);font-size:13px;margin:0 0 22px}
+.field{text-align:left;margin-bottom:14px}
+.field label{display:block;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:6px}
+.input,select.input,textarea.input{
+  width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--paper);
+  outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.input:focus{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-soft);background:var(--white)}
+textarea.input{resize:vertical;min-height:76px;line-height:1.55}
+.btn{padding:11px 18px;border-radius:10px;font-weight:600;font-size:13.5px;transition:transform .12s,background .15s,box-shadow .15s;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--orange);color:#fff;box-shadow:0 2px 8px rgba(239,110,69,.3)}
+.btn-primary:hover{background:#e35f35}
+.btn-ghost{background:var(--paper);border:1px solid var(--line);color:var(--ink-2)}
+.btn-ghost:hover{background:var(--cream);color:var(--ink)}
+.btn-danger{background:transparent;border:1px solid rgba(199,56,59,.35);color:var(--p0)}
+.btn-danger:hover{background:rgba(199,56,59,.08)}
+.btn-block{width:100%}
+.err{color:var(--p0);font-size:12.5px;min-height:18px;margin-top:10px}
+
+/* ---------- shell ---------- */
+#app{display:flex;flex-direction:column;height:100%}
+header{background:var(--white);border-bottom:1px solid var(--line);flex:none}
+.bar{display:flex;align-items:center;gap:14px;padding:11px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.02em;font-size:15.5px;flex:none}
+.brand .logo{width:30px;height:30px;border-radius:9px;font-size:12px;margin:0}
+.brand small{display:block;font-weight:400;font-size:10.5px;color:var(--ink-3);letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.spacer{flex:1}
+.tabs{display:flex;gap:3px;background:var(--paper);padding:3px;border-radius:11px;border:1px solid var(--line-2)}
+.tab{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--ink-2);white-space:nowrap;transition:.15s}
+.tab:hover{color:var(--ink)}
+.tab.on{background:var(--white);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
+.who{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2)}
+.filters{display:flex;gap:8px;padding:0 20px 11px;flex-wrap:wrap;align-items:center}
+.filters .input{padding:7px 11px;font-size:12.5px;border-radius:9px;width:auto}
+#q{min-width:210px}
+.chip-row{display:flex;gap:5px;flex-wrap:wrap}
+.chip{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--line);background:var(--paper);color:var(--ink-2);transition:.15s}
+.chip:hover{border-color:var(--ink-3)}
+.chip.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.stats{display:flex;gap:16px;align-items:center;font-size:12px;color:var(--ink-3);margin-left:auto}
+.stats b{color:var(--ink);font-weight:600}
+main{flex:1;overflow:auto;padding:20px}
+
+/* ---------- columns ---------- */
+.cols{display:flex;gap:14px;align-items:flex-start;min-height:100%}
+.col{flex:1 1 0;min-width:262px;max-width:420px;background:rgba(255,253,250,.62);border:1px solid var(--line-2);border-radius:var(--r);display:flex;flex-direction:column;max-height:100%}
+.col.drop{background:var(--orange-soft);border-color:var(--orange);border-style:dashed}
+.col-head{padding:12px 14px 9px;display:flex;align-items:center;gap:8px;position:sticky;top:0}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.col-head h3{font-size:12.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+.count{margin-left:auto;font-size:11.5px;color:var(--ink-3);background:var(--paper);padding:2px 8px;border-radius:20px;font-weight:600}
+.col-body{padding:0 10px 12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+.empty{padding:22px 12px;text-align:center;color:var(--ink-3);font-size:12.5px;font-style:italic}
+
+/* ---------- card ---------- */
+.card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:11px 12px;cursor:pointer;transition:box-shadow .15s,transform .12s,border-color .15s;position:relative;overflow:hidden}
+.card:hover{box-shadow:var(--shadow);border-color:rgba(43,44,44,.22);transform:translateY(-1px)}
+.card.dragging{opacity:.4}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pc,transparent)}
+.card-top{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.code{font-size:10.5px;font-weight:600;color:var(--ink-3);letter-spacing:.04em}
+.pri{font-size:10px;font-weight:700;padding:1.5px 6px;border-radius:5px;letter-spacing:.03em;color:#fff}
+.card h4{font-size:13.2px;font-weight:500;line-height:1.4;margin-bottom:8px;word-break:break-word}
+.card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tag{font-size:10.5px;padding:2px 7px;border-radius:6px;background:var(--paper);color:var(--ink-2);border:1px solid var(--line-2);font-weight:500}
+.tag.phase{background:var(--tc,var(--paper));color:#fff;border-color:transparent}
+.due{font-size:10.5px;color:var(--ink-3);margin-left:auto;white-space:nowrap}
+.due.late{color:var(--p0);font-weight:600}
+.avs{display:flex;margin-left:auto}
+.av{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:700;color:#fff;border:1.5px solid var(--white);margin-left:-6px}
+.av:first-child{margin-left:0}
+
+/* ---------- timeline ---------- */
+.tl{display:flex;flex-direction:column;gap:14px;max-width:1180px}
+.tlp{background:var(--white);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.tlp-head{padding:14px 16px;display:flex;align-items:center;gap:12px;border-left:4px solid var(--pc);flex-wrap:wrap}
+.tlp-head h3{font-size:15px}
+.tlp-head .win{font-size:11.5px;color:var(--ink-3)}
+.tlp-head .theme{font-size:12px;color:var(--ink-2);font-style:italic}
+.prog{height:5px;background:var(--paper);border-radius:3px;overflow:hidden;width:110px;margin-left:auto}
+.prog span{display:block;height:100%;background:var(--s-done);border-radius:3px}
+.tlp-body{padding:0 12px 12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.crit{padding:0 16px 14px;font-size:11.5px;color:var(--ink-3);line-height:1.6}
+.crit b{color:var(--ink-2);font-weight:600}
+
+/* ---------- modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(43,44,44,.45);backdrop-filter:blur(3px);z-index:60;display:grid;place-items:center;padding:20px;overflow:auto}
+.modal{background:var(--white);border-radius:16px;width:100%;max-width:600px;box-shadow:var(--shadow-lg);max-height:calc(100vh - 40px);display:flex;flex-direction:column;margin:auto}
+.modal-head{padding:18px 22px 14px;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:12px}
+.modal-head h2{font-size:16.5px}
+.modal-head .code{font-size:12px}
+.x{margin-left:auto;width:30px;height:30px;border-radius:8px;color:var(--ink-3);font-size:19px;line-height:1;display:grid;place-items:center}
+.x:hover{background:var(--paper);color:var(--ink)}
+.modal-body{padding:18px 22px;overflow-y:auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--line-2);display:flex;gap:9px;align-items:center}
+.owner-pick{display:flex;flex-wrap:wrap;gap:6px}
+.opt{display:flex;align-items:center;gap:6px;padding:5px 11px 5px 5px;border:1px solid var(--line);border-radius:20px;font-size:12.5px;cursor:pointer;background:var(--paper);transition:.15s}
+.opt:hover{border-color:var(--ink-3)}
+.opt.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.opt .av{margin:0;border-color:transparent;width:19px;height:19px;font-size:8.5px}
+.opt input{display:none}
+
+/* ---------- activity ---------- */
+.feed{max-width:680px;display:flex;flex-direction:column;gap:2px}
+.ev{display:flex;gap:10px;align-items:baseline;padding:9px 13px;background:var(--white);border:1px solid var(--line-2);border-radius:9px;font-size:12.8px}
+.ev .actor{font-weight:600;flex:none}
+.ev .act{color:var(--ink-3);flex:none}
+.ev .ttl{color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev .when{margin-left:auto;color:var(--ink-3);font-size:11px;flex:none}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--cream);padding:11px 20px;border-radius:10px;font-size:13px;box-shadow:var(--shadow-lg);z-index:200;transition:transform .28s cubic-bezier(.2,.9,.3,1);pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.bad{background:var(--p0)}
+
+@media(max-width:820px){
+  main{padding:13px}
+  .cols{flex-direction:column}
+  .col{max-width:none;width:100%}
+  .col-body{max-height:none}
+  .bar{padding:10px 13px;gap:10px}
+  .filters{padding:0 13px 10px}
+  .tabs{width:100%;overflow-x:auto}
+  .grid2,.grid3{grid-template-columns:1fr}
+  .stats{width:100%;margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <form class="login-card" id="loginForm">
+    <div class="logo">GP</div>
+    <h1>GoPrep Team Board</h1>
+    <p>Enter the team passcode to continue.</p>
+    <div class="field">
+      <label for="pass">Team passcode</label>
+      <input class="input" type="password" id="pass" autocomplete="current-password" required>
+    </div>
+    <div class="field">
+      <label for="whoami">You are</label>
+      <select class="input" id="whoami"></select>
+    </div>
+    <button class="btn btn-primary btn-block" type="submit" id="loginBtn">Open the board</button>
+    <div class="err" id="loginErr"></div>
+  </form>
+</div>
+
+<div id="app" class="hidden">
+  <header>
+    <div class="bar">
+      <div class="brand">
+        <div class="logo">GP</div>
+        <div>GoPrep<small>Team Board</small></div>
+      </div>
+      <nav class="tabs" id="tabs">
+        <button class="tab on" data-view="board">Board</button>
+        <button class="tab" data-view="people">By person</button>
+        <button class="tab" data-view="area">By area</button>
+        <button class="tab" data-view="timeline">Timeline</button>
+        <button class="tab" data-view="activity">Activity</button>
+      </nav>
+      <div class="spacer"></div>
+      <div class="who">
+        <span id="whoLabel"></span>
+        <button class="btn btn-ghost" id="refreshBtn" title="Reload from the database" style="padding:7px 12px">Refresh</button>
+        <button class="btn btn-primary" id="newBtn" style="padding:8px 14px">+ New task</button>
+      </div>
+    </div>
+    <div class="filters">
+      <input class="input" id="q" type="search" placeholder="Search tasks…">
+      <select class="input" id="fPerson"><option value="">All people</option></select>
+      <select class="input" id="fCat"><option value="">All areas</option></select>
+      <select class="input" id="fPhase"><option value="">All phases</option></select>
+      <div class="chip-row" id="fPri"></div>
+      <button class="chip" id="fMine">Only mine</button>
+      <button class="chip" id="fOpen">Hide done</button>
+      <div class="stats" id="stats"></div>
+    </div>
+  </header>
+  <main id="main"></main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   GoPrep Team Board
+   Static page. All data lives in Supabase behind passcode-gated
+   SECURITY DEFINER functions -- the key below can only call those.
+   ============================================================ */
+const CFG = {
+  url: "https://dpkfwiabwsvrzrihydcc.supabase.co",
+  key: "sb_publishable_t52Owu1vWSlxdR6yTEytag_mvC61Ave"
+};
+
+const STATUSES = [
+  { k:"Not Started", c:"var(--s-not)"   },
+  { k:"In Progress", c:"var(--s-prog)"  },
+  { k:"Blocked",     c:"var(--s-block)" },
+  { k:"Done",        c:"var(--s-done)"  }
+];
+const CATS = ["Bug","Content","Feature","Infra","Marketing","Mobile","Ops","UX"];
+const PRIOS = [
+  { k:"P0", c:"var(--p0)", t:"Blocks launch" },
+  { k:"P1", c:"var(--p1)", t:"Ship within 4 weeks" },
+  { k:"P2", c:"var(--p2)", t:"Next quarter" },
+  { k:"P3", c:"var(--p3)", t:"Backlog / icebox" }
+];
+const EFFORTS = [
+  { k:"S",  t:"S — under a day" },
+  { k:"M",  t:"M — 1-3 days" },
+  { k:"L",  t:"L — 4-10 days" },
+  { k:"XL", t:"XL — over 2 weeks" }
+];
+
+/* ---- storage that degrades gracefully in sandboxed previews ---- */
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] ?? null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } },
+  del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } }
+};
+
+let TOKEN = store.get("gp_token") || null;
+let ME = store.get("gp_me") || "";
+let DATA = { people:[], phases:[], tasks:[], activity:[] };
+let VIEW = "board";
+const F = { q:"", person:"", cat:"", phase:"", pri:new Set(), mine:false, open:false };
+
+/* ---- tiny helpers ---- */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const byKey = (arr,k) => Object.fromEntries(arr.map(o => [o[k], o]));
+
+function toast(msg, bad){
+  const t = $("#toast");
+  t.textContent = msg;
+  t.className = "toast show" + (bad ? " bad" : "");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { t.className = "toast"; }, 2600);
+}
+
+async function rpc(fn, body){
+  const r = await fetch(CFG.url + "/rest/v1/rpc/" + fn, {
+    method:"POST",
+    headers:{ "apikey":CFG.key, "Authorization":"Bearer "+CFG.key, "Content-Type":"application/json" },
+    body: JSON.stringify(body || {})
+  });
+  const txt = await r.text();
+  let out = null;
+  try { out = txt ? JSON.parse(txt) : null; } catch(e){ out = txt; }
+  if (!r.ok){
+    const code = (out && (out.message || out.hint)) || ("HTTP " + r.status);
+    const err = new Error(code);
+    err.raw = out;
+    throw err;
+  }
+  return out;
+}
+
+function personColor(name){
+  const p = DATA.people.find(x => x.name === name);
+  return p ? p.color : "#8A8A8A";
+}
+function initials(name){
+  const p = DATA.people.find(x => x.name === name);
+  if (p && p.initials) return p.initials;
+  return String(name || "?").slice(0,2).toUpperCase();
+}
+function fmtDate(d){
+  if (!d) return "";
+  const dt = new Date(d + "T00:00:00");
+  return dt.toLocaleDateString(undefined, { day:"numeric", month:"short" });
+}
+function isLate(t){
+  return t.target_date && t.status !== "Done" && t.target_date < new Date().toISOString().slice(0,10);
+}
+function ago(iso){
+  const s = (Date.now() - new Date(iso).getTime())/1000;
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s/60) + "m ago";
+  if (s < 86400) return Math.floor(s/3600) + "h ago";
+  if (s < 604800) return Math.floor(s/86400) + "d ago";
+  return new Date(iso).toLocaleDateString(undefined,{ day:"numeric", month:"short" });
+}
+
+/* ============================ filtering ============================ */
+function visible(){
+  const q = F.q.trim().toLowerCase();
+  return DATA.tasks.filter(t => {
+    if (F.open && t.status === "Done") return false;
+    if (F.person && !(t.owners || []).includes(F.person)) return false;
+    if (F.mine && ME && !(t.owners || []).includes(ME)) return false;
+    if (F.cat && t.category !== F.cat) return false;
+    if (F.phase && t.phase_key !== F.phase) return false;
+    if (F.pri.size && !F.pri.has(t.priority)) return false;
+    if (q){
+      const hay = [t.code, t.title, t.description, t.notes, t.category, (t.owners||[]).join(" ")]
+        .join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+/* ============================ rendering ============================ */
+function card(t){
+  const ph = byKey(DATA.phases, "key")[t.phase_key];
+  const pri = PRIOS.find(p => p.k === t.priority);
+  const owners = (t.owners || []).map(o =>
+    '<div class="av" title="' + esc(o) + '" style="background:' + personColor(o) + '">' + esc(initials(o)) + '</div>'
+  ).join("");
+  return '<article class="card" draggable="true" data-id="' + t.id + '"' +
+    (pri ? ' style="--pc:' + pri.c + '"' : '') + '>' +
+      '<div class="card-top">' +
+        (t.code ? '<span class="code">' + esc(t.code) + '</span>' : '') +
+        (pri ? '<span class="pri" style="background:' + pri.c + '" title="' + esc(pri.t) + '">' + pri.k + '</span>' : '') +
+        (t.effort ? '<span class="tag">' + esc(t.effort) + '</span>' : '') +
+      '</div>' +
+      '<h4>' + esc(t.title) + '</h4>' +
+      '<div class="card-meta">' +
+        (t.category ? '<span class="tag">' + esc(t.category) + '</span>' : '') +
+        (ph && ph.key !== "icebox" ? '<span class="tag phase" style="--tc:' + ph.color + '">' + esc(ph.name) + '</span>' : '') +
+        (owners ? '<div class="avs">' + owners + '</div>' : '') +
+        (t.target_date ? '<span class="due' + (isLate(t) ? ' late' : '') + '">' + fmtDate(t.target_date) + '</span>' : '') +
+      '</div>' +
+    '</article>';
+}
+
+function column(title, colour, tasks, dropStatus){
+  return '<section class="col"' + (dropStatus ? ' data-drop="' + esc(dropStatus) + '"' : '') + '>' +
+    '<div class="col-head"><span class="dot" style="background:' + colour + '"></span>' +
+      '<h3>' + esc(title) + '</h3><span class="count">' + tasks.length + '</span></div>' +
+    '<div class="col-body">' +
+      (tasks.length ? tasks.map(card).join("") : '<div class="empty">Nothing here</div>') +
+    '</div></section>';
+}
+
+function renderBoard(list){
+  return '<div class="cols">' + STATUSES.map(s =>
+    column(s.k, s.c, list.filter(t => t.status === s.k), s.k)
+  ).join("") + '</div>';
+}
+
+function renderPeople(list){
+  const active = DATA.people.filter(p => p.active);
+  const cols = active.map(p =>
+    column(p.name, p.color, list.filter(t => (t.owners || []).includes(p.name)))
+  );
+  const none = list.filter(t => !(t.owners || []).length);
+  cols.push(column("Unassigned", "#B9B4AA", none));
+  return '<div class="cols">' + cols.join("") + '</div>';
+}
+
+function renderArea(list){
+  const used = CATS.filter(c => list.some(t => t.category === c));
+  const cols = used.map(c => column(c, "#5A5B5B", list.filter(t => t.category === c)));
+  const none = list.filter(t => !t.category);
+  if (none.length) cols.push(column("Uncategorised", "#B9B4AA", none));
+  return '<div class="cols">' + (cols.length ? cols.join("") : '<div class="empty">No tasks match.</div>') + '</div>';
+}
+
+function renderTimeline(list){
+  return '<div class="tl">' + DATA.phases.map(ph => {
+    const ts = list.filter(t => t.phase_key === ph.key);
+    if (!ts.length) return "";
+    const done = ts.filter(t => t.status === "Done").length;
+    const pct = Math.round(done / ts.length * 100);
+    const win = ph.starts
+      ? new Date(ph.starts).toLocaleDateString(undefined,{ day:"numeric", month:"short" }) + " → " +
+        new Date(ph.ends).toLocaleDateString(undefined,{ day:"numeric", month:"short", year:"numeric" })
+      : "unscheduled";
+    return '<section class="tlp" style="--pc:' + ph.color + '">' +
+      '<div class="tlp-head">' +
+        '<h3>' + esc(ph.name) + '</h3>' +
+        '<span class="win">' + esc(win) + '</span>' +
+        (ph.theme ? '<span class="theme">' + esc(ph.theme) + '</span>' : '') +
+        '<div class="prog" title="' + done + ' of ' + ts.length + ' done">' +
+          '<span style="width:' + pct + '%"></span></div>' +
+        '<span class="count">' + done + '/' + ts.length + '</span>' +
+      '</div>' +
+      '<div class="tlp-body">' + ts.map(card).join("") + '</div>' +
+      (ph.success_criteria ? '<div class="crit"><b>Success:</b> ' + esc(ph.success_criteria) + '</div>' : '') +
+    '</section>';
+  }).join("") + '</div>';
+}
+
+function renderActivity(){
+  if (!DATA.activity.length) return '<div class="empty">No activity yet.</div>';
+  return '<div class="feed">' + DATA.activity.map(a =>
+    '<div class="ev">' +
+      '<span class="actor" style="color:' + personColor(a.actor) + '">' + esc(a.actor) + '</span>' +
+      '<span class="act">' + esc(a.action) + (a.detail ? " (" + esc(a.detail) + ")" : "") + '</span>' +
+      '<span class="ttl">' + esc(a.task_title) + '</span>' +
+      '<span class="when">' + ago(a.at) + '</span>' +
+    '</div>'
+  ).join("") + '</div>';
+}
+
+function renderStats(list){
+  const done = list.filter(t => t.status === "Done").length;
+  const prog = list.filter(t => t.status === "In Progress").length;
+  const p0   = list.filter(t => t.priority === "P0" && t.status !== "Done").length;
+  const late = list.filter(isLate).length;
+  $("#stats").innerHTML =
+    '<span><b>' + list.length + '</b> shown</span>' +
+    '<span><b>' + prog + '</b> in progress</span>' +
+    '<span><b>' + done + '</b> done</span>' +
+    (p0 ? '<span style="color:var(--p0)"><b>' + p0 + '</b> open P0</span>' : '') +
+    (late ? '<span style="color:var(--p0)"><b>' + late + '</b> overdue</span>' : '');
+}
+
+function render(){
+  const list = visible();
+  const main = $("#main");
+  if (VIEW === "board")         main.innerHTML = renderBoard(list);
+  else if (VIEW === "people")   main.innerHTML = renderPeople(list);
+  else if (VIEW === "area")     main.innerHTML = renderArea(list);
+  else if (VIEW === "timeline") main.innerHTML = renderTimeline(list);
+  else                          main.innerHTML = renderActivity();
+  renderStats(list);
+  wireCards();
+}
+
+/* ============================ interaction ============================ */
+let dragId = null;
+
+function wireCards(){
+  $$(".card").forEach(el => {
+    el.addEventListener("click", () => openTask(el.dataset.id));
+    el.addEventListener("dragstart", e => {
+      dragId = el.dataset.id;
+      el.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      try { e.dataTransfer.setData("text/plain", dragId); } catch(err){}
+    });
+    el.addEventListener("dragend", () => { el.classList.remove("dragging"); dragId = null; });
+  });
+
+  $$(".col[data-drop]").forEach(col => {
+    col.addEventListener("dragover", e => { e.preventDefault(); col.classList.add("drop"); });
+    col.addEventListener("dragleave", () => col.classList.remove("drop"));
+    col.addEventListener("drop", async e => {
+      e.preventDefault();
+      col.classList.remove("drop");
+      const id = dragId || e.dataTransfer.getData("text/plain");
+      const status = col.dataset.drop;
+      const t = DATA.tasks.find(x => x.id === id);
+      if (!t || t.status === status) return;
+      const prev = t.status;
+      t.status = status;              // optimistic
+      render();
+      try {
+        const row = await rpc("pm_set_status", { p_token:TOKEN, p_id:id, p_status:status, p_actor:ME });
+        Object.assign(t, row);
+        await refresh(true);
+      } catch(err){
+        t.status = prev; render();
+        fail(err, "Could not move that task");
+      }
+    });
+  });
+}
+
+function fail(err, msg){
+  if (String(err.message).includes("unauthorized")) return logout("Session expired — sign in again.");
+  toast(msg + ": " + err.message, true);
+}
+
+/* ---------------- task modal ---------------- */
+function openTask(id){
+  const t = id ? DATA.tasks.find(x => x.id === id) : null;
+  const v = (k, d) => (t && t[k] != null ? t[k] : (d ?? ""));
+  const sel = (list, cur, blank) =>
+    (blank ? '<option value="">' + blank + '</option>' : '') +
+    list.map(o => '<option value="' + esc(o.k ?? o.key ?? o) + '"' +
+      ((o.k ?? o.key ?? o) === cur ? " selected" : "") + '>' +
+      esc(o.t ?? o.name ?? o.k ?? o) + '</option>').join("");
+
+  const owners = new Set(t ? (t.owners || []) : (ME ? [ME] : []));
+  const html =
+    '<div class="scrim" id="scrim"><div class="modal" role="dialog" aria-modal="true">' +
+      '<div class="modal-head">' +
+        (t && t.code ? '<span class="code">' + esc(t.code) + '</span>' : '') +
+        '<h2>' + (t ? "Edit task" : "New task") + '</h2>' +
+        '<button class="x" id="mClose" aria-label="Close">×</button>' +
+      '</div>' +
+      '<div class="modal-body">' +
+        '<div class="field"><label for="mTitle">Task</label>' +
+          '<input class="input" id="mTitle" value="' + esc(v("title")) + '" placeholder="What needs to happen?"></div>' +
+        '<div class="grid3">' +
+          '<div class="field"><label for="mStatus">Status</label><select class="input" id="mStatus">' +
+            sel(STATUSES, v("status","Not Started")) + '</select></div>' +
+          '<div class="field"><label for="mPri">Priority</label><select class="input" id="mPri">' +
+            sel(PRIOS, v("priority"), "—") + '</select></div>' +
+          '<div class="field"><label for="mEff">Effort</label><select class="input" id="mEff">' +
+            sel(EFFORTS, v("effort"), "—") + '</select></div>' +
+        '</div>' +
+        '<div class="grid3">' +
+          '<div class="field"><label for="mCat">Area</label><select class="input" id="mCat">' +
+            sel(CATS, v("category"), "—") + '</select></div>' +
+          '<div class="field"><label for="mPhase">Objective / phase</label><select class="input" id="mPhase">' +
+            sel(DATA.phases, v("phase_key"), "—") + '</select></div>' +
+          '<div class="field"><label for="mDate">Target date</label>' +
+            '<input class="input" id="mDate" type="date" value="' + esc(v("target_date")) + '"></div>' +
+        '</div>' +
+        '<div class="field"><label>Owners</label><div class="owner-pick" id="mOwners">' +
+          DATA.people.filter(p => p.active).map(p =>
+            '<label class="opt' + (owners.has(p.name) ? " on" : "") + '">' +
+              '<input type="checkbox" value="' + esc(p.name) + '"' + (owners.has(p.name) ? " checked" : "") + '>' +
+              '<span class="av" style="background:' + p.color + '">' + esc(p.initials || "") + '</span>' +
+              esc(p.name) + '</label>').join("") +
+        '</div></div>' +
+        '<div class="field"><label for="mDesc">Description / acceptance</label>' +
+          '<textarea class="input" id="mDesc" placeholder="What does done look like?">' + esc(v("description")) + '</textarea></div>' +
+        '<div class="field"><label for="mNotes">Comments</label>' +
+          '<textarea class="input" id="mNotes" style="min-height:60px">' + esc(v("notes")) + '</textarea></div>' +
+        (t ? '<div style="font-size:11.5px;color:var(--ink-3)">Added by ' + esc(t.created_by || "—") +
+             ' · updated ' + ago(t.updated_at) + '</div>' : '') +
+      '</div>' +
+      '<div class="modal-foot">' +
+        (t ? '<button class="btn btn-danger" id="mDel">Archive</button>' : '') +
+        '<div class="spacer"></div>' +
+        '<button class="btn btn-ghost" id="mCancel">Cancel</button>' +
+        '<button class="btn btn-primary" id="mSave">' + (t ? "Save changes" : "Create task") + '</button>' +
+      '</div>' +
+    '</div></div>';
+
+  document.body.insertAdjacentHTML("beforeend", html);
+  const scrim = $("#scrim");
+  const close = () => scrim.remove();
+  scrim.addEventListener("click", e => { if (e.target === scrim) close(); });
+  $("#mClose").onclick = close;
+  $("#mCancel").onclick = close;
+  document.addEventListener("keydown", function onEsc(e){
+    if (e.key === "Escape"){ close(); document.removeEventListener("keydown", onEsc); }
+  });
+  $$("#mOwners .opt").forEach(l => {
+    l.querySelector("input").addEventListener("change", e =>
+      l.classList.toggle("on", e.target.checked));
+  });
+  $("#mTitle").focus();
+
+  $("#mSave").onclick = async () => {
+    const title = $("#mTitle").value.trim();
+    if (!title) return toast("Give the task a title", true);
+    const payload = {
+      title,
+      status: $("#mStatus").value,
+      priority: $("#mPri").value,
+      effort: $("#mEff").value,
+      category: $("#mCat").value,
+      phase_key: $("#mPhase").value,
+      target_date: $("#mDate").value,
+      description: $("#mDesc").value.trim(),
+      notes: $("#mNotes").value.trim(),
+      owners: $$("#mOwners input:checked").map(i => i.value)
+    };
+    if (t) payload.id = t.id;
+    $("#mSave").disabled = true;
+    try {
+      await rpc("pm_save_task", { p_token:TOKEN, p_task:payload, p_actor:ME });
+      close();
+      await refresh();
+      toast(t ? "Saved" : "Task created");
+    } catch(err){
+      $("#mSave").disabled = false;
+      fail(err, "Could not save");
+    }
+  };
+
+  if (t) $("#mDel").onclick = async () => {
+    if (!confirm("Archive “" + t.title + "”? It leaves the board but stays in the database.")) return;
+    try {
+      await rpc("pm_delete_task", { p_token:TOKEN, p_id:t.id, p_actor:ME });
+      close();
+      await refresh();
+      toast("Archived");
+    } catch(err){ fail(err, "Could not archive"); }
+  };
+}
+
+/* ---------------- data ---------------- */
+async function refresh(quiet){
+  try {
+    const d = await rpc("pm_bootstrap", { p_token:TOKEN });
+    DATA = { people:d.people||[], phases:d.phases||[], tasks:d.tasks||[], activity:d.activity||[] };
+    buildFilters();
+    render();
+    if (!quiet) toast("Up to date");
+  } catch(err){
+    if (String(err.message).includes("unauthorized")) return logout("Session expired — sign in again.");
+    toast("Could not load: " + err.message, true);
+  }
+}
+
+function buildFilters(){
+  const keep = (id, val) => { const el = $(id); if (el) el.value = val; };
+  $("#fPerson").innerHTML = '<option value="">All people</option>' +
+    DATA.people.filter(p => p.active).map(p => '<option>' + esc(p.name) + '</option>').join("");
+  $("#fCat").innerHTML = '<option value="">All areas</option>' +
+    CATS.map(c => '<option>' + esc(c) + '</option>').join("");
+  $("#fPhase").innerHTML = '<option value="">All phases</option>' +
+    DATA.phases.map(p => '<option value="' + esc(p.key) + '">' + esc(p.name) + '</option>').join("");
+  keep("#fPerson", F.person); keep("#fCat", F.cat); keep("#fPhase", F.phase);
+  if (!$("#fPri").children.length){
+    $("#fPri").innerHTML = PRIOS.map(p =>
+      '<button class="chip" data-pri="' + p.k + '" title="' + esc(p.t) + '">' + p.k + '</button>').join("");
+    $$("#fPri .chip").forEach(b => b.onclick = () => {
+      const k = b.dataset.pri;
+      F.pri.has(k) ? F.pri.delete(k) : F.pri.add(k);
+      b.classList.toggle("on");
+      render();
+    });
+  }
+}
+
+/* ---------------- session ---------------- */
+function logout(msg){
+  TOKEN = null; store.del("gp_token");
+  $("#app").classList.add("hidden");
+  $("#login").classList.remove("hidden");
+  $("#loginErr").textContent = msg || "";
+  $("#pass").value = "";
+}
+
+function startApp(){
+  $("#login").classList.add("hidden");
+  $("#app").classList.remove("hidden");
+  $("#whoLabel").innerHTML = ME
+    ? '<span class="av" style="background:' + personColor(ME) + ';border-color:transparent">' +
+      esc(initials(ME)) + '</span> ' + esc(ME)
+    : "";
+  refresh(true);
+}
+
+function fillWho(){
+  const names = ["Joaquin","Oscar","Nico","Marc","Karthik","Simon","Seba"];
+  $("#whoami").innerHTML = names.map(n =>
+    '<option' + (n === ME ? " selected" : "") + '>' + esc(n) + '</option>').join("");
+}
+
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = $("#loginBtn");
+  btn.disabled = true; btn.textContent = "Checking…";
+  $("#loginErr").textContent = "";
+  try {
+    const r = await rpc("pm_login", { p_passcode: $("#pass").value });
+    if (!r || r.ok !== true){
+      const reason = r && r.reason;
+      if (reason === "too_many_attempts"){
+        const mins = Math.max(1, Math.ceil((r.retry_after_seconds || 900) / 60));
+        $("#loginErr").textContent =
+          "Too many wrong attempts. Try again in about " + mins + " minute" + (mins === 1 ? "" : "s") + ".";
+      } else {
+        const left = r && r.attempts_left;
+        $("#loginErr").textContent = "That passcode is not right." +
+          (left != null ? " " + left + " attempt" + (left === 1 ? "" : "s") + " left before a 15-minute lockout." : "");
+      }
+      return;
+    }
+    TOKEN = r.token;
+    ME = $("#whoami").value;
+    store.set("gp_token", TOKEN);
+    store.set("gp_me", ME);
+    startApp();
+  } catch(err){
+    $("#loginErr").textContent = "Could not sign in: " + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = "Open the board";
+  }
+});
+
+/* ---------------- wiring ---------------- */
+$("#tabs").addEventListener("click", e => {
+  const b = e.target.closest(".tab"); if (!b) return;
+  VIEW = b.dataset.view;
+  $$("#tabs .tab").forEach(x => x.classList.toggle("on", x === b));
+  render();
+});
+$("#q").addEventListener("input", e => { F.q = e.target.value; render(); });
+$("#fPerson").addEventListener("change", e => { F.person = e.target.value; render(); });
+$("#fCat").addEventListener("change", e => { F.cat = e.target.value; render(); });
+$("#fPhase").addEventListener("change", e => { F.phase = e.target.value; render(); });
+$("#fMine").addEventListener("click", e => { F.mine = !F.mine; e.target.classList.toggle("on"); render(); });
+$("#fOpen").addEventListener("click", e => { F.open = !F.open; e.target.classList.toggle("on"); render(); });
+$("#refreshBtn").addEventListener("click", () => refresh());
+$("#newBtn").addEventListener("click", () => openTask(null));
+
+fillWho();
+if (TOKEN) startApp();
+</script>
+</body>
+</html>
