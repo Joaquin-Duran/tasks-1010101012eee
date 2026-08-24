@@ -16,6 +16,7 @@
   --line:rgba(43,44,44,.13); --line-2:rgba(43,44,44,.07);
   --s-not:#8A8A8A; --s-prog:#EF6E45; --s-block:#C7625B; --s-done:#4C9A8F;
   --p0:#C7383B; --p1:#EF6E45; --p2:#D69A22; --p3:#8A8A8A;
+  --ok:#4C9A8F; --warn:#D69A22; --bad:#C7383B;
   --shadow:0 1px 2px rgba(43,44,44,.05),0 4px 14px rgba(43,44,44,.06);
   --shadow-lg:0 8px 40px rgba(43,44,44,.16);
   --r:12px;
@@ -31,6 +32,7 @@ button{cursor:pointer;border:none;background:none}
 h1,h2,h3,h4{margin:0;font-weight:600;letter-spacing:-.01em}
 a{color:var(--orange)}
 .hidden{display:none !important}
+.spacer{flex:1}
 
 /* ---------- login ---------- */
 #login{position:fixed;inset:0;display:grid;place-items:center;background:var(--cream);z-index:100;padding:24px}
@@ -40,6 +42,7 @@ a{color:var(--orange)}
 .login-card p{color:var(--ink-3);font-size:13px;margin:0 0 22px}
 .field{text-align:left;margin-bottom:14px}
 .field label{display:block;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:6px}
+.field .hint{font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-3);font-size:11px;margin-top:4px;display:block}
 .input,select.input,textarea.input{
   width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--paper);
   outline:none;transition:border-color .15s,box-shadow .15s;
@@ -54,6 +57,7 @@ textarea.input{resize:vertical;min-height:76px;line-height:1.55}
 .btn-ghost:hover{background:var(--cream);color:var(--ink)}
 .btn-danger{background:transparent;border:1px solid rgba(199,56,59,.35);color:var(--p0)}
 .btn-danger:hover{background:rgba(199,56,59,.08)}
+.btn-sm{padding:6px 11px;font-size:12px;border-radius:8px}
 .btn-block{width:100%}
 .err{color:var(--p0);font-size:12.5px;min-height:18px;margin-top:10px}
 
@@ -64,11 +68,15 @@ header{background:var(--white);border-bottom:1px solid var(--line);flex:none}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.02em;font-size:15.5px;flex:none}
 .brand .logo{width:30px;height:30px;border-radius:9px;font-size:12px;margin:0}
 .brand small{display:block;font-weight:400;font-size:10.5px;color:var(--ink-3);letter-spacing:.04em;text-transform:uppercase;line-height:1}
-.spacer{flex:1}
 .tabs{display:flex;gap:3px;background:var(--paper);padding:3px;border-radius:11px;border:1px solid var(--line-2)}
 .tab{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--ink-2);white-space:nowrap;transition:.15s}
 .tab:hover{color:var(--ink)}
 .tab.on{background:var(--white);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
+/* second tier: the views inside a group */
+.subtabs{display:flex;gap:2px;padding:0 20px 9px;flex-wrap:wrap;align-items:center}
+.subtab{padding:5px 11px;border-radius:7px;font-size:12.5px;font-weight:500;color:var(--ink-3);white-space:nowrap;transition:.15s}
+.subtab:hover{color:var(--ink);background:var(--paper)}
+.subtab.on{color:var(--orange);background:var(--orange-soft);font-weight:600}
 .who{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2)}
 .filters{display:flex;gap:8px;padding:0 20px 11px;flex-wrap:wrap;align-items:center}
 .filters .input{padding:7px 11px;font-size:12.5px;border-radius:9px;width:auto}
@@ -77,11 +85,15 @@ header{background:var(--white);border-bottom:1px solid var(--line);flex:none}
 .chip{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--line);background:var(--paper);color:var(--ink-2);transition:.15s}
 .chip:hover{border-color:var(--ink-3)}
 .chip.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
-.stats{display:flex;gap:16px;align-items:center;font-size:12px;color:var(--ink-3);margin-left:auto}
+.stats{display:flex;gap:16px;align-items:center;font-size:12px;color:var(--ink-3);margin-left:auto;flex-wrap:wrap}
 .stats b{color:var(--ink);font-weight:600}
 main{flex:1;overflow:auto;padding:20px}
+.wrap{max-width:1240px}
+.seg{display:inline-flex;gap:2px;background:var(--paper);padding:3px;border-radius:9px;border:1px solid var(--line-2)}
+.seg button{padding:5px 12px;border-radius:7px;font-size:12.5px;font-weight:500;color:var(--ink-2)}
+.seg button.on{background:var(--white);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
 
-/* ---------- columns ---------- */
+/* ---------- columns / cards (board) ---------- */
 .cols{display:flex;gap:14px;align-items:flex-start;min-height:100%}
 .col{flex:1 1 0;min-width:262px;max-width:420px;background:rgba(255,253,250,.62);border:1px solid var(--line-2);border-radius:var(--r);display:flex;flex-direction:column;max-height:100%}
 .col.drop{background:var(--orange-soft);border-color:var(--orange);border-style:dashed}
@@ -91,8 +103,6 @@ main{flex:1;overflow:auto;padding:20px}
 .count{margin-left:auto;font-size:11.5px;color:var(--ink-3);background:var(--paper);padding:2px 8px;border-radius:20px;font-weight:600}
 .col-body{padding:0 10px 12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
 .empty{padding:22px 12px;text-align:center;color:var(--ink-3);font-size:12.5px;font-style:italic}
-
-/* ---------- card ---------- */
 .card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:11px 12px;cursor:pointer;transition:box-shadow .15s,transform .12s,border-color .15s;position:relative;overflow:hidden}
 .card:hover{box-shadow:var(--shadow);border-color:rgba(43,44,44,.22);transform:translateY(-1px)}
 .card.dragging{opacity:.4}
@@ -104,51 +114,244 @@ main{flex:1;overflow:auto;padding:20px}
 .card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .tag{font-size:10.5px;padding:2px 7px;border-radius:6px;background:var(--paper);color:var(--ink-2);border:1px solid var(--line-2);font-weight:500}
 .tag.phase{background:var(--tc,var(--paper));color:#fff;border-color:transparent}
+.tag.goal{background:transparent;color:var(--tc,var(--ink-2));border-color:var(--tc,var(--line))}
 .due{font-size:10.5px;color:var(--ink-3);margin-left:auto;white-space:nowrap}
 .due.late{color:var(--p0);font-weight:600}
 .avs{display:flex;margin-left:auto}
-.av{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:700;color:#fff;border:1.5px solid var(--white);margin-left:-6px}
+.av{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:700;color:#fff;border:1.5px solid var(--white);margin-left:-6px;flex:none}
 .av:first-child{margin-left:0}
 
-/* ---------- timeline ---------- */
-.tl{display:flex;flex-direction:column;gap:14px;max-width:1180px}
-.tlp{background:var(--white);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.tlp-head{padding:14px 16px;display:flex;align-items:center;gap:12px;border-left:4px solid var(--pc);flex-wrap:wrap}
-.tlp-head h3{font-size:15px}
-.tlp-head .win{font-size:11.5px;color:var(--ink-3)}
-.tlp-head .theme{font-size:12px;color:var(--ink-2);font-style:italic}
-.prog{height:5px;background:var(--paper);border-radius:3px;overflow:hidden;width:110px;margin-left:auto}
+/* ---------- generic panel ---------- */
+.panel{background:var(--white);border:1px solid var(--line);border-radius:var(--r);margin-bottom:14px;overflow:hidden}
+.panel-head{padding:13px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line-2);flex-wrap:wrap}
+.panel-head h3{font-size:14px}
+.panel-head .sub{font-size:11.5px;color:var(--ink-3)}
+.panel-body{padding:14px 16px}
+.section-title{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:22px 0 10px}
+.section-title:first-child{margin-top:0}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:12px}
+.prog{height:5px;background:var(--paper);border-radius:3px;overflow:hidden;width:110px}
 .prog span{display:block;height:100%;background:var(--s-done);border-radius:3px}
-.tlp-body{padding:0 12px 12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
-.crit{padding:0 16px 14px;font-size:11.5px;color:var(--ink-3);line-height:1.6}
-.crit b{color:var(--ink-2);font-weight:600}
+.note{font-size:12px;color:var(--ink-3);line-height:1.6}
+.pill{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;letter-spacing:.02em;white-space:nowrap}
+.pill.ok{background:rgba(76,154,143,.14);color:var(--ok)}
+.pill.warn{background:rgba(214,154,34,.16);color:#A8760F}
+.pill.bad{background:rgba(199,56,59,.12);color:var(--bad)}
+.pill.mute{background:var(--paper);color:var(--ink-3)}
+
+/* ---------- goals ---------- */
+.goal-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:0;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.goal-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gc,var(--orange))}
+.goal-card .gh{padding:14px 16px 12px 18px}
+.goal-card .ga{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gc,var(--orange))}
+.goal-card h3{font-size:15.5px;margin:3px 0 6px;line-height:1.3}
+.goal-card .gs{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.goal-card .gf{padding:10px 16px 12px 18px;border-top:1px solid var(--line-2);display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:auto;background:var(--paper)}
+.metric{margin:12px 0 0}
+.metric .mrow{display:flex;align-items:baseline;gap:6px;font-size:12px;color:var(--ink-3);margin-bottom:5px}
+.metric .mv{font-size:19px;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1}
+.metric .mt{margin-left:auto;font-size:11.5px}
+.mbar{height:6px;background:var(--paper);border-radius:4px;overflow:hidden;position:relative;border:1px solid var(--line-2)}
+.mbar span{display:block;height:100%;background:var(--gc,var(--orange));border-radius:4px;transition:width .3s}
+.mbar.none{background:repeating-linear-gradient(45deg,var(--paper),var(--paper) 4px,var(--white) 4px,var(--white) 8px)}
+.spark{display:flex;align-items:flex-end;gap:2px;height:22px}
+.spark i{flex:1;background:var(--gc,var(--orange));opacity:.4;border-radius:1px;min-height:2px}
+.spark i:last-child{opacity:1}
+
+/* ---------- gantt ---------- */
+/* One CSS grid per row: a sticky label column, then N equal period columns.
+   Every row shares --cols, so the header and the bars line up exactly. */
+.gantt{background:var(--white);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.gscroll{overflow-x:auto;overflow-y:visible;max-width:100%}
+.gbody{min-width:calc(340px + var(--track-min,600px))}
+.grow{display:grid;grid-template-columns:340px minmax(var(--track-min,600px),1fr);border-bottom:1px solid var(--line-2)}
+.grow:last-child{border-bottom:none}
+.glabel{position:sticky;left:0;z-index:3;background:var(--white);border-right:1px solid var(--line)}
+.gtrack{position:relative;display:grid;grid-template-columns:repeat(var(--cols,12),1fr);min-width:0}
+.ghead-1,.ghead-2{position:sticky;z-index:4;background:var(--white)}
+.ghead-1{top:0}
+.ghead-2{top:26px;border-bottom:1px solid var(--line)}
+.ghead-1 .glabel,.ghead-2 .glabel{z-index:5;background:var(--white)}
+.gmonth{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);
+        text-align:center;padding:6px 4px 5px;border-left:1px solid var(--line);white-space:nowrap;overflow:hidden}
+.gweek{font-size:9.5px;color:var(--ink-3);text-align:center;padding:3px 0 5px;
+       border-left:1px solid var(--line-2);font-weight:500;overflow:hidden}
+.gweek.mstart{border-left:1px solid var(--line)}
+.grow:hover .glabel{background:var(--paper)}
+.gcell{border-left:1px solid var(--line-2);height:30px;background:transparent}
+.gcell.mstart{border-left:1px solid var(--line)}
+.gcell.alt{background:rgba(43,44,44,.017)}
+.gname{display:flex;align-items:center;gap:7px;padding:0 12px;height:30px;overflow:hidden;white-space:nowrap}
+.ghead-1 .gname,.ghead-2 .gname{height:26px}
+.gname .txt{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.gcaret{width:15px;height:15px;flex:none;display:grid;place-items:center;font-size:8px;color:var(--ink-3);
+        border-radius:3px;transition:transform .15s;background:none}
+.gcaret:hover{background:var(--line-2);color:var(--ink)}
+.gcaret.closed{transform:rotate(-90deg)}
+.grow.lvl-goal .gname{font-weight:700;font-size:13px}
+.grow.lvl-goal .glabel{background:var(--paper)}
+.grow.lvl-goal:hover .glabel{background:var(--cream)}
+.grow.lvl-goal .gcell{background:rgba(43,44,44,.026)}
+.grow.lvl-ms .gname{padding-left:26px;font-weight:600;font-size:12.3px;color:var(--ink-2)}
+.grow.lvl-task .gname{padding-left:44px;font-weight:400;color:var(--ink-2);font-size:12.2px}
+.gswatch{width:7px;height:7px;border-radius:2px;flex:none}
+.gmeta{margin-left:auto;display:flex;align-items:center;gap:4px;flex:none;padding-left:8px}
+.gmeta .pill{font-size:9.5px;padding:1.5px 6px}
+.gmeta .count{font-size:10.5px;padding:1.5px 6px}
+.gmeta .due{font-size:10px}
+.gmeta .count{margin-left:0}
+.gmeta .av{width:18px;height:18px;font-size:8px;margin-left:-4px}
+.gmeta .av:first-child{margin-left:0}
+/* bars */
+.gbarwrap{position:absolute;inset:0;pointer-events:none}
+.gbar{position:absolute;border-radius:4px;pointer-events:auto}
+.gbar.plan{top:8px;height:14px;background:var(--bc,#8A8A8A);opacity:.22}
+.gbar.actual{top:11px;height:8px;background:var(--bc,#8A8A8A)}
+.grow.lvl-goal .gbar.plan{top:6px;height:18px;opacity:.18}
+.grow.lvl-goal .gbar.actual{top:10px;height:10px}
+.gbar.actual.late{background:var(--p0)}
+.gbar.actual.done{background:var(--s-done)}
+.gtoday{position:absolute;top:0;bottom:0;width:2px;background:var(--orange);z-index:2;pointer-events:none;opacity:.85}
+.ghead-2 .gtoday{display:none}
+.glegend{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:10px 16px;
+         border-top:1px solid var(--line-2);font-size:11.5px;color:var(--ink-3);background:var(--paper)}
+.glegend i{display:inline-block;width:20px;height:8px;border-radius:3px;vertical-align:middle;margin-right:5px}
+
+/* ---------- planner ---------- */
+.pl-bucket{margin-bottom:16px}
+.pl-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;flex-wrap:wrap}
+.pl-head h3{font-size:13.5px}
+.pl-head .when{font-size:11.5px;color:var(--ink-3)}
+.pl-rows{display:flex;flex-direction:column;gap:5px}
+.pl-row{display:flex;align-items:center;gap:9px;padding:9px 13px;background:var(--white);border:1px solid var(--line-2);border-radius:9px;cursor:pointer;transition:.14s;position:relative;overflow:hidden}
+.pl-row:hover{border-color:rgba(43,44,44,.2);box-shadow:var(--shadow)}
+.pl-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pc,transparent)}
+.pl-row .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.pl-row .t small{color:var(--ink-3);font-size:11px;margin-left:6px}
+.pl-lane{display:flex;flex-direction:column;gap:6px}
+.pl-person{display:flex;align-items:center;gap:8px;margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--line-2)}
+.pl-person h4{font-size:13px}
+.pl-person .lc{font-size:11px;color:var(--ink-3);margin-left:auto}
+
+/* ---------- analysis (top-down / bottom-up) ---------- */
+.tree-goal{background:var(--white);border:1px solid var(--line);border-radius:var(--r);margin-bottom:12px;overflow:hidden;position:relative}
+.tree-goal::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gc,var(--orange))}
+.tg-head{padding:13px 16px 12px 19px;display:flex;align-items:center;gap:11px;flex-wrap:wrap;cursor:pointer}
+.tg-head:hover{background:var(--paper)}
+.tg-head h3{font-size:14.5px}
+.tg-body{padding:0 16px 14px 19px}
+.tg-ms{border-left:2px solid var(--line-2);padding:9px 0 9px 14px;margin-bottom:3px}
+.tg-ms-head{display:flex;align-items:center;gap:8px;font-size:12.8px;font-weight:600;color:var(--ink-2);margin-bottom:6px;flex-wrap:wrap}
+.tg-tasks{display:flex;flex-direction:column;gap:3px}
+.tg-task{display:flex;align-items:center;gap:8px;font-size:12.3px;color:var(--ink-2);padding:4px 8px;border-radius:6px;cursor:pointer}
+.tg-task:hover{background:var(--paper)}
+.tg-task .st{width:7px;height:7px;border-radius:50%;flex:none}
+.tg-task .tt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tg-task.done .tt{color:var(--ink-3);text-decoration:line-through}
+.flag{display:flex;align-items:flex-start;gap:9px;padding:11px 14px;border-radius:10px;font-size:12.5px;line-height:1.55;margin-bottom:8px;border:1px solid}
+.flag.bad{background:rgba(199,56,59,.05);border-color:rgba(199,56,59,.22);color:#8E2A2C}
+.flag.warn{background:rgba(214,154,34,.07);border-color:rgba(214,154,34,.25);color:#7A5609}
+.flag.ok{background:rgba(76,154,143,.06);border-color:rgba(76,154,143,.25);color:#2F6E65}
+.flag b{font-weight:600}
+.flag .fi{font-size:14px;line-height:1.2;flex:none}
+.effort-bar{display:flex;height:26px;border-radius:7px;overflow:hidden;border:1px solid var(--line-2);background:var(--paper)}
+.effort-bar div{display:grid;place-items:center;font-size:10.5px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;min-width:0}
+.legend-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;font-size:11.5px;color:var(--ink-2)}
+.legend-row span{display:flex;align-items:center;gap:6px}
+.legend-row i{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+/* ---------- big number tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:10px;margin-bottom:14px}
+.tile{background:var(--white);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+.tile .n{font-size:25px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.tile .l{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+.tile.alert .n{color:var(--p0)}
+.tile.good .n{color:var(--s-done)}
+
+/* ---------- handbook ---------- */
+.doc-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:16px 17px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:6px}
+.doc-card:hover{border-color:rgba(43,44,44,.24);box-shadow:var(--shadow);transform:translateY(-1px)}
+.doc-card .ic{font-size:21px;line-height:1}
+.doc-card h3{font-size:14.5px}
+.doc-card p{margin:0;font-size:12.3px;color:var(--ink-3);line-height:1.55}
+.doc-card .up{font-size:10.5px;color:var(--ink-3);margin-top:auto;padding-top:8px}
+.prose{max-width:760px;font-size:14px;line-height:1.72;color:var(--ink-2)}
+.prose h1{font-size:23px;color:var(--ink);margin:28px 0 12px;letter-spacing:-.02em}
+.prose h2{font-size:18px;color:var(--ink);margin:30px 0 10px;letter-spacing:-.015em}
+.prose h3{font-size:15px;color:var(--ink);margin:22px 0 8px}
+.prose h1:first-child,.prose h2:first-child,.prose h3:first-child{margin-top:0}
+.prose p{margin:0 0 14px}
+.prose ul,.prose ol{margin:0 0 14px;padding-left:22px}
+.prose li{margin-bottom:6px}
+.prose strong{color:var(--ink);font-weight:600}
+.prose em{font-style:italic}
+.prose code{background:var(--paper);padding:1.5px 6px;border-radius:5px;font-size:12.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--line-2);color:var(--ink)}
+.prose pre{background:var(--ink);color:var(--cream);padding:14px 16px;border-radius:10px;overflow-x:auto;margin:0 0 16px;font-size:12.5px;line-height:1.6}
+.prose pre code{background:none;border:none;padding:0;color:inherit;font-size:inherit}
+.prose blockquote{border-left:3px solid var(--orange);padding:2px 0 2px 15px;margin:0 0 15px;color:var(--ink-3);font-style:italic}
+.prose hr{border:none;border-top:1px solid var(--line);margin:26px 0}
+.prose table{border-collapse:collapse;width:100%;margin:0 0 16px;font-size:13px;display:block;overflow-x:auto}
+.prose th,.prose td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+.prose th{background:var(--paper);font-weight:600;color:var(--ink);font-size:12px}
+.prose a.wl{color:var(--orange);font-weight:500;text-decoration:none;border-bottom:1px solid var(--orange-soft)}
+.prose a.wl:hover{border-bottom-color:var(--orange)}
+.prose a.wl.dead{color:var(--ink-3);border-bottom-style:dotted;cursor:help}
+
+/* ---------- stack / providers ---------- */
+.pv{background:var(--white);border:1px solid var(--line);border-radius:11px;padding:13px 15px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
+.pv::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sc,var(--line))}
+.pv-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pv-top h3{font-size:14px}
+.pv .purpose{font-size:12.2px;color:var(--ink-2);line-height:1.5;margin:0}
+.pv-rows{display:flex;flex-direction:column;gap:4px;font-size:12px}
+.pv-rows div{display:flex;gap:8px}
+.pv-rows dt{color:var(--ink-3);min-width:74px;flex:none}
+.pv-rows dd{margin:0;color:var(--ink-2);word-break:break-word}
+.pv-foot{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--line-2);margin-top:auto}
+.secret{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:var(--ink);color:var(--cream);padding:6px 11px;border-radius:7px;user-select:all;word-break:break-all}
+.vault{font-size:12px;color:var(--ink-2);background:var(--paper);border:1px dashed var(--line);border-radius:8px;padding:8px 11px;line-height:1.5}
 
 /* ---------- modal ---------- */
 .scrim{position:fixed;inset:0;background:rgba(43,44,44,.45);backdrop-filter:blur(3px);z-index:60;display:grid;place-items:center;padding:20px;overflow:auto}
 .modal{background:var(--white);border-radius:16px;width:100%;max-width:600px;box-shadow:var(--shadow-lg);max-height:calc(100vh - 40px);display:flex;flex-direction:column;margin:auto}
+.modal.wide{max-width:900px}
 .modal-head{padding:18px 22px 14px;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:12px}
 .modal-head h2{font-size:16.5px}
 .modal-head .code{font-size:12px}
-.x{margin-left:auto;width:30px;height:30px;border-radius:8px;color:var(--ink-3);font-size:19px;line-height:1;display:grid;place-items:center}
+.x{margin-left:auto;width:30px;height:30px;border-radius:8px;color:var(--ink-3);font-size:19px;line-height:1;display:grid;place-items:center;flex:none}
 .x:hover{background:var(--paper);color:var(--ink)}
 .modal-body{padding:18px 22px;overflow-y:auto}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.modal-foot{padding:14px 22px;border-top:1px solid var(--line-2);display:flex;gap:9px;align-items:center}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--line-2);display:flex;gap:9px;align-items:center;flex-wrap:wrap}
 .owner-pick{display:flex;flex-wrap:wrap;gap:6px}
 .opt{display:flex;align-items:center;gap:6px;padding:5px 11px 5px 5px;border:1px solid var(--line);border-radius:20px;font-size:12.5px;cursor:pointer;background:var(--paper);transition:.15s}
 .opt:hover{border-color:var(--ink-3)}
 .opt.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
 .opt .av{margin:0;border-color:transparent;width:19px;height:19px;font-size:8.5px}
 .opt input{display:none}
+.md-edit{width:100%;min-height:52vh;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;line-height:1.65}
 
 /* ---------- activity ---------- */
-.feed{max-width:680px;display:flex;flex-direction:column;gap:2px}
+.feed{max-width:720px;display:flex;flex-direction:column;gap:2px}
 .ev{display:flex;gap:10px;align-items:baseline;padding:9px 13px;background:var(--white);border:1px solid var(--line-2);border-radius:9px;font-size:12.8px}
 .ev .actor{font-weight:600;flex:none}
 .ev .act{color:var(--ink-3);flex:none}
 .ev .ttl{color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ev .when{margin-left:auto;color:var(--ink-3);font-size:11px;flex:none}
+.ev.sec{border-color:rgba(199,56,59,.3);background:rgba(199,56,59,.04)}
+
+/* ---------- timeline (phases) ---------- */
+.tl{display:flex;flex-direction:column;gap:14px;max-width:1180px}
+.tlp{background:var(--white);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.tlp-head{padding:14px 16px;display:flex;align-items:center;gap:12px;border-left:4px solid var(--pc);flex-wrap:wrap}
+.tlp-head h3{font-size:15px}
+.tlp-head .win{font-size:11.5px;color:var(--ink-3)}
+.tlp-head .theme{font-size:12px;color:var(--ink-2);font-style:italic}
+.tlp-head .prog{margin-left:auto}
+.tlp-body{padding:0 12px 12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.crit{padding:0 16px 14px;font-size:11.5px;color:var(--ink-3);line-height:1.6}
+.crit b{color:var(--ink-2);font-weight:600}
 
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--cream);padding:11px 20px;border-radius:10px;font-size:13px;box-shadow:var(--shadow-lg);z-index:200;transition:transform .28s cubic-bezier(.2,.9,.3,1);pointer-events:none;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0)}
@@ -160,10 +363,17 @@ main{flex:1;overflow:auto;padding:20px}
   .col{max-width:none;width:100%}
   .col-body{max-height:none}
   .bar{padding:10px 13px;gap:10px}
-  .filters{padding:0 13px 10px}
-  .tabs{width:100%;overflow-x:auto}
+  .filters,.subtabs{padding-left:13px;padding-right:13px}
+  .tabs,.subtabs{width:100%;overflow-x:auto}
   .grid2,.grid3{grid-template-columns:1fr}
   .stats{width:100%;margin-left:0}
+  /* on a phone the row meta would squeeze the name to two letters,
+     so drop it -- the bar colour already says late, and tapping opens the item */
+  .grow{grid-template-columns:200px minmax(var(--track-min,600px),1fr)}
+  .gbody{min-width:calc(200px + var(--track-min,600px))}
+  .gmeta{display:none}
+  .grow.lvl-ms .gname{padding-left:20px}
+  .grow.lvl-task .gname{padding-left:34px}
 }
 </style>
 </head>
@@ -190,24 +400,20 @@ main{flex:1;overflow:auto;padding:20px}
         <div class="logo">GP</div>
         <div>GoPrep<small>Team Board</small></div>
       </div>
-      <nav class="tabs" id="tabs">
-        <button class="tab on" data-view="board">Board</button>
-        <button class="tab" data-view="people">By person</button>
-        <button class="tab" data-view="area">By area</button>
-        <button class="tab" data-view="timeline">Timeline</button>
-        <button class="tab" data-view="activity">Activity</button>
-      </nav>
+      <nav class="tabs" id="groups"></nav>
       <div class="spacer"></div>
       <div class="who">
         <span class="av" id="whoAv" title="Actions are logged under this name"></span>
         <select class="input" id="whoSel" style="padding:6px 9px;font-size:12.5px;width:auto" title="Who are you?"></select>
         <button class="btn btn-ghost" id="refreshBtn" title="Reload from the database" style="padding:7px 12px">Refresh</button>
-        <button class="btn btn-primary" id="newBtn" style="padding:8px 14px">+ New task</button>
+        <button class="btn btn-primary" id="newBtn" style="padding:8px 14px">+ New</button>
       </div>
     </div>
-    <div class="filters">
+    <nav class="subtabs" id="views"></nav>
+    <div class="filters" id="filters">
       <input class="input" id="q" type="search" placeholder="Search tasks…">
       <select class="input" id="fPerson"><option value="">All people</option></select>
+      <select class="input" id="fGoal"><option value="">All goals</option></select>
       <select class="input" id="fCat"><option value="">All areas</option></select>
       <select class="input" id="fPhase"><option value="">All phases</option></select>
       <div class="chip-row" id="fPri"></div>
@@ -227,6 +433,9 @@ main{flex:1;overflow:auto;padding:20px}
    GoPrep Team Board
    Static page. All data lives in Supabase behind passcode-gated
    SECURITY DEFINER functions -- the key below can only call those.
+
+   Four levels of altitude, and every view is one way of reading them:
+     north star  ->  goal  ->  milestone  ->  task
    ============================================================ */
 const CFG = {
   url: "https://dpkfwiabwsvrzrihydcc.supabase.co",
@@ -239,19 +448,57 @@ const STATUSES = [
   { k:"Blocked",     c:"var(--s-block)" },
   { k:"Done",        c:"var(--s-done)"  }
 ];
+const STATUS_HEX = { "Not Started":"#8A8A8A", "In Progress":"#EF6E45", "Blocked":"#C7625B", "Done":"#4C9A8F" };
 const CATS = ["Bug","Content","Feature","Infra","Marketing","Mobile","Ops","UX"];
+const AREAS = ["Company","Product","Content","Marketing","Mobile","Business","Infra","Ops"];
 const PRIOS = [
   { k:"P0", c:"var(--p0)", t:"Blocks launch" },
   { k:"P1", c:"var(--p1)", t:"Ship within 4 weeks" },
   { k:"P2", c:"var(--p2)", t:"Next quarter" },
   { k:"P3", c:"var(--p3)", t:"Backlog / icebox" }
 ];
+const PRIO_HEX = { P0:"#C7383B", P1:"#EF6E45", P2:"#D69A22", P3:"#8A8A8A" };
 const EFFORTS = [
   { k:"S",  t:"S — under a day" },
   { k:"M",  t:"M — 1-3 days" },
   { k:"L",  t:"L — 4-10 days" },
   { k:"XL", t:"XL — over 2 weeks" }
 ];
+/* rough calendar days an effort size occupies, used to give a task a start
+   date when nobody set one -- a Gantt needs a beginning, not just a deadline */
+const EFFORT_DAYS = { S:1, M:3, L:10, XL:21 };
+const GOAL_STATUS = ["Not started","On track","At risk","Off track","Achieved"];
+const GOAL_STATUS_TONE = { "Not started":"mute","On track":"ok","At risk":"warn","Off track":"bad","Achieved":"ok" };
+const MS_STATUS = ["Not Started","In Progress","Blocked","Done"];
+
+/* the nav: groups on top, views underneath */
+const GROUPS = [
+  { k:"picture", label:"Big picture", views:[
+      { k:"overview",  label:"Overview" },
+      { k:"goals",     label:"Goals" },
+      { k:"topdown",   label:"Top-down" },
+      { k:"bottomup",  label:"Bottom-up" }
+  ]},
+  { k:"time", label:"Timeline", views:[
+      { k:"gantt",     label:"Gantt" },
+      { k:"planner",   label:"Planner" },
+      { k:"phases",    label:"Phases" }
+  ]},
+  { k:"work", label:"The work", views:[
+      { k:"board",     label:"Board" },
+      { k:"people",    label:"By person" },
+      { k:"area",      label:"By area" },
+      { k:"activity",  label:"Activity" }
+  ]},
+  { k:"company", label:"Company", views:[
+      { k:"start",     label:"Start here" },
+      { k:"handbook",  label:"Handbook" },
+      { k:"stack",     label:"The stack" },
+      { k:"team",      label:"Who we are" }
+  ]}
+];
+/* views that filter tasks, and so want the filter bar visible */
+const TASKY = new Set(["board","people","area","phases","gantt","planner","topdown","bottomup","goals","overview"]);
 
 /* ---- storage that degrades gracefully in sandboxed previews ---- */
 const mem = {};
@@ -263,22 +510,36 @@ const store = {
 
 let TOKEN = store.get("gp_token") || null;
 let ME = store.get("gp_me") || "";
-let DATA = { people:[], phases:[], tasks:[], activity:[] };
-let VIEW = "board";
-const F = { q:"", person:"", cat:"", phase:"", pri:new Set(), mine:false, open:false };
+let DATA = { people:[], phases:[], tasks:[], goals:[], milestones:[], docs:[], providers:[], metrics:[], activity:[] };
+let VIEW  = store.get("gp_view")  || "overview";
+let GROUP = store.get("gp_group") || "picture";
+const F = { q:"", person:"", cat:"", phase:"", goal:"", pri:new Set(), mine:false, open:false };
+/* per-view local state */
+const UI = {
+  ganttScale: store.get("gp_gscale") || "week",   // week | month
+  ganttLevel: store.get("gp_glevel") || "ms",     // goal | ms | task
+  collapsed: new Set(JSON.parse(store.get("gp_collapsed") || "[]")),
+  plannerRange: store.get("gp_prange") || "week", // week | month | quarter
+  plannerScope: store.get("gp_pscope") || "team", // team | me
+  plannerBy: store.get("gp_pby") || "date",       // date | person
+  doc: null,
+  revealed: {}
+};
 
 /* ---- tiny helpers ---- */
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
-const byKey = (arr,k) => Object.fromEntries(arr.map(o => [o[k], o]));
+const byId = (arr) => Object.fromEntries((arr||[]).map(o => [o.id, o]));
+const byKey = (arr,k) => Object.fromEntries((arr||[]).map(o => [o[k], o]));
+const uniq = a => Array.from(new Set(a));
 
 function toast(msg, bad){
   const t = $("#toast");
   t.textContent = msg;
   t.className = "toast show" + (bad ? " bad" : "");
   clearTimeout(toast._t);
-  toast._t = setTimeout(() => { t.className = "toast"; }, 2600);
+  toast._t = setTimeout(() => { t.className = "toast"; }, 3000);
 }
 
 async function rpc(fn, body){
@@ -299,6 +560,54 @@ async function rpc(fn, body){
   return out;
 }
 
+function fail(err, msg){
+  if (String(err.message).includes("unauthorized")) return logout("Session expired — sign in again.");
+  toast(msg + ": " + err.message, true);
+}
+
+/* ---- dates. Everything is a plain yyyy-mm-dd string until it has to be maths ---- */
+const DAY = 86400000;
+const todayISO = () => new Date().toISOString().slice(0,10);
+function d(iso){ return iso ? new Date(iso + "T00:00:00") : null; }
+function iso(dt){
+  return dt.getFullYear() + "-" + String(dt.getMonth()+1).padStart(2,"0") + "-" + String(dt.getDate()).padStart(2,"0");
+}
+function addDays(isoStr, n){ const x = d(isoStr); x.setDate(x.getDate()+n); return iso(x); }
+function daysBetween(a, b){ return Math.round((d(b) - d(a)) / DAY); }
+function fmtDate(x){
+  if (!x) return "";
+  return d(x).toLocaleDateString(undefined, { day:"numeric", month:"short" });
+}
+function fmtDateY(x){
+  if (!x) return "";
+  return d(x).toLocaleDateString(undefined, { day:"numeric", month:"short", year:"numeric" });
+}
+function startOfWeek(isoStr){            // Monday
+  const x = d(isoStr); const wd = (x.getDay() + 6) % 7;
+  x.setDate(x.getDate() - wd); return iso(x);
+}
+function startOfMonth(isoStr){ const x = d(isoStr); x.setDate(1); return iso(x); }
+function startOfQuarter(isoStr){ const x = d(isoStr); x.setMonth(Math.floor(x.getMonth()/3)*3, 1); return iso(x); }
+function ago(isoTs){
+  const s = (Date.now() - new Date(isoTs).getTime())/1000;
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s/60) + "m ago";
+  if (s < 86400) return Math.floor(s/3600) + "h ago";
+  if (s < 604800) return Math.floor(s/86400) + "d ago";
+  return new Date(isoTs).toLocaleDateString(undefined,{ day:"numeric", month:"short" });
+}
+function relDue(x){
+  if (!x) return "";
+  const n = daysBetween(todayISO(), x);
+  if (n === 0) return "today";
+  if (n === 1) return "tomorrow";
+  if (n === -1) return "yesterday";
+  if (n < 0) return Math.abs(n) + "d late";
+  if (n < 14) return "in " + n + "d";
+  return fmtDate(x);
+}
+
+/* ---- people ---- */
 function personColor(name){
   const p = DATA.people.find(x => x.name === name);
   return p ? p.color : "#8A8A8A";
@@ -308,21 +617,156 @@ function initials(name){
   if (p && p.initials) return p.initials;
   return String(name || "?").slice(0,2).toUpperCase();
 }
-function fmtDate(d){
-  if (!d) return "";
-  const dt = new Date(d + "T00:00:00");
-  return dt.toLocaleDateString(undefined, { day:"numeric", month:"short" });
+function avatar(name, title){
+  return '<span class="av" title="' + esc(title || name) + '" style="background:' + personColor(name) + '">' +
+    esc(initials(name)) + '</span>';
 }
-function isLate(t){
-  return t.target_date && t.status !== "Done" && t.target_date < new Date().toISOString().slice(0,10);
+
+/* ---- task helpers ---- */
+function isLate(t){ return t.target_date && t.status !== "Done" && t.target_date < todayISO(); }
+function isOpen(t){ return t.status !== "Done"; }
+/* a task's planned window: an explicit start, else inferred back from effort */
+function taskStart(t){
+  if (t.start_date) return t.start_date;
+  if (!t.target_date) return null;
+  return addDays(t.target_date, -(EFFORT_DAYS[t.effort] || 3));
 }
-function ago(iso){
-  const s = (Date.now() - new Date(iso).getTime())/1000;
-  if (s < 60) return "just now";
-  if (s < 3600) return Math.floor(s/60) + "m ago";
-  if (s < 86400) return Math.floor(s/3600) + "h ago";
-  if (s < 604800) return Math.floor(s/86400) + "d ago";
-  return new Date(iso).toLocaleDateString(undefined,{ day:"numeric", month:"short" });
+function goalOf(t){ return t.goal_id ? byId(DATA.goals)[t.goal_id] : null; }
+function msOf(t){ return t.milestone_id ? byId(DATA.milestones)[t.milestone_id] : null; }
+function tasksOfGoal(g, list){ return (list || DATA.tasks).filter(t => t.goal_id === g.id); }
+function tasksOfMs(m, list){ return (list || DATA.tasks).filter(t => t.milestone_id === m.id); }
+function msOfGoal(g){ return DATA.milestones.filter(m => m.goal_id === g.id); }
+function progress(list){
+  if (!list.length) return { done:0, total:0, pct:0 };
+  const done = list.filter(t => t.status === "Done").length;
+  return { done, total:list.length, pct: Math.round(done/list.length*100) };
+}
+/* a milestone's window follows the work under it; fall back to its own dates */
+function msWindow(m){
+  const ts = tasksOfMs(m).filter(t => t.target_date);
+  if (ts.length){
+    const starts = ts.map(taskStart).filter(Boolean).sort();
+    const ends = ts.map(t => t.target_date).sort();
+    return { starts: starts[0] || m.starts, ends: ends[ends.length-1] || m.ends };
+  }
+  return { starts: m.starts, ends: m.ends };
+}
+function goalWindow(g){
+  const ms = msOfGoal(g).map(msWindow).filter(w => w.starts && w.ends);
+  if (ms.length){
+    const s = ms.map(w => w.starts).sort()[0];
+    const e = ms.map(w => w.ends).sort();
+    return { starts: g.starts && g.starts < s ? g.starts : s,
+             ends: g.ends && g.ends > e[e.length-1] ? g.ends : e[e.length-1] };
+  }
+  return { starts: g.starts, ends: g.ends };
+}
+
+/* ============================================================
+   A small markdown renderer. Enough for the handbook: headings,
+   lists, tables, code, quotes, rules, and [[wiki links]] between docs.
+   Everything is escaped first, so doc bodies can never inject markup.
+   ============================================================ */
+function md(src){
+  if (!src) return "";
+  const blocks = [];
+  let s = String(src).replace(/\r\n/g, "\n");
+
+  // pull fenced code out first so nothing else touches it
+  s = s.replace(/```([\w-]*)\n([\s\S]*?)```/g, (m, lang, code) => {
+    blocks.push('<pre><code>' + esc(code.replace(/\n$/, "")) + '</code></pre>');
+    return "@@BLOCK" + (blocks.length - 1) + "@@";
+  });
+
+  const inline = txt => {
+    let x = esc(txt);
+    x = x.replace(/`([^`]+)`/g, (m,c) => '<code>' + c + '</code>');
+    x = x.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    x = x.replace(/(^|[\s(])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+    // [[Doc title]] -> jump to that handbook doc
+    x = x.replace(/\[\[([^\]]+)\]\]/g, (m, name) => {
+      const key = docKeyByName(name);
+      return key
+        ? '<a class="wl" href="#" data-doc="' + esc(key) + '">' + esc(name) + '</a>'
+        : '<a class="wl dead" href="#" title="No document called that yet">' + esc(name) + '</a>';
+    });
+    x = x.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    return x;
+  };
+
+  const lines = s.split("\n");
+  const out = [];
+  let i = 0;
+  const para = [];
+  const flushPara = () => { if (para.length){ out.push('<p>' + inline(para.join(" ")) + '</p>'); para.length = 0; } };
+
+  while (i < lines.length){
+    const ln = lines[i];
+
+    if (/^@@BLOCK\d+@@$/.test(ln.trim())){ flushPara(); out.push(ln.trim()); i++; continue; }
+    if (!ln.trim()){ flushPara(); i++; continue; }
+
+    let m;
+    if ((m = ln.match(/^(#{1,4})\s+(.*)$/))){
+      flushPara();
+      const lvl = Math.min(m[1].length, 3);
+      out.push('<h' + lvl + '>' + inline(m[2]) + '</h' + lvl + '>');
+      i++; continue;
+    }
+    if (/^\s*(---+|\*\*\*+)\s*$/.test(ln)){ flushPara(); out.push('<hr>'); i++; continue; }
+
+    // table: | a | b |  followed by | --- | --- |
+    if (/^\s*\|/.test(ln) && i+1 < lines.length && /^\s*\|[\s:|-]+\|\s*$/.test(lines[i+1])){
+      flushPara();
+      const cells = row => row.trim().replace(/^\||\|$/g, "").split("|").map(c => c.trim());
+      const head = cells(ln);
+      i += 2;
+      const body = [];
+      while (i < lines.length && /^\s*\|/.test(lines[i])){ body.push(cells(lines[i])); i++; }
+      out.push('<table><thead><tr>' + head.map(h => '<th>' + inline(h) + '</th>').join("") +
+        '</tr></thead><tbody>' +
+        body.map(r => '<tr>' + r.map(c => '<td>' + inline(c) + '</td>').join("") + '</tr>').join("") +
+        '</tbody></table>');
+      continue;
+    }
+
+    if (/^\s*>\s?/.test(ln)){
+      flushPara();
+      const buf = [];
+      while (i < lines.length && /^\s*>\s?/.test(lines[i])){ buf.push(lines[i].replace(/^\s*>\s?/, "")); i++; }
+      out.push('<blockquote>' + inline(buf.join(" ")) + '</blockquote>');
+      continue;
+    }
+
+    if (/^\s*([-*+]|\d+\.)\s+/.test(ln)){
+      flushPara();
+      const ordered = /^\s*\d+\./.test(ln);
+      const items = [];
+      while (i < lines.length && /^\s*([-*+]|\d+\.)\s+/.test(lines[i])){
+        let item = lines[i].replace(/^\s*([-*+]|\d+\.)\s+/, "");
+        i++;
+        // soft-wrapped continuation lines belong to the item above
+        while (i < lines.length && lines[i].trim() && !/^\s*([-*+]|\d+\.)\s+/.test(lines[i]) &&
+               !/^(#{1,4}\s|\s*\||\s*>|@@BLOCK)/.test(lines[i])){ item += " " + lines[i].trim(); i++; }
+        items.push('<li>' + inline(item) + '</li>');
+      }
+      out.push((ordered ? '<ol>' : '<ul>') + items.join("") + (ordered ? '</ol>' : '</ul>'));
+      continue;
+    }
+
+    para.push(ln.trim());
+    i++;
+  }
+  flushPara();
+
+  return out.join("\n").replace(/@@BLOCK(\d+)@@/g, (m, n) => blocks[+n]);
+}
+
+function docKeyByName(name){
+  const n = String(name).trim().toLowerCase();
+  const hit = DATA.docs.find(x => x.title.toLowerCase() === n || x.key.toLowerCase() === n);
+  return hit ? hit.key : null;
 }
 
 /* ============================ filtering ============================ */
@@ -334,9 +778,11 @@ function visible(){
     if (F.mine && ME && !(t.owners || []).includes(ME)) return false;
     if (F.cat && t.category !== F.cat) return false;
     if (F.phase && t.phase_key !== F.phase) return false;
+    if (F.goal && t.goal_id !== F.goal) return false;
     if (F.pri.size && !F.pri.has(t.priority)) return false;
     if (q){
-      const hay = [t.code, t.title, t.description, t.notes, t.category, (t.owners||[]).join(" ")]
+      const g = goalOf(t);
+      const hay = [t.code, t.title, t.description, t.notes, t.category, g && g.name, (t.owners||[]).join(" ")]
         .join(" ").toLowerCase();
       if (!hay.includes(q)) return false;
     }
@@ -344,13 +790,12 @@ function visible(){
   });
 }
 
-/* ============================ rendering ============================ */
+/* ============================ shared bits ============================ */
 function card(t){
   const ph = byKey(DATA.phases, "key")[t.phase_key];
+  const g  = goalOf(t);
   const pri = PRIOS.find(p => p.k === t.priority);
-  const owners = (t.owners || []).map(o =>
-    '<div class="av" title="' + esc(o) + '" style="background:' + personColor(o) + '">' + esc(initials(o)) + '</div>'
-  ).join("");
+  const owners = (t.owners || []).map(o => avatar(o)).join("");
   return '<article class="card" draggable="true" data-id="' + t.id + '"' +
     (pri ? ' style="--pc:' + pri.c + '"' : '') + '>' +
       '<div class="card-top">' +
@@ -361,6 +806,8 @@ function card(t){
       '<h4>' + esc(t.title) + '</h4>' +
       '<div class="card-meta">' +
         (t.category ? '<span class="tag">' + esc(t.category) + '</span>' : '') +
+        (g ? '<span class="tag goal" style="--tc:' + g.color + '" title="Goal">' + esc(g.name) + '</span>'
+           : '<span class="tag" style="color:var(--p0);border-color:rgba(199,56,59,.3)" title="Not attached to any goal">no goal</span>') +
         (ph && ph.key !== "icebox" ? '<span class="tag phase" style="--tc:' + ph.color + '">' + esc(ph.name) + '</span>' : '') +
         (owners ? '<div class="avs">' + owners + '</div>' : '') +
         (t.target_date ? '<span class="due' + (isLate(t) ? ' late' : '') + '">' + fmtDate(t.target_date) + '</span>' : '') +
@@ -377,22 +824,1084 @@ function column(title, colour, tasks, dropStatus){
     '</div></section>';
 }
 
+function fmtN(n){ return n == null ? "—" : (Math.round(Number(n)*10)/10).toLocaleString(); }
+
+function metricBlock(g){
+  if (!g.metric_name) return '';
+  const pts = DATA.metrics.filter(m => m.goal_id === g.id).sort((a,b) => a.on_date < b.on_date ? -1 : 1);
+  const cur = g.metric_current, tgt = g.metric_target;
+  const has = cur != null;
+  const pct = (has && tgt) ? Math.max(0, Math.min(100, Math.round(cur / tgt * 100))) : 0;
+  const max = Math.max.apply(null, pts.map(p => Number(p.value) || 0).concat([1]));
+  return '<div class="metric">' +
+    '<div class="mrow">' +
+      '<span class="mv">' + fmtN(cur) + '</span>' +
+      '<span>' + esc(g.metric_unit || "") + '</span>' +
+      '<span class="mt">' + (tgt != null ? "target " + fmtN(tgt) : "no target") + '</span>' +
+    '</div>' +
+    '<div class="mbar' + (has ? "" : " none") + '"><span style="width:' + pct + '%"></span></div>' +
+    '<div class="note" style="margin-top:5px;font-size:11px">' + esc(g.metric_name) +
+      (has ? "" : ' · <b style="color:var(--p0)">never measured</b>') + '</div>' +
+    (pts.length > 1
+      ? '<div class="spark" style="margin-top:8px">' + pts.slice(-12).map(p =>
+          '<i style="height:' + Math.max(6, Math.round((Number(p.value)||0)/max*22)) + 'px" title="' +
+          esc(p.on_date + ": " + p.value) + '"></i>').join("") + '</div>'
+      : '') +
+  '</div>';
+}
+
+function goalPill(g){
+  return '<span class="pill ' + (GOAL_STATUS_TONE[g.status] || "mute") + '">' + esc(g.status) + '</span>';
+}
+
+/* ============================================================
+   GANTT
+   Rows are goal -> milestone -> task, collapsible to any depth.
+   Two bars per row: the pale one is the plan, the solid one is
+   what has actually happened. Where the solid bar falls short of
+   the pale one and today has passed, you are behind.
+   ============================================================ */
+
+/* Build the column model once, then every row reuses it. */
+function ganttColumns(from, to, scale){
+  const cols = [];
+  if (scale === "month"){
+    let cur = startOfMonth(from);
+    while (cur <= to){
+      const nxt = iso(new Date(d(cur).getFullYear(), d(cur).getMonth()+1, 1));
+      cols.push({ start:cur, end:addDays(nxt,-1),
+                  label:d(cur).toLocaleDateString(undefined,{month:"short"}),
+                  group:String(d(cur).getFullYear()), groupStart:d(cur).getMonth()===0 });
+      cur = nxt;
+    }
+  } else {
+    let cur = startOfWeek(from);
+    let seenMonth = null, weekNo = 0;
+    while (cur <= to){
+      const mk = d(cur).toLocaleDateString(undefined,{month:"short",year:"2-digit"});
+      if (mk !== seenMonth){ seenMonth = mk; weekNo = 0; }
+      weekNo++;
+      cols.push({ start:cur, end:addDays(cur,6), label:String(weekNo),
+                  group:mk, groupStart:weekNo===1 });
+      cur = addDays(cur, 7);
+    }
+  }
+  return cols;
+}
+
+/* Group the columns into the month/year header band above them. */
+function ganttGroups(cols){
+  const groups = [];
+  cols.forEach(c => {
+    const last = groups[groups.length-1];
+    if (last && last.label === c.group) last.span++;
+    else groups.push({ label:c.group, span:1 });
+  });
+  return groups;
+}
+
+function pos(from, to, s, e){
+  const total = daysBetween(from, to) + 1;
+  const a = Math.max(0, daysBetween(from, s));
+  const b = Math.min(total, daysBetween(from, e) + 1);
+  if (b <= a) return null;
+  return { left: a/total*100, width: (b-a)/total*100 };
+}
+
+function bar(from, to, s, e, cls, colour, label){
+  const p = pos(from, to, s, e);
+  if (!p) return "";
+  return '<div class="gbar ' + cls + '" style="left:' + p.left.toFixed(3) + '%;width:' +
+    p.width.toFixed(3) + '%;--bc:' + colour + '"' + (label ? ' title="' + esc(label) + '"' : '') + '></div>';
+}
+
+function ganttRow(opts){
+  const { level, id, name, colour, from, to, plan, actual, meta, caret, kind } = opts;
+  const cols = opts.cols;
+  const today = todayISO();
+  const tp = pos(from, to, today, today);
+  return '<div class="grow lvl-' + level + '"' + (id ? ' data-row="' + esc(id) + '"' : '') +
+      (kind ? ' data-kind="' + kind + '"' : '') + '>' +
+    '<div class="glabel"><div class="gname">' +
+      (caret != null
+        ? '<button class="gcaret' + (caret ? "" : " closed") + '" data-toggle="' + esc(id) + '">▼</button>'
+        : '<span class="gcaret"></span>') +
+      (colour ? '<span class="gswatch" style="background:' + colour + '"></span>' : '') +
+      '<span class="txt">' + esc(name) + '</span>' +
+      (meta ? '<span class="gmeta">' + meta + '</span>' : '') +
+    '</div></div>' +
+    '<div class="gtrack">' +
+      cols.map((c,i) => '<div class="gcell' + (c.groupStart ? " mstart" : "") +
+        (i % 2 ? " alt" : "") + '"></div>').join("") +
+      '<div class="gbarwrap">' +
+        (plan   ? bar(from, to, plan.s,   plan.e,   "plan " + (plan.cls||""),     colour || "#8A8A8A", plan.label)   : "") +
+        (actual ? bar(from, to, actual.s, actual.e, "actual " + (actual.cls||""), colour || "#8A8A8A", actual.label) : "") +
+        (tp ? '<div class="gtoday" style="left:' + tp.left.toFixed(3) + '%"></div>' : '') +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* What has actually happened on a task, as opposed to what was planned. */
+function taskActual(t){
+  const s = taskStart(t);
+  if (!s) return null;
+  const today = todayISO();
+  if (t.status === "Done"){
+    const fin = (t.updated_at || "").slice(0,10) || t.target_date;
+    return { s, e: fin < s ? s : fin, cls:"done", label:"Done " + fmtDateY(fin) };
+  }
+  if (t.status === "Not Started") return null;
+  const e = today > s ? today : s;
+  const late = isLate(t);
+  return { s, e, cls: late ? "late" : "", label: t.status + (late ? " · overdue" : "") + " · running since " + fmtDateY(s) };
+}
+
+/* For a goal or milestone the "actual" bar is how much of the window
+   the completed work accounts for -- a bar noticeably shorter than the
+   today line means the work is behind the calendar. */
+function rollupActual(win, pct, allDone){
+  if (!win.starts || !win.ends || !pct) return null;
+  const span = daysBetween(win.starts, win.ends) + 1;
+  const e = addDays(win.starts, Math.max(0, Math.round(span * pct / 100) - 1));
+  return { s: win.starts, e, cls: allDone ? "done" : "", label: pct + "% of the work under this is done" };
+}
+
+function renderGantt(list){
+  const goals = DATA.goals.filter(g => g.horizon !== "north-star" && (!F.goal || g.id === F.goal));
+  if (!goals.length) return '<div class="empty">No goals yet. Add one from the Goals view.</div>';
+
+  /* work out the window the chart should cover */
+  const dates = [];
+  goals.forEach(g => {
+    const w = goalWindow(g);
+    if (w.starts) dates.push(w.starts);
+    if (w.ends) dates.push(w.ends);
+    msOfGoal(g).forEach(m => {
+      const mw = msWindow(m);
+      if (mw.starts) dates.push(mw.starts);
+      if (mw.ends) dates.push(mw.ends);
+    });
+  });
+  list.forEach(t => { const s = taskStart(t); if (s) dates.push(s); if (t.target_date) dates.push(t.target_date); });
+  dates.push(todayISO());
+  dates.sort();
+  const scale = UI.ganttScale;
+  const pad = scale === "month" ? 20 : 10;
+  const from = (scale === "month" ? startOfMonth : startOfWeek)(addDays(dates[0], -pad));
+  const to   = addDays(dates[dates.length-1], pad);
+  const cols = ganttColumns(from, to, scale);
+  const groups = ganttGroups(cols);
+  const colW = scale === "month" ? 62 : 27;
+  const trackMin = cols.length * colW;
+
+  const showMs   = UI.ganttLevel !== "goal";
+  const showTask = UI.ganttLevel === "task";
+  const rows = [];
+
+  goals.forEach(g => {
+    const gTasks = tasksOfGoal(g, list);
+    const gAll   = tasksOfGoal(g);
+    const w = goalWindow(g);
+    const pr = progress(gAll);
+    const open = !UI.collapsed.has(g.id);
+    const overdue = gAll.filter(isLate).length;
+
+    rows.push(ganttRow({
+      cols, from, to, level:"goal", id:g.id, kind:"goal", name:g.name, colour:g.color,
+      caret: showMs ? open : null,
+      plan:   w.starts && w.ends ? { s:w.starts, e:w.ends, label:fmtDateY(w.starts) + " → " + fmtDateY(w.ends) } : null,
+      actual: rollupActual(w, pr.pct, pr.pct === 100),
+      meta: '<span class="pill ' + (GOAL_STATUS_TONE[g.status]||"mute") + '">' + esc(g.status) + '</span>' +
+            '<span class="count">' + pr.done + "/" + pr.total + '</span>' +
+            (overdue ? '<span class="pill bad">' + overdue + ' late</span>' : '') +
+            (!w.starts || !w.ends ? '<span class="pill mute" title="Nothing under this goal has a date">no dates</span>' : '')
+    }));
+    if (!showMs || !open) return;
+
+    msOfGoal(g).forEach(m => {
+      const mTasks = tasksOfMs(m, list);
+      const mAll   = tasksOfMs(m);
+      const mw = msWindow(m);
+      const mOpen = !UI.collapsed.has(m.id);
+      const mpr = progress(mAll);
+      const mLate = mw.ends && mw.ends < todayISO() && m.status !== "Done";
+
+      rows.push(ganttRow({
+        cols, from, to, level:"ms", id:m.id, kind:"milestone", name:m.name, colour:g.color,
+        caret: showTask && mAll.length ? mOpen : null,
+        plan:   mw.starts && mw.ends ? { s:mw.starts, e:mw.ends, label:fmtDateY(mw.starts) + " → " + fmtDateY(mw.ends) } : null,
+        actual: rollupActual(mw, mpr.pct, m.status === "Done"),
+        meta: (m.owner ? avatar(m.owner) : "") +
+              '<span class="count">' + mpr.done + "/" + mpr.total + '</span>' +
+              (mLate ? '<span class="pill bad">late</span>' : '') +
+              (!mw.starts || !mw.ends
+                ? '<span class="pill mute" title="No task under this milestone has a date, so it cannot be drawn">no dates</span>'
+                : '')
+      }));
+      if (!showTask || !mOpen) return;
+
+      mTasks.forEach(t => {
+        const s = taskStart(t);
+        rows.push(ganttRow({
+          cols, from, to, level:"task", id:t.id, kind:"task", name:t.title, colour:PRIO_HEX[t.priority] || "#8A8A8A",
+          plan:   s && t.target_date ? { s, e:t.target_date, label:"Planned " + fmtDateY(s) + " → " + fmtDateY(t.target_date) } : null,
+          actual: taskActual(t),
+          meta: (t.owners||[]).slice(0,3).map(o => avatar(o)).join("") +
+                (t.target_date ? '<span class="due' + (isLate(t) ? " late" : "") + '">' + relDue(t.target_date) + '</span>' : '')
+        }));
+      });
+      /* tasks under this milestone that the filters hid */
+      const hidden = mAll.length - mTasks.length;
+      if (hidden > 0) rows.push(
+        '<div class="grow lvl-task"><div class="glabel"><div class="gname">' +
+        '<span class="gcaret"></span><span class="txt" style="color:var(--ink-3);font-style:italic">' +
+        hidden + ' more hidden by filters</span></div></div><div class="gtrack"></div></div>');
+    });
+  });
+
+  /* anything with no goal at all still deserves to be visible */
+  const orphans = list.filter(t => !t.goal_id && t.target_date);
+  if (orphans.length && !F.goal){
+    rows.push(ganttRow({ cols, from, to, level:"goal", id:"__orphans", kind:"orphans",
+      name:"Not attached to any goal", colour:"#C7383B",
+      caret: showTask ? !UI.collapsed.has("__orphans") : null,
+      plan:null, actual:null,
+      meta:'<span class="pill bad">' + orphans.length + '</span>' }));
+    if (showTask && !UI.collapsed.has("__orphans")){
+      orphans.forEach(t => {
+        const s = taskStart(t);
+        rows.push(ganttRow({
+          cols, from, to, level:"task", id:t.id, kind:"task", name:t.title, colour:PRIO_HEX[t.priority] || "#8A8A8A",
+          plan: s && t.target_date ? { s, e:t.target_date } : null,
+          actual: taskActual(t),
+          meta:(t.owners||[]).slice(0,3).map(o => avatar(o)).join("")
+        }));
+      });
+    }
+  }
+
+  const head =
+    '<div class="grow ghead-1"><div class="glabel"><div class="gname" style="font-weight:600;color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase">' +
+      (scale === "month" ? "Year" : "Month") + '</div></div>' +
+      '<div class="gtrack" style="grid-template-columns:' +
+        groups.map(g => g.span + "fr").join(" ") + '">' +
+      groups.map(g => '<div class="gmonth">' + esc(g.label) + '</div>').join("") + '</div></div>' +
+    '<div class="grow ghead-2"><div class="glabel"><div class="gname" style="font-weight:600;color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase">' +
+      (scale === "month" ? "Month" : "Week") + '</div></div>' +
+      '<div class="gtrack">' + cols.map(c =>
+        '<div class="gweek' + (c.groupStart ? " mstart" : "") + '" title="' + esc(fmtDateY(c.start)) + '">' +
+        esc(c.label) + '</div>').join("") + '</div></div>';
+
+  return '<div class="gantt">' +
+    '<div class="panel-head" style="border-bottom:1px solid var(--line-2)">' +
+      '<h3>Gantt</h3>' +
+      '<span class="sub">' + fmtDateY(from) + ' → ' + fmtDateY(to) + '</span>' +
+      '<div class="spacer"></div>' +
+      '<div class="seg" id="gLevel">' +
+        ['goal','ms','task'].map(k => '<button data-l="' + k + '"' + (UI.ganttLevel===k?' class="on"':'') + '>' +
+          ({goal:"Goals",ms:"Milestones",task:"Tasks"})[k] + '</button>').join("") +
+      '</div>' +
+      '<div class="seg" id="gScale">' +
+        ['week','month'].map(k => '<button data-s="' + k + '"' + (UI.ganttScale===k?' class="on"':'') + '>' +
+          ({week:"Weeks",month:"Months"})[k] + '</button>').join("") +
+      '</div>' +
+      '<button class="btn btn-ghost btn-sm" id="gExpand">Expand all</button>' +
+      '<button class="btn btn-ghost btn-sm" id="gCollapse">Collapse all</button>' +
+    '</div>' +
+    '<div class="gscroll"><div class="gbody" style="--track-min:' + trackMin + 'px;--cols:' + cols.length + '">' +
+      head + rows.join("") +
+    '</div></div>' +
+    '<div class="glegend">' +
+      '<span><i style="background:#8A8A8A;opacity:.25"></i>Planned window</span>' +
+      '<span><i style="background:var(--orange)"></i>Actually happening</span>' +
+      '<span><i style="background:var(--s-done)"></i>Done</span>' +
+      '<span><i style="background:var(--p0)"></i>Overdue</span>' +
+      '<span style="border-left:2px solid var(--orange);padding-left:7px">Today</span>' +
+      '<span class="spacer"></span>' +
+      '<span>On a goal or milestone row, the solid bar is how much of the work is finished. ' +
+      'If it stops well short of the today line, that item is behind.</span>' +
+    '</div>' +
+  '</div>';
+}
+
+function wireGantt(){
+  $$("#gLevel button").forEach(b => b.onclick = () => {
+    UI.ganttLevel = b.dataset.l; store.set("gp_glevel", UI.ganttLevel); render();
+  });
+  $$("#gScale button").forEach(b => b.onclick = () => {
+    UI.ganttScale = b.dataset.s; store.set("gp_gscale", UI.ganttScale); render();
+  });
+  const persist = () => store.set("gp_collapsed", JSON.stringify(Array.from(UI.collapsed)));
+  $$(".gcaret[data-toggle]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const id = b.dataset.toggle;
+    UI.collapsed.has(id) ? UI.collapsed.delete(id) : UI.collapsed.add(id);
+    persist(); render();
+  });
+  const gExpand = $("#gExpand"), gCollapse = $("#gCollapse");
+  if (gExpand) gExpand.onclick = () => { UI.collapsed.clear(); persist(); render(); };
+  if (gCollapse) gCollapse.onclick = () => {
+    DATA.goals.forEach(g => UI.collapsed.add(g.id));
+    DATA.milestones.forEach(m => UI.collapsed.add(m.id));
+    UI.collapsed.add("__orphans");
+    persist(); render();
+  };
+  $$(".grow[data-kind]").forEach(r => {
+    const kind = r.dataset.kind, id = r.dataset.row;
+    const label = r.querySelector(".glabel");
+    if (!label) return;
+    label.style.cursor = "pointer";
+    label.addEventListener("click", e => {
+      if (e.target.closest(".gcaret")) return;
+      if (kind === "task") openTask(id);
+      else if (kind === "goal" && id !== "__orphans") openGoal(id);
+      else if (kind === "milestone") openMilestone(id);
+    });
+  });
+}
+
+/* ============================================================
+   PLANNER
+   What is due, in a window you choose, for the team or just you.
+   Milestones and goals appear alongside tasks -- a deadline is a
+   deadline whatever altitude it sits at.
+   ============================================================ */
+function plannerWindow(){
+  const t = todayISO();
+  if (UI.plannerRange === "week"){
+    const s = startOfWeek(t);
+    return { s, e: addDays(s,6), label:"This week", sub: fmtDate(s) + " – " + fmtDateY(addDays(s,6)),
+             nextS: addDays(s,7), nextE: addDays(s,13), nextLabel:"Next week" };
+  }
+  if (UI.plannerRange === "month"){
+    const s = startOfMonth(t);
+    const e = addDays(iso(new Date(d(s).getFullYear(), d(s).getMonth()+1, 1)), -1);
+    const n = addDays(e,1);
+    return { s, e, label:"This month", sub: d(s).toLocaleDateString(undefined,{month:"long",year:"numeric"}),
+             nextS:n, nextE: addDays(iso(new Date(d(n).getFullYear(), d(n).getMonth()+1, 1)), -1),
+             nextLabel:"Next month" };
+  }
+  const s = startOfQuarter(t);
+  const e = addDays(iso(new Date(d(s).getFullYear(), d(s).getMonth()+3, 1)), -1);
+  const n = addDays(e,1);
+  return { s, e, label:"This quarter", sub:"Q" + (Math.floor(d(s).getMonth()/3)+1) + " " + d(s).getFullYear(),
+           nextS:n, nextE: addDays(iso(new Date(d(n).getFullYear(), d(n).getMonth()+3, 1)), -1),
+           nextLabel:"Next quarter" };
+}
+
+function plannerItem(o){
+  const late = o.due && o.due < todayISO() && !o.done;
+  return '<div class="pl-row" data-open="' + o.kind + ':' + o.id + '" style="--pc:' + (o.colour||"transparent") + '">' +
+    '<span class="pill ' + (o.tone||"mute") + '">' + esc(o.badge) + '</span>' +
+    '<span class="t">' + esc(o.title) + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + '</span>' +
+    '<div class="spacer"></div>' +
+    (o.owners||[]).slice(0,3).map(x => avatar(x)).join("") +
+    (o.due ? '<span class="due' + (late ? " late" : "") + '" style="margin-left:8px">' + relDue(o.due) + '</span>' : '') +
+  '</div>';
+}
+
+function plannerItems(list){
+  const items = [];
+  list.forEach(t => {
+    if (!t.target_date || t.status === "Done") return;
+    items.push({ kind:"task", id:t.id, title:t.title, sub:t.code, due:t.target_date,
+                 owners:t.owners||[], badge:t.priority || "task",
+                 tone: t.priority === "P0" ? "bad" : t.priority === "P1" ? "warn" : "mute",
+                 colour: PRIO_HEX[t.priority] || "" });
+  });
+  DATA.milestones.forEach(m => {
+    if (!m.ends || m.status === "Done") return;
+    const g = byId(DATA.goals)[m.goal_id];
+    if (F.goal && m.goal_id !== F.goal) return;
+    if (UI.plannerScope === "me" && ME && m.owner !== ME) return;
+    items.push({ kind:"milestone", id:m.id, title:m.name, sub: g ? g.name : "", due:m.ends,
+                 owners: m.owner ? [m.owner] : [], badge:"milestone", tone:"mute",
+                 colour: g ? g.color : "" });
+  });
+  DATA.goals.forEach(g => {
+    if (!g.ends || g.status === "Achieved" || g.horizon === "north-star") return;
+    if (F.goal && g.id !== F.goal) return;
+    if (UI.plannerScope === "me" && ME && g.owner !== ME) return;
+    items.push({ kind:"goal", id:g.id, title:g.name, sub:g.area || "", due:g.ends,
+                 owners: g.owner ? [g.owner] : [], badge:"goal",
+                 tone: GOAL_STATUS_TONE[g.status] || "mute", colour:g.color });
+  });
+  return items.sort((a,b) => a.due < b.due ? -1 : a.due > b.due ? 1 : 0);
+}
+
+function renderPlanner(list){
+  const w = plannerWindow();
+  const today = todayISO();
+  const scoped = UI.plannerScope === "me" && ME
+    ? list.filter(t => (t.owners||[]).includes(ME)) : list;
+  const items = plannerItems(scoped);
+
+  const buckets = [
+    { key:"over", label:"Overdue", sub:"should already have happened", tone:"bad",
+      test: o => o.due < today },
+    { key:"now",  label: w.label, sub: w.sub, tone:"warn",
+      test: o => o.due >= today && o.due <= w.e },
+    { key:"next", label: w.nextLabel, sub: fmtDate(w.nextS) + " – " + fmtDateY(w.nextE), tone:"mute",
+      test: o => o.due >= w.nextS && o.due <= w.nextE },
+    { key:"later",label:"Later", sub:"beyond that", tone:"mute",
+      test: o => o.due > w.nextE }
+  ];
+
+  const undated = scoped.filter(t => !t.target_date && t.status !== "Done");
+
+  let body = "";
+  if (UI.plannerBy === "person"){
+    const people = DATA.people.filter(p => p.active);
+    const rows = people.map(p => {
+      const mine = items.filter(o => (o.owners||[]).includes(p.name));
+      const over = mine.filter(o => o.due < today).length;
+      const now  = mine.filter(o => o.due >= today && o.due <= w.e).length;
+      if (!mine.length) return '<div class="pl-person">' + avatar(p.name) +
+        '<h4>' + esc(p.name) + '</h4><span class="lc">nothing due</span></div>';
+      return '<div class="pl-person">' + avatar(p.name) + '<h4>' + esc(p.name) + '</h4>' +
+        (p.role ? '<span class="note">' + esc(p.role) + '</span>' : '') +
+        '<span class="lc">' + (over ? over + " overdue · " : "") + now + " due " + esc(w.label.toLowerCase()) +
+        ' · ' + mine.length + ' open</span></div>' +
+        '<div class="pl-rows">' + mine.slice(0, 40).map(plannerItem).join("") + '</div>';
+    }).join("");
+    const none = items.filter(o => !(o.owners||[]).length);
+    body = rows + (none.length
+      ? '<div class="pl-person"><span class="av" style="background:#B9B4AA">?</span>' +
+        '<h4>Nobody</h4><span class="lc">' + none.length + ' with no owner</span></div>' +
+        '<div class="pl-rows">' + none.map(plannerItem).join("") + '</div>'
+      : "");
+  } else {
+    body = buckets.map(b => {
+      const got = items.filter(b.test);
+      if (!got.length && b.key === "later") return "";
+      return '<div class="pl-bucket">' +
+        '<div class="pl-head"><span class="pill ' + b.tone + '">' + got.length + '</span>' +
+          '<h3>' + esc(b.label) + '</h3><span class="when">' + esc(b.sub) + '</span></div>' +
+        (got.length ? '<div class="pl-rows">' + got.map(plannerItem).join("") + '</div>'
+                    : '<div class="empty">Nothing</div>') +
+      '</div>';
+    }).join("");
+  }
+
+  return '<div class="wrap">' +
+    '<div class="panel"><div class="panel-head">' +
+      '<h3>Planner</h3><span class="sub">what falls due, and on whom</span>' +
+      '<div class="spacer"></div>' +
+      '<div class="seg" id="plRange">' + ["week","month","quarter"].map(k =>
+        '<button data-r="' + k + '"' + (UI.plannerRange===k?' class="on"':'') + '>' +
+        k[0].toUpperCase()+k.slice(1) + '</button>').join("") + '</div>' +
+      '<div class="seg" id="plScope">' +
+        '<button data-sc="team"' + (UI.plannerScope==="team"?' class="on"':'') + '>Everyone</button>' +
+        '<button data-sc="me"' + (UI.plannerScope==="me"?' class="on"':'') + '>Just me</button>' +
+      '</div>' +
+      '<div class="seg" id="plBy">' +
+        '<button data-by="date"' + (UI.plannerBy==="date"?' class="on"':'') + '>By date</button>' +
+        '<button data-by="person"' + (UI.plannerBy==="person"?' class="on"':'') + '>By person</button>' +
+      '</div>' +
+    '</div><div class="panel-body">' + (body || '<div class="empty">Nothing scheduled.</div>') + '</div></div>' +
+    (undated.length ? '<div class="panel"><div class="panel-head"><h3>No date at all</h3>' +
+      '<span class="sub">' + undated.length + ' open ' + (undated.length===1?"task":"tasks") +
+      ' nobody has committed to</span></div><div class="panel-body"><div class="pl-rows">' +
+      undated.map(t => plannerItem({ kind:"task", id:t.id, title:t.title, sub:t.code,
+        owners:t.owners||[], badge:t.priority||"task", tone:"mute", colour:PRIO_HEX[t.priority]||"" })).join("") +
+      '</div></div></div>' : "") +
+  '</div>';
+}
+
+function wirePlanner(){
+  const set = (sel, attr, key, storeKey) => $$(sel + " button").forEach(b => b.onclick = () => {
+    UI[key] = b.dataset[attr]; store.set(storeKey, UI[key]); render();
+  });
+  set("#plRange","r","plannerRange","gp_prange");
+  set("#plScope","sc","plannerScope","gp_pscope");
+  set("#plBy","by","plannerBy","gp_pby");
+  $$("[data-open]").forEach(el => el.onclick = () => {
+    const [kind, id] = el.dataset.open.split(":");
+    if (kind === "task") openTask(id);
+    else if (kind === "goal") openGoal(id);
+    else if (kind === "milestone") openMilestone(id);
+  });
+}
+
+/* ============================================================
+   TOP-DOWN  —  start from what we said matters, drill into the work.
+   The question it answers: is anybody actually doing this?
+   ============================================================ */
+function renderTopDown(list){
+  const goals = DATA.goals.filter(g => g.horizon !== "north-star");
+  const ns = DATA.goals.find(g => g.horizon === "north-star");
+
+  const silent = goals.filter(g => !tasksOfGoal(g).filter(isOpen).length);
+  const unmeasured = goals.filter(g => g.metric_name && g.metric_current == null);
+
+  let out = '<div class="wrap">';
+  if (ns){
+    out += '<div class="tree-goal" style="--gc:' + ns.color + '"><div class="tg-head" data-goal="' + ns.id + '">' +
+      '<div><div class="ga" style="color:' + ns.color + '">North star</div>' +
+      '<h3>' + esc(ns.name) + '</h3></div><div class="spacer"></div>' +
+      (ns.metric_name ? '<div style="min-width:190px">' + metricBlock(ns) + '</div>' : '') +
+      '</div>' +
+      (ns.statement ? '<div class="tg-body"><p class="note" style="font-size:13px">' + esc(ns.statement) + '</p></div>' : '') +
+    '</div>';
+  }
+
+  if (silent.length) out += '<div class="flag bad"><span class="fi">◆</span><div>' +
+    '<b>' + silent.length + ' goal' + (silent.length===1?"":"s") + ' with no open work: ' +
+    silent.map(g => esc(g.name)).join(", ") + '.</b> ' +
+    'Either somebody picks up a task, or the goal is not really a goal this quarter. ' +
+    'Saying it out loud is cheaper than discovering it in December.</div></div>';
+
+  if (unmeasured.length) out += '<div class="flag warn"><span class="fi">◆</span><div>' +
+    '<b>' + unmeasured.length + ' goal' + (unmeasured.length===1?" has":"s have") +
+    ' a metric that has never been measured.</b> ' +
+    'Until somebody enters a number, the health flags on those goals are opinion. ' +
+    'Open the goal and use “Log a reading”.</div></div>';
+
+  goals.forEach(g => {
+    const all = tasksOfGoal(g);
+    const shown = tasksOfGoal(g, list);
+    const pr = progress(all);
+    const overdue = all.filter(isLate).length;
+    const mss = msOfGoal(g);
+    const w = goalWindow(g);
+
+    out += '<div class="tree-goal" style="--gc:' + g.color + '">' +
+      '<div class="tg-head" data-goal="' + g.id + '">' +
+        '<div style="min-width:230px;flex:1">' +
+          '<div class="ga">' + esc(g.area || "") + '</div>' +
+          '<h3>' + esc(g.name) + '</h3>' +
+          (g.statement ? '<p class="note" style="margin:5px 0 0">' + esc(g.statement) + '</p>' : '') +
+        '</div>' +
+        '<div style="min-width:180px;flex:none">' + metricBlock(g) + '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex:none">' +
+          goalPill(g) +
+          '<div class="prog" title="' + pr.done + ' of ' + pr.total + ' tasks done"><span style="width:' + pr.pct + '%"></span></div>' +
+          '<span class="note">' + pr.done + '/' + pr.total + ' tasks' + (overdue ? ' · ' : '') +
+            (overdue ? '<b style="color:var(--p0)">' + overdue + ' late</b>' : '') + '</span>' +
+          (g.owner ? '<span class="note">' + avatar(g.owner) + ' ' + esc(g.owner) + '</span>' : '') +
+          (w.starts ? '<span class="note">' + fmtDate(w.starts) + ' → ' + fmtDateY(w.ends) + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="tg-body">' +
+        (g.why ? '<p class="note" style="margin:0 0 12px;font-style:italic">' + esc(g.why) + '</p>' : '') +
+        (mss.length ? mss.map(m => {
+          const mt = tasksOfMs(m, list);
+          const mAll = tasksOfMs(m);
+          const mpr = progress(mAll);
+          const mw = msWindow(m);
+          const late = mw.ends && mw.ends < todayISO() && m.status !== "Done";
+          return '<div class="tg-ms">' +
+            '<div class="tg-ms-head" data-ms="' + m.id + '" style="cursor:pointer">' +
+              '<span class="code">' + esc(m.code || "") + '</span>' +
+              '<span>' + esc(m.name) + '</span>' +
+              '<span class="pill ' + (m.status==="Done"?"ok":late?"bad":"mute") + '">' + esc(m.status) + '</span>' +
+              (mw.ends ? '<span class="note">' + (late ? '<b style="color:var(--p0)">' : '') +
+                fmtDateY(mw.ends) + (late ? '</b>' : '') + '</span>' : '<span class="note">no date</span>') +
+              '<div class="spacer"></div>' +
+              (m.owner ? avatar(m.owner) : "") +
+              '<span class="count">' + mpr.done + "/" + mpr.total + '</span>' +
+            '</div>' +
+            (mt.length
+              ? '<div class="tg-tasks">' + mt.map(t =>
+                  '<div class="tg-task' + (t.status==="Done"?" done":"") + '" data-task="' + t.id + '">' +
+                    '<span class="st" style="background:' + (STATUS_HEX[t.status]||"#8A8A8A") + '"></span>' +
+                    '<span class="code">' + esc(t.code||"") + '</span>' +
+                    '<span class="tt">' + esc(t.title) + '</span>' +
+                    '<div class="spacer"></div>' +
+                    (t.owners||[]).slice(0,3).map(o => avatar(o)).join("") +
+                    (t.target_date ? '<span class="due' + (isLate(t)?" late":"") + '">' + relDue(t.target_date) + '</span>' : '') +
+                  '</div>').join("") + '</div>'
+              : '<div class="note" style="padding:2px 8px;font-style:italic">' +
+                (mAll.length ? mAll.length + ' task(s), all hidden by the current filters'
+                             : 'No tasks under this milestone yet') + '</div>') +
+          '</div>';
+        }).join("")
+        : '<div class="flag warn" style="margin:0"><span class="fi">◆</span><div>' +
+          'No milestones under this goal. A goal with no dated deliverables is a wish — ' +
+          'add one so the Gantt has something to draw.</div></div>') +
+        (shown.filter(t => !t.milestone_id).length
+          ? '<div class="tg-ms" style="border-color:rgba(214,154,34,.4)">' +
+            '<div class="tg-ms-head"><span>Attached to the goal but no milestone</span></div>' +
+            '<div class="tg-tasks">' + shown.filter(t => !t.milestone_id).map(t =>
+              '<div class="tg-task' + (t.status==="Done"?" done":"") + '" data-task="' + t.id + '">' +
+                '<span class="st" style="background:' + (STATUS_HEX[t.status]||"#8A8A8A") + '"></span>' +
+                '<span class="code">' + esc(t.code||"") + '</span>' +
+                '<span class="tt">' + esc(t.title) + '</span></div>').join("") + '</div></div>'
+          : "") +
+      '</div></div>';
+  });
+
+  return out + '</div>';
+}
+
+/* ============================================================
+   BOTTOM-UP  —  start from the work in flight and roll it upward.
+   The question it answers: what is all this effort actually buying?
+   ============================================================ */
+function renderBottomUp(list){
+  const open = list.filter(isOpen);
+  const orphans = open.filter(t => !t.goal_id);
+  const inflight = open.filter(t => t.status === "In Progress");
+  const weight = t => ({ S:1, M:3, L:10, XL:21 })[t.effort] || 3;
+
+  /* where is the effort actually going */
+  const byGoal = {};
+  open.forEach(t => {
+    const k = t.goal_id || "__none";
+    byGoal[k] = (byGoal[k] || 0) + weight(t);
+  });
+  const totalW = Object.values(byGoal).reduce((a,b) => a+b, 0) || 1;
+  const shares = Object.entries(byGoal).map(([k,v]) => {
+    const g = k === "__none" ? null : byId(DATA.goals)[k];
+    return { id:k, name: g ? g.name : "No goal", colour: g ? g.color : "#C7383B",
+             w:v, pct: Math.round(v/totalW*100) };
+  }).sort((a,b) => b.w - a.w);
+
+  let out = '<div class="wrap">';
+
+  out += '<div class="tiles">' +
+    '<div class="tile"><div class="n">' + open.length + '</div><div class="l">open tasks</div></div>' +
+    '<div class="tile"><div class="n">' + inflight.length + '</div><div class="l">in progress right now</div></div>' +
+    '<div class="tile' + (orphans.length ? " alert" : "") + '"><div class="n">' + orphans.length +
+      '</div><div class="l">serving no goal</div></div>' +
+    '<div class="tile"><div class="n">' + shares.length + '</div><div class="l">goals receiving effort</div></div>' +
+  '</div>';
+
+  if (orphans.length) out += '<div class="flag bad"><span class="fi">◆</span><div>' +
+    '<b>' + orphans.length + ' open task' + (orphans.length===1?"":"s") + ' answer to no goal.</b> ' +
+    'That is fine for genuine housekeeping and a warning sign for anything else — it means somebody ' +
+    'is spending their evenings on work the company has not said it wants. Attach them or drop them.</div></div>';
+
+  out += '<div class="panel"><div class="panel-head"><h3>Where the effort is going</h3>' +
+    '<span class="sub">open tasks weighted by effort size, not counted</span></div><div class="panel-body">' +
+    '<div class="effort-bar">' + shares.map(s =>
+      '<div style="width:' + s.pct + '%;background:' + s.colour + '" title="' +
+      esc(s.name + " — " + s.pct + "%") + '">' + (s.pct >= 8 ? s.pct + "%" : "") + '</div>').join("") + '</div>' +
+    '<div class="legend-row">' + shares.map(s =>
+      '<span><i style="background:' + s.colour + '"></i>' + esc(s.name) + ' · ' + s.pct + '%</span>').join("") + '</div>' +
+    '<p class="note" style="margin:12px 0 0">Compare this with the Goals view. If a goal you call ' +
+    'critical is taking 4% of the effort, one of the two is wrong.</p>' +
+  '</div></div>';
+
+  /* what each person's work rolls up to */
+  out += '<div class="section-title">What each person is building toward</div>';
+  DATA.people.filter(p => p.active).forEach(p => {
+    const mine = open.filter(t => (t.owners||[]).includes(p.name));
+    if (!mine.length) return;
+    const goalsHit = {};
+    mine.forEach(t => {
+      const g = goalOf(t);
+      const k = g ? g.id : "__none";
+      goalsHit[k] = goalsHit[k] || { g, n:0 };
+      goalsHit[k].n++;
+    });
+    const late = mine.filter(isLate).length;
+    out += '<div class="panel"><div class="panel-head">' +
+      avatar(p.name) + '<h3>' + esc(p.name) + '</h3>' +
+      (p.role ? '<span class="sub">' + esc(p.role) + '</span>' : '') +
+      '<div class="spacer"></div>' +
+      (late ? '<span class="pill bad">' + late + ' overdue</span>' : '') +
+      '<span class="count">' + mine.length + ' open</span>' +
+    '</div><div class="panel-body" style="display:flex;flex-wrap:wrap;gap:8px">' +
+      Object.values(goalsHit).sort((a,b) => b.n - a.n).map(x =>
+        '<span class="tag goal" style="--tc:' + (x.g ? x.g.color : "#C7383B") + ';font-size:12px;padding:5px 11px">' +
+        esc(x.g ? x.g.name : "no goal") + ' · ' + x.n + '</span>').join("") +
+    '</div></div>';
+  });
+
+  /* the raw in-flight list, rolled up */
+  out += '<div class="section-title">In progress right now, and what it feeds</div>';
+  out += '<div class="panel"><div class="panel-body"><div class="pl-rows">' +
+    (inflight.length ? inflight.map(t => {
+      const g = goalOf(t), m = msOf(t);
+      return '<div class="pl-row" data-open="task:' + t.id + '" style="--pc:' + (PRIO_HEX[t.priority]||"transparent") + '">' +
+        '<span class="code">' + esc(t.code||"") + '</span>' +
+        '<span class="t">' + esc(t.title) +
+          '<small>→ ' + esc(m ? m.name : "no milestone") + ' → ' + esc(g ? g.name : "no goal") + '</small></span>' +
+        '<div class="spacer"></div>' +
+        (t.owners||[]).slice(0,3).map(o => avatar(o)).join("") +
+        (t.target_date ? '<span class="due' + (isLate(t)?" late":"") + '" style="margin-left:8px">' +
+          relDue(t.target_date) + '</span>' : '') +
+      '</div>';
+    }).join("") : '<div class="empty">Nothing in progress.</div>') +
+  '</div></div></div>';
+
+  if (orphans.length){
+    out += '<div class="section-title">Open work with no goal attached</div>' +
+      '<div class="panel"><div class="panel-body"><div class="pl-rows">' +
+      orphans.map(t => '<div class="pl-row" data-open="task:' + t.id + '" style="--pc:var(--p0)">' +
+        '<span class="code">' + esc(t.code||"") + '</span>' +
+        '<span class="t">' + esc(t.title) + '</span><div class="spacer"></div>' +
+        (t.owners||[]).slice(0,3).map(o => avatar(o)).join("") + '</div>').join("") +
+      '</div></div></div>';
+  }
+
+  return out + '</div>';
+}
+
+/* ============================================================
+   OVERVIEW  —  the landing page. Where are we, right now.
+   ============================================================ */
+function renderOverview(list){
+  const today = todayISO();
+  const w = plannerWindow();
+  const all = DATA.tasks;
+  const open = all.filter(isOpen);
+  const overdue = open.filter(isLate);
+  const dueNow = open.filter(t => t.target_date && t.target_date >= today && t.target_date <= w.e);
+  const ns = DATA.goals.find(g => g.horizon === "north-star");
+  const goals = DATA.goals.filter(g => g.horizon !== "north-star");
+  const mine = ME ? open.filter(t => (t.owners||[]).includes(ME)) : [];
+
+  /* things that quietly rot if nobody looks */
+  const attention = [];
+  const silent = goals.filter(g => !tasksOfGoal(g).filter(isOpen).length);
+  const noGoal = open.filter(t => !t.goal_id);
+  const noDate = open.filter(t => !t.target_date);
+  const icebox = all.filter(t => t.phase_key === "icebox" && isOpen(t));
+  const unmeasured = goals.filter(g => g.metric_name && g.metric_current == null);
+  const noOwner = open.filter(t => !(t.owners||[]).length);
+
+  if (overdue.length) attention.push({ tone:"bad", n:overdue.length,
+    text:"<b>" + overdue.length + " open tasks are past their date</b>, the oldest since " +
+      fmtDateY(overdue.map(t => t.target_date).sort()[0]) +
+      ". Either move the dates or move the work — an overdue column nobody clears stops meaning anything.",
+    go:["planner"] });
+  if (silent.length) attention.push({ tone:"bad", n:silent.length,
+    text:"<b>" + silent.length + " goal" + (silent.length===1?" has":"s have") + " no open work: " +
+      silent.map(g => esc(g.name)).join(", ") + ".</b> Nobody is moving them.", go:["topdown"] });
+  if (noGoal.length) attention.push({ tone:"warn", n:noGoal.length,
+    text:"<b>" + noGoal.length + " open tasks are not attached to any goal.</b> Work that answers to nothing.",
+    go:["bottomup"] });
+  if (unmeasured.length) attention.push({ tone:"warn", n:unmeasured.length,
+    text:"<b>" + unmeasured.length + " goals have never had their metric measured.</b> " +
+      "Their health flags are guesses until somebody enters a number.", go:["goals"] });
+  if (icebox.length) attention.push({ tone:"warn", n:icebox.length,
+    text:"<b>" + icebox.length + " tasks sit in the Icebox</b> with no phase and mostly no date. " +
+      "The weekly job is to give each one a goal and a date, or archive it.", go:["board"] });
+  if (noDate.length) attention.push({ tone:"warn", n:noDate.length,
+    text:"<b>" + noDate.length + " open tasks have no date at all</b>, so they appear in no plan and no Gantt bar.",
+    go:["planner"] });
+  if (noOwner.length) attention.push({ tone:"warn", n:noOwner.length,
+    text:"<b>" + noOwner.length + " open tasks have no owner.</b>", go:["people"] });
+
+  /* is the work spread across the team, or piled on one person */
+  const load = DATA.people.filter(p => p.active).map(p => ({
+    p, n: open.filter(t => (t.owners||[]).includes(p.name)).length
+  })).sort((a,b) => b.n - a.n);
+  const top = load[0];
+  const totalAssign = load.reduce((a,b) => a + b.n, 0) || 1;
+  if (top && top.n / totalAssign > 0.4) attention.push({ tone:"bad", n:top.n,
+    text:"<b>" + esc(top.p.name) + " is on " + top.n + " of the " + totalAssign +
+      " assigned open tasks.</b> Everything queues behind one person, and the other " +
+      (load.length-1) + " cannot start.", go:["people"] });
+
+  let out = '<div class="wrap">';
+
+  if (ns){
+    out += '<div class="panel" style="border-left:4px solid ' + ns.color + '">' +
+      '<div class="panel-body" style="display:flex;gap:22px;flex-wrap:wrap;align-items:center">' +
+        '<div style="flex:1;min-width:250px">' +
+          '<div class="ga" style="color:' + ns.color + ';font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase">North star</div>' +
+          '<h2 style="font-size:19px;margin:5px 0 6px;letter-spacing:-.02em">' + esc(ns.name) + '</h2>' +
+          (ns.statement ? '<p class="note" style="font-size:13px;margin:0">' + esc(ns.statement) + '</p>' : '') +
+        '</div>' +
+        '<div style="min-width:200px;--gc:' + ns.color + '">' + metricBlock(ns) + '</div>' +
+      '</div></div>';
+  }
+
+  out += '<div class="tiles">' +
+    '<div class="tile"><div class="n">' + open.length + '</div><div class="l">open tasks</div></div>' +
+    '<div class="tile' + (overdue.length ? " alert" : " good") + '"><div class="n">' + overdue.length +
+      '</div><div class="l">overdue</div></div>' +
+    '<div class="tile"><div class="n">' + dueNow.length + '</div><div class="l">due ' + esc(w.label.toLowerCase()) + '</div></div>' +
+    '<div class="tile"><div class="n">' + all.filter(t => t.status==="Done").length + '</div><div class="l">done all time</div></div>' +
+    (ME ? '<div class="tile"><div class="n">' + mine.length + '</div><div class="l">open for ' + esc(ME) + '</div></div>' : "") +
+  '</div>';
+
+  if (attention.length){
+    out += '<div class="section-title">Needs attention</div>';
+    out += attention.map(a =>
+      '<div class="flag ' + a.tone + '"><span class="fi">◆</span><div>' + a.text +
+      (a.go ? ' <a href="#" data-goview="' + a.go[0] + '">Look →</a>' : '') + '</div></div>').join("");
+  } else {
+    out += '<div class="flag ok"><span class="fi">◆</span><div>Nothing rotting. Dates are current, ' +
+      'every goal has work under it and every task has a home.</div></div>';
+  }
+
+  /* goal health at a glance */
+  out += '<div class="section-title">Goal health</div><div class="grid-auto">';
+  goals.forEach(g => {
+    const all2 = tasksOfGoal(g);
+    const pr = progress(all2);
+    const late = all2.filter(isLate).length;
+    out += '<div class="goal-card" style="--gc:' + g.color + '" data-goal="' + g.id + '">' +
+      '<div class="gh">' +
+        '<div class="ga">' + esc(g.area||"") + '</div>' +
+        '<h3>' + esc(g.name) + '</h3>' +
+        (g.statement ? '<p class="gs">' + esc(g.statement) + '</p>' : '') +
+        metricBlock(g) +
+      '</div>' +
+      '<div class="gf">' + goalPill(g) +
+        '<div class="prog" title="' + pr.done + '/' + pr.total + '"><span style="width:' + pr.pct + '%"></span></div>' +
+        '<span class="note">' + pr.done + '/' + pr.total + '</span>' +
+        (late ? '<span class="pill bad">' + late + ' late</span>' : '') +
+        '<div class="spacer"></div>' + (g.owner ? avatar(g.owner) : "") +
+      '</div></div>';
+  });
+  out += '</div>';
+
+  /* due this week */
+  out += '<div class="section-title">Due ' + esc(w.label.toLowerCase()) + ' · ' + esc(w.sub) + '</div>';
+  const soon = plannerItems(open).filter(o => o.due >= today && o.due <= w.e);
+  out += '<div class="panel"><div class="panel-body">' +
+    (soon.length ? '<div class="pl-rows">' + soon.map(plannerItem).join("") + '</div>'
+                 : '<div class="empty">Nothing due in this window.</div>') +
+    '</div></div>';
+
+  if (overdue.length){
+    out += '<div class="section-title">Overdue</div><div class="panel"><div class="panel-body"><div class="pl-rows">' +
+      plannerItems(overdue).map(plannerItem).join("") + '</div></div></div>';
+  }
+
+  return out + '</div>';
+}
+
+/* ============================================================
+   GOALS
+   ============================================================ */
+function renderGoals(){
+  const goals = DATA.goals.slice().sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
+  if (!goals.length) return '<div class="empty">No goals yet.</div>';
+  const ns = goals.filter(g => g.horizon === "north-star");
+  const rest = goals.filter(g => g.horizon !== "north-star");
+  const byArea = {};
+  rest.forEach(g => { (byArea[g.area || "Other"] = byArea[g.area || "Other"] || []).push(g); });
+
+  const cardOf = g => {
+    const all = tasksOfGoal(g);
+    const pr = progress(all);
+    const late = all.filter(isLate).length;
+    const w = goalWindow(g);
+    const mss = msOfGoal(g);
+    return '<div class="goal-card" style="--gc:' + g.color + '" data-goal="' + g.id + '">' +
+      '<div class="gh">' +
+        '<div class="ga">' + esc(g.area || "") + ' · ' + esc(g.horizon) + '</div>' +
+        '<h3>' + esc(g.name) + '</h3>' +
+        (g.statement ? '<p class="gs">' + esc(g.statement) + '</p>' : '') +
+        metricBlock(g) +
+        (g.why ? '<p class="note" style="margin:11px 0 0;font-style:italic">' + esc(g.why) + '</p>' : '') +
+        '<div class="note" style="margin-top:10px">' +
+          mss.length + ' milestone' + (mss.length===1?"":"s") + ' · ' + all.length + ' task' + (all.length===1?"":"s") +
+          (w.starts ? ' · ' + fmtDate(w.starts) + ' → ' + fmtDateY(w.ends) : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="gf">' + goalPill(g) +
+        '<div class="prog"><span style="width:' + pr.pct + '%"></span></div>' +
+        '<span class="note">' + pr.done + '/' + pr.total + '</span>' +
+        (late ? '<span class="pill bad">' + late + ' late</span>' : '') +
+        '<div class="spacer"></div>' + (g.owner ? avatar(g.owner, g.owner + " owns this goal") : "") +
+      '</div></div>';
+  };
+
+  let out = '<div class="wrap">';
+  out += '<div class="panel"><div class="panel-head"><h3>Goals</h3>' +
+    '<span class="sub">what we want to be true, and how we would know</span><div class="spacer"></div>' +
+    '<button class="btn btn-ghost btn-sm" id="newGoal">+ Goal</button>' +
+    '<button class="btn btn-ghost btn-sm" id="newMs">+ Milestone</button></div></div>';
+  if (ns.length) out += '<div class="section-title">North star</div><div class="grid-auto">' + ns.map(cardOf).join("") + '</div>';
+  Object.keys(byArea).sort().forEach(area => {
+    out += '<div class="section-title">' + esc(area) + '</div><div class="grid-auto">' +
+      byArea[area].map(cardOf).join("") + '</div>';
+  });
+  return out + '</div>';
+}
+
+/* ============================================================
+   HANDBOOK
+   ============================================================ */
+function renderHandbook(){
+  if (UI.doc){
+    const doc = DATA.docs.find(x => x.key === UI.doc);
+    if (!doc) { UI.doc = null; return renderHandbook(); }
+    return '<div class="wrap">' +
+      '<div class="panel"><div class="panel-head">' +
+        '<button class="btn btn-ghost btn-sm" id="docBack">← Handbook</button>' +
+        '<span style="font-size:19px">' + esc(doc.icon || "📄") + '</span>' +
+        '<h3>' + esc(doc.title) + '</h3>' +
+        '<div class="spacer"></div>' +
+        '<span class="sub">' + (doc.updated_by ? esc(doc.updated_by) + " · " : "") + ago(doc.updated_at) + '</span>' +
+        '<button class="btn btn-ghost btn-sm" data-editdoc="' + esc(doc.key) + '">Edit</button>' +
+      '</div><div class="panel-body"><div class="prose">' + md(doc.body) + '</div></div></div></div>';
+  }
+  const secs = {};
+  DATA.docs.forEach(x => { (secs[x.section || "Other"] = secs[x.section || "Other"] || []).push(x); });
+  const order = ["Direction","How we work","Who we are","Other"];
+  let out = '<div class="wrap"><div class="panel"><div class="panel-head"><h3>Handbook</h3>' +
+    '<span class="sub">what we believe, how we work, where we are going</span><div class="spacer"></div>' +
+    '<button class="btn btn-ghost btn-sm" id="newDoc">+ Document</button></div></div>';
+  Object.keys(secs).sort((a,b) => order.indexOf(a) - order.indexOf(b)).forEach(sec => {
+    out += '<div class="section-title">' + esc(sec) + '</div><div class="grid-auto">' +
+      secs[sec].sort((a,b) => (a.sort_order||0)-(b.sort_order||0)).map(x =>
+        '<div class="doc-card" data-doc="' + esc(x.key) + '">' +
+          '<div class="ic">' + esc(x.icon || "📄") + '</div>' +
+          '<h3>' + esc(x.title) + '</h3>' +
+          (x.summary ? '<p>' + esc(x.summary) + '</p>' : '') +
+          '<div class="up">' + (x.updated_by ? esc(x.updated_by) + " · " : "") + ago(x.updated_at) + '</div>' +
+        '</div>').join("") + '</div>';
+  });
+  if (!DATA.docs.length) out += '<div class="empty">No documents yet.</div>';
+  return out + '</div>';
+}
+
+function renderStart(){
+  const doc = DATA.docs.find(x => x.key === "start-here");
+  if (!doc) return '<div class="empty">No onboarding document yet — add one in the Handbook.</div>';
+  const open = DATA.tasks.filter(isOpen);
+  const quick = open.filter(t => isLate(t) && (t.effort === "S" || t.effort === "M")).slice(0,5);
+  return '<div class="wrap">' +
+    '<div class="panel"><div class="panel-head">' +
+      '<span style="font-size:19px">' + esc(doc.icon||"👋") + '</span><h3>' + esc(doc.title) + '</h3>' +
+      '<div class="spacer"></div>' +
+      '<button class="btn btn-ghost btn-sm" data-editdoc="start-here">Edit</button>' +
+    '</div><div class="panel-body"><div class="prose">' + md(doc.body) + '</div></div></div>' +
+    (quick.length ? '<div class="section-title">Small overdue tasks — good first pickups</div>' +
+      '<div class="panel"><div class="panel-body"><div class="pl-rows">' +
+      quick.map(t => plannerItem({ kind:"task", id:t.id, title:t.title, sub:t.code + " · " + (t.effort||""),
+        due:t.target_date, owners:t.owners||[], badge:t.priority||"task",
+        tone: t.priority==="P0"?"bad":"warn", colour:PRIO_HEX[t.priority]||"" })).join("") +
+      '</div></div></div>' : "") +
+  '</div>';
+}
+
+function renderTeam(){
+  const doc = DATA.docs.find(x => x.key === "team");
+  const open = DATA.tasks.filter(isOpen);
+  let out = '<div class="wrap">';
+  out += '<div class="section-title">The roster</div><div class="grid-auto">';
+  DATA.people.filter(p => p.active).forEach(p => {
+    const mine = open.filter(t => (t.owners||[]).includes(p.name));
+    const late = mine.filter(isLate).length;
+    const goalsOwned = DATA.goals.filter(g => g.owner === p.name);
+    out += '<div class="panel" style="margin:0"><div class="panel-head" style="border:none">' +
+      avatar(p.name) + '<div><h3>' + esc(p.name) + '</h3>' +
+      '<span class="sub">' + esc(p.role || "role not set") + '</span></div></div>' +
+      '<div class="panel-body" style="padding-top:0">' +
+      '<div class="note">' + mine.length + ' open · ' +
+        (late ? '<b style="color:var(--p0)">' + late + ' overdue</b>' : 'nothing overdue') + '</div>' +
+      (goalsOwned.length ? '<div style="margin-top:9px;display:flex;gap:5px;flex-wrap:wrap">' +
+        goalsOwned.map(g => '<span class="tag goal" style="--tc:' + g.color + '">' + esc(g.name) + '</span>').join("") +
+        '</div>' : '<div class="note" style="margin-top:9px;font-style:italic">Owns no goal</div>') +
+      '</div></div>';
+  });
+  out += '</div>';
+  if (doc) out += '<div class="section-title">Notes</div><div class="panel"><div class="panel-head">' +
+    '<h3>' + esc(doc.title) + '</h3><div class="spacer"></div>' +
+    '<button class="btn btn-ghost btn-sm" data-editdoc="team">Edit</button></div>' +
+    '<div class="panel-body"><div class="prose">' + md(doc.body) + '</div></div></div>';
+  return out + '</div>';
+}
+
+/* ============================================================
+   THE STACK  —  providers, subscriptions, who owns what.
+   Passwords for low-risk tools are stored and revealed on request,
+   and every reveal lands in Activity. Anything that can spend money
+   or delete production stores no password at all, by database
+   constraint -- it points at the vault instead.
+   ============================================================ */
+function renderStack(){
+  const ps = DATA.providers;
+  const cats = {};
+  ps.forEach(p => { (cats[p.category || "Other"] = cats[p.category || "Other"] || []).push(p); });
+  const monthly = ps.reduce((sum,p) => {
+    const a = Number(p.cost_amount) || 0;
+    return sum + (p.cost_cycle === "yearly" ? a/12 : p.cost_cycle === "monthly" ? a : 0);
+  }, 0);
+  const crit = ps.filter(p => p.sensitivity === "critical").length;
+  const soon = ps.filter(p => p.renewal_date && p.renewal_date >= todayISO() &&
+                              daysBetween(todayISO(), p.renewal_date) <= 45);
+
+  let out = '<div class="wrap">';
+  out += '<div class="panel"><div class="panel-head"><h3>The stack</h3>' +
+    '<span class="sub">everything we pay for or depend on</span><div class="spacer"></div>' +
+    '<button class="btn btn-ghost btn-sm" id="newProv">+ Provider</button></div></div>';
+
+  out += '<div class="tiles">' +
+    '<div class="tile"><div class="n">' + ps.length + '</div><div class="l">providers</div></div>' +
+    '<div class="tile"><div class="n">€' + Math.round(monthly) + '</div><div class="l">per month (recorded)</div></div>' +
+    '<div class="tile"><div class="n">' + crit + '</div><div class="l">critical accounts</div></div>' +
+    '<div class="tile' + (soon.length ? " alert" : "") + '"><div class="n">' + soon.length +
+      '</div><div class="l">renewing within 45 days</div></div>' +
+  '</div>';
+
+  out += '<div class="flag warn"><span class="fi">◆</span><div>' +
+    '<b>Anything marked critical stores no password here — on purpose.</b> ' +
+    'One shared team passcode protects this page, and it cannot be revoked for one person. ' +
+    'So accounts that can spend money or delete production hold only a pointer to where the ' +
+    'real credential lives and how to ask for access. Passwords for low-risk tools are stored, ' +
+    'hidden until you click, and every reveal is written to Activity with your name on it.</div></div>';
+
+  Object.keys(cats).sort().forEach(cat => {
+    out += '<div class="section-title">' + esc(cat) + '</div><div class="grid-auto">';
+    cats[cat].forEach(p => {
+      const critical = p.sensitivity === "critical";
+      const shown = UI.revealed[p.id];
+      out += '<div class="pv" style="--sc:' + (critical ? "var(--p0)" : "var(--s-done)") + '">' +
+        '<div class="pv-top"><h3>' + esc(p.name) + '</h3>' +
+          '<span class="pill ' + (critical ? "bad" : "ok") + '">' + (critical ? "critical" : "low risk") + '</span>' +
+          '<div class="spacer"></div>' +
+          (p.url ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" class="note">open ↗</a>' : '') +
+        '</div>' +
+        (p.purpose ? '<p class="purpose">' + esc(p.purpose) + '</p>' : '') +
+        '<dl class="pv-rows">' +
+          (p.owner ? '<div><dt>Owner</dt><dd>' + esc(p.owner) + '</dd></div>' : '') +
+          (p.plan ? '<div><dt>Plan</dt><dd>' + esc(p.plan) + '</dd></div>' : '') +
+          (p.cost_amount != null ? '<div><dt>Cost</dt><dd>' + esc(p.cost_currency||"EUR") + ' ' +
+            fmtN(p.cost_amount) + ' / ' + esc(p.cost_cycle||"") + '</dd></div>' : '') +
+          (p.renewal_date ? '<div><dt>Renews</dt><dd>' + fmtDateY(p.renewal_date) + '</dd></div>' : '') +
+          (p.account_email ? '<div><dt>Account</dt><dd>' + esc(p.account_email) + '</dd></div>' : '') +
+          (p.username && !critical ? '<div><dt>Username</dt><dd>' + esc(p.username) + '</dd></div>' : '') +
+          (p.notes ? '<div><dt>Notes</dt><dd>' + esc(p.notes) + '</dd></div>' : '') +
+        '</dl>' +
+        (critical
+          ? '<div class="vault"><b>No password stored here.</b>' +
+            (p.vault_location ? '<br>Lives in: ' + esc(p.vault_location) : '') +
+            (p.access_note ? '<br>' + esc(p.access_note) : '') + '</div>'
+          : shown
+            ? '<div><div class="note" style="margin-bottom:4px">' +
+              (shown.username ? esc(shown.username) + " · " : "") + 'click to select</div>' +
+              '<div class="secret">' + esc(shown.secret) + '</div></div>'
+            : '') +
+        '<div class="pv-foot">' +
+          (!critical && p.has_secret && !shown
+            ? '<button class="btn btn-ghost btn-sm" data-reveal="' + p.id + '">Show password</button>' : '') +
+          (!critical && !p.has_secret ? '<span class="note">No password recorded</span>' : '') +
+          (shown ? '<button class="btn btn-ghost btn-sm" data-hide="' + p.id + '">Hide</button>' : '') +
+          '<div class="spacer"></div>' +
+          '<button class="btn btn-ghost btn-sm" data-editprov="' + p.id + '">Edit</button>' +
+        '</div>' +
+      '</div>';
+    });
+    out += '</div>';
+  });
+  if (!ps.length) out += '<div class="empty">Nothing recorded yet.</div>';
+  return out + '</div>';
+}
+
+/* ============================================================
+   the original views, unchanged in spirit
+   ============================================================ */
 function renderBoard(list){
   return '<div class="cols">' + STATUSES.map(s =>
-    column(s.k, s.c, list.filter(t => t.status === s.k), s.k)
-  ).join("") + '</div>';
+    column(s.k, s.c, list.filter(t => t.status === s.k), s.k)).join("") + '</div>';
 }
-
 function renderPeople(list){
-  const active = DATA.people.filter(p => p.active);
-  const cols = active.map(p =>
-    column(p.name, p.color, list.filter(t => (t.owners || []).includes(p.name)))
-  );
-  const none = list.filter(t => !(t.owners || []).length);
-  cols.push(column("Unassigned", "#B9B4AA", none));
+  const cols = DATA.people.filter(p => p.active).map(p =>
+    column(p.name, p.color, list.filter(t => (t.owners || []).includes(p.name))));
+  cols.push(column("Unassigned", "#B9B4AA", list.filter(t => !(t.owners || []).length)));
   return '<div class="cols">' + cols.join("") + '</div>';
 }
-
 function renderArea(list){
   const used = CATS.filter(c => list.some(t => t.category === c));
   const cols = used.map(c => column(c, "#5A5B5B", list.filter(t => t.category === c)));
@@ -400,43 +1909,489 @@ function renderArea(list){
   if (none.length) cols.push(column("Uncategorised", "#B9B4AA", none));
   return '<div class="cols">' + (cols.length ? cols.join("") : '<div class="empty">No tasks match.</div>') + '</div>';
 }
-
-function renderTimeline(list){
+function renderPhases(list){
   return '<div class="tl">' + DATA.phases.map(ph => {
     const ts = list.filter(t => t.phase_key === ph.key);
     if (!ts.length) return "";
-    const done = ts.filter(t => t.status === "Done").length;
-    const pct = Math.round(done / ts.length * 100);
-    const win = ph.starts
-      ? new Date(ph.starts).toLocaleDateString(undefined,{ day:"numeric", month:"short" }) + " → " +
-        new Date(ph.ends).toLocaleDateString(undefined,{ day:"numeric", month:"short", year:"numeric" })
-      : "unscheduled";
+    const pr = progress(ts);
+    const win = ph.starts ? fmtDate(ph.starts) + " → " + fmtDateY(ph.ends) : "unscheduled";
+    const past = ph.ends && ph.ends < todayISO() && pr.pct < 100;
     return '<section class="tlp" style="--pc:' + ph.color + '">' +
       '<div class="tlp-head">' +
         '<h3>' + esc(ph.name) + '</h3>' +
         '<span class="win">' + esc(win) + '</span>' +
         (ph.theme ? '<span class="theme">' + esc(ph.theme) + '</span>' : '') +
-        '<div class="prog" title="' + done + ' of ' + ts.length + ' done">' +
-          '<span style="width:' + pct + '%"></span></div>' +
-        '<span class="count">' + done + '/' + ts.length + '</span>' +
+        (past ? '<span class="pill bad">window closed, ' + (pr.total-pr.done) + ' still open</span>' : '') +
+        '<div class="prog" title="' + pr.done + ' of ' + pr.total + ' done"><span style="width:' + pr.pct + '%"></span></div>' +
+        '<span class="count">' + pr.done + '/' + pr.total + '</span>' +
       '</div>' +
       '<div class="tlp-body">' + ts.map(card).join("") + '</div>' +
       (ph.success_criteria ? '<div class="crit"><b>Success:</b> ' + esc(ph.success_criteria) + '</div>' : '') +
     '</section>';
   }).join("") + '</div>';
 }
-
 function renderActivity(){
   if (!DATA.activity.length) return '<div class="empty">No activity yet.</div>';
   return '<div class="feed">' + DATA.activity.map(a =>
-    '<div class="ev">' +
+    '<div class="ev' + (String(a.action).indexOf("revealed") === 0 ? " sec" : "") + '">' +
       '<span class="actor" style="color:' + personColor(a.actor) + '">' + esc(a.actor) + '</span>' +
       '<span class="act">' + esc(a.action) + (a.detail ? " (" + esc(a.detail) + ")" : "") + '</span>' +
       '<span class="ttl">' + esc(a.task_title) + '</span>' +
       '<span class="when">' + ago(a.at) + '</span>' +
-    '</div>'
-  ).join("") + '</div>';
+    '</div>').join("") + '</div>';
 }
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+function modal(html, opts){
+  const wide = opts && opts.wide ? " wide" : "";
+  document.body.insertAdjacentHTML("beforeend",
+    '<div class="scrim" id="scrim"><div class="modal' + wide + '" role="dialog" aria-modal="true">' + html + '</div></div>');
+  const scrim = $("#scrim");
+  const close = () => { scrim.remove(); document.removeEventListener("keydown", onEsc); };
+  function onEsc(e){ if (e.key === "Escape") close(); }
+  scrim.addEventListener("click", e => { if (e.target === scrim) close(); });
+  document.addEventListener("keydown", onEsc);
+  const x = $("#mClose"), c = $("#mCancel");
+  if (x) x.onclick = close;
+  if (c) c.onclick = close;
+  return close;
+}
+function selOpts(list, cur, blank){
+  return (blank ? '<option value="">' + blank + '</option>' : '') +
+    list.map(o => {
+      /* id wins where a row has one: goals carry BOTH id and key, and the
+         task links to the id. Phases have only a key, which is what they link by. */
+      const val = o.id ?? o.k ?? o.key ?? o;
+      const lab = o.t ?? o.name ?? o.k ?? o;
+      return '<option value="' + esc(val) + '"' + (String(val) === String(cur ?? "") ? " selected" : "") + '>' +
+        esc(lab) + '</option>';
+    }).join("");
+}
+function head(title, code, extra){
+  return '<div class="modal-head">' + (code ? '<span class="code">' + esc(code) + '</span>' : '') +
+    '<h2>' + esc(title) + '</h2>' + (extra || "") +
+    '<button class="x" id="mClose" aria-label="Close">×</button></div>';
+}
+function foot(saveLabel, danger){
+  return '<div class="modal-foot">' + (danger || "") + '<div class="spacer"></div>' +
+    '<button class="btn btn-ghost" id="mCancel">Cancel</button>' +
+    '<button class="btn btn-primary" id="mSave">' + esc(saveLabel) + '</button></div>';
+}
+
+/* ---------------- task ---------------- */
+function openTask(id){
+  const t = id ? DATA.tasks.find(x => x.id === id) : null;
+  const v = (k, dflt) => (t && t[k] != null ? t[k] : (dflt ?? ""));
+  const owners = new Set(t ? (t.owners || []) : (ME ? [ME] : []));
+  const msList = DATA.milestones.map(m => {
+    const g = byId(DATA.goals)[m.goal_id];
+    return { id:m.id, name:(g ? g.name + " · " : "") + m.name };
+  });
+
+  const close = modal(
+    head(t ? "Edit task" : "New task", t && t.code) +
+    '<div class="modal-body">' +
+      '<div class="field"><label for="mTitle">Task</label>' +
+        '<input class="input" id="mTitle" value="' + esc(v("title")) + '" placeholder="What needs to happen?"></div>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="mStatus">Status</label><select class="input" id="mStatus">' +
+          selOpts(STATUSES, v("status","Not Started")) + '</select></div>' +
+        '<div class="field"><label for="mPri">Priority</label><select class="input" id="mPri">' +
+          selOpts(PRIOS, v("priority"), "—") + '</select></div>' +
+        '<div class="field"><label for="mEff">Effort</label><select class="input" id="mEff">' +
+          selOpts(EFFORTS, v("effort"), "—") + '</select></div>' +
+      '</div>' +
+      '<div class="grid2">' +
+        '<div class="field"><label for="mMs">Milestone</label><select class="input" id="mMs">' +
+          selOpts(msList, v("milestone_id"), "— not attached —") +
+          '</select><span class="hint">Sets the goal automatically.</span></div>' +
+        '<div class="field"><label for="mGoal">Goal</label><select class="input" id="mGoal">' +
+          selOpts(DATA.goals.filter(g => g.horizon !== "north-star"), v("goal_id"), "— none —") +
+          '</select><span class="hint">Only needed without a milestone.</span></div>' +
+      '</div>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="mCat">Area</label><select class="input" id="mCat">' +
+          selOpts(CATS, v("category"), "—") + '</select></div>' +
+        '<div class="field"><label for="mStart">Starts</label>' +
+          '<input class="input" id="mStart" type="date" value="' + esc(v("start_date")) + '">' +
+          '<span class="hint">Blank = inferred from effort.</span></div>' +
+        '<div class="field"><label for="mDate">Due</label>' +
+          '<input class="input" id="mDate" type="date" value="' + esc(v("target_date")) + '"></div>' +
+      '</div>' +
+      '<div class="field"><label for="mPhase">Phase</label><select class="input" id="mPhase">' +
+        selOpts(DATA.phases, v("phase_key"), "—") + '</select></div>' +
+      '<div class="field"><label>Owners</label><div class="owner-pick" id="mOwners">' +
+        DATA.people.filter(p => p.active).map(p =>
+          '<label class="opt' + (owners.has(p.name) ? " on" : "") + '">' +
+            '<input type="checkbox" value="' + esc(p.name) + '"' + (owners.has(p.name) ? " checked" : "") + '>' +
+            '<span class="av" style="background:' + p.color + '">' + esc(p.initials || "") + '</span>' +
+            esc(p.name) + '</label>').join("") +
+      '</div></div>' +
+      '<div class="field"><label for="mDesc">Description / acceptance</label>' +
+        '<textarea class="input" id="mDesc" placeholder="What does done look like?">' + esc(v("description")) + '</textarea></div>' +
+      '<div class="field"><label for="mNotes">Comments</label>' +
+        '<textarea class="input" id="mNotes" style="min-height:60px">' + esc(v("notes")) + '</textarea></div>' +
+      (t ? '<div class="note">Added by ' + esc(t.created_by || "—") + ' · updated ' + ago(t.updated_at) + '</div>' : '') +
+    '</div>' +
+    foot(t ? "Save changes" : "Create task",
+         t ? '<button class="btn btn-danger" id="mDel">Archive</button>' : ""));
+
+  $$("#mOwners .opt").forEach(l => l.querySelector("input").addEventListener("change",
+    e => l.classList.toggle("on", e.target.checked)));
+  /* picking a milestone implies its goal, so keep the two in step */
+  $("#mMs").addEventListener("change", e => {
+    const m = byId(DATA.milestones)[e.target.value];
+    if (m && m.goal_id) $("#mGoal").value = m.goal_id;
+  });
+  $("#mTitle").focus();
+
+  $("#mSave").onclick = async () => {
+    const title = $("#mTitle").value.trim();
+    if (!title) return toast("Give the task a title", true);
+    const payload = {
+      title, status:$("#mStatus").value, priority:$("#mPri").value, effort:$("#mEff").value,
+      category:$("#mCat").value, phase_key:$("#mPhase").value,
+      target_date:$("#mDate").value, start_date:$("#mStart").value,
+      goal_id:$("#mGoal").value, milestone_id:$("#mMs").value,
+      description:$("#mDesc").value.trim(), notes:$("#mNotes").value.trim(),
+      owners:$$("#mOwners input:checked").map(i => i.value)
+    };
+    if (t) payload.id = t.id;
+    $("#mSave").disabled = true;
+    try {
+      await rpc("pm_save_task", { p_token:TOKEN, p_task:payload, p_actor:ME });
+      close(); await refresh(true); toast(t ? "Saved" : "Task created");
+    } catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
+  };
+  if (t) $("#mDel").onclick = async () => {
+    if (!confirm("Archive “" + t.title + "”? It leaves the board but stays in the database.")) return;
+    try { await rpc("pm_delete_task", { p_token:TOKEN, p_id:t.id, p_actor:ME });
+          close(); await refresh(true); toast("Archived"); }
+    catch(err){ fail(err, "Could not archive"); }
+  };
+}
+
+/* ---------------- goal ---------------- */
+function openGoal(id){
+  const g = id ? DATA.goals.find(x => x.id === id) : null;
+  const v = (k, dflt) => (g && g[k] != null ? g[k] : (dflt ?? ""));
+  const pts = g ? DATA.metrics.filter(m => m.goal_id === g.id).sort((a,b) => a.on_date < b.on_date ? 1 : -1) : [];
+
+  const close = modal(
+    head(g ? "Edit goal" : "New goal", null) +
+    '<div class="modal-body">' +
+      '<div class="field"><label for="gName">Goal</label>' +
+        '<input class="input" id="gName" value="' + esc(v("name")) + '" placeholder="People come back"></div>' +
+      '<div class="field"><label for="gStatement">What we want to be true</label>' +
+        '<textarea class="input" id="gStatement" style="min-height:56px">' + esc(v("statement")) + '</textarea></div>' +
+      '<div class="field"><label for="gWhy">Why it matters</label>' +
+        '<textarea class="input" id="gWhy" style="min-height:56px">' + esc(v("why")) + '</textarea></div>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="gArea">Area</label><select class="input" id="gArea">' +
+          selOpts(AREAS, v("area"), "—") + '</select></div>' +
+        '<div class="field"><label for="gHorizon">Horizon</label><select class="input" id="gHorizon">' +
+          selOpts(["quarter","year","north-star"], v("horizon","quarter")) + '</select></div>' +
+        '<div class="field"><label for="gStatus">Health</label><select class="input" id="gStatus">' +
+          selOpts(GOAL_STATUS, v("status","Not started")) + '</select></div>' +
+      '</div>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="gOwner">Owner</label><select class="input" id="gOwner">' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "—") + '</select></div>' +
+        '<div class="field"><label for="gStarts">Starts</label>' +
+          '<input class="input" id="gStarts" type="date" value="' + esc(v("starts")) + '"></div>' +
+        '<div class="field"><label for="gEnds">Ends</label>' +
+          '<input class="input" id="gEnds" type="date" value="' + esc(v("ends")) + '"></div>' +
+      '</div>' +
+      '<div class="section-title" style="margin:18px 0 8px">The metric</div>' +
+      '<div class="grid2">' +
+        '<div class="field"><label for="gMetric">What we measure</label>' +
+          '<input class="input" id="gMetric" value="' + esc(v("metric_name")) + '" placeholder="Repeat-active users"></div>' +
+        '<div class="field"><label for="gUnit">Unit</label>' +
+          '<input class="input" id="gUnit" value="' + esc(v("metric_unit")) + '" placeholder="users"></div>' +
+      '</div>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="gBase">Baseline</label>' +
+          '<input class="input" id="gBase" type="number" step="any" value="' + esc(v("metric_baseline")) + '"></div>' +
+        '<div class="field"><label for="gTarget">Target</label>' +
+          '<input class="input" id="gTarget" type="number" step="any" value="' + esc(v("metric_target")) + '"></div>' +
+        '<div class="field"><label for="gColor">Colour</label>' +
+          '<input class="input" id="gColor" value="' + esc(v("color","#EF6E45")) + '"></div>' +
+      '</div>' +
+      (g ? '<div class="field"><label>Log a reading</label>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+          '<input class="input" id="gPDate" type="date" value="' + todayISO() + '" style="width:auto">' +
+          '<input class="input" id="gPVal" type="number" step="any" placeholder="value" style="width:110px">' +
+          '<input class="input" id="gPNote" placeholder="note (optional)" style="flex:1;min-width:120px">' +
+          '<button class="btn btn-ghost" id="gPAdd">Log</button>' +
+        '</div>' +
+        (pts.length ? '<div class="note" style="margin-top:8px">' + pts.slice(0,6).map(p =>
+          esc(p.on_date) + ": <b>" + esc(String(p.value)) + "</b>").join(" · ") + '</div>'
+          : '<span class="hint">No readings yet. Without one, this goal&rsquo;s health is a guess.</span>') +
+        '</div>' : '') +
+    '</div>' +
+    foot(g ? "Save goal" : "Create goal",
+         g ? '<button class="btn btn-danger" id="gDel">Archive</button>' : ""), { wide:false });
+
+  $("#gName").focus();
+  if (g) $("#gPAdd").onclick = async () => {
+    const val = $("#gPVal").value;
+    if (val === "") return toast("Enter a value", true);
+    try {
+      await rpc("pm_save_metric", { p_token:TOKEN, p_goal_id:g.id, p_date:$("#gPDate").value,
+                                    p_value:Number(val), p_note:$("#gPNote").value, p_actor:ME });
+      close(); await refresh(true); toast("Reading logged");
+    } catch(err){ fail(err, "Could not log that"); }
+  };
+
+  $("#mSave").onclick = async () => {
+    const name = $("#gName").value.trim();
+    if (!name) return toast("Give the goal a name", true);
+    const payload = {
+      name, statement:$("#gStatement").value.trim(), why:$("#gWhy").value.trim(),
+      area:$("#gArea").value, horizon:$("#gHorizon").value, status:$("#gStatus").value,
+      owner:$("#gOwner").value, starts:$("#gStarts").value, ends:$("#gEnds").value,
+      metric_name:$("#gMetric").value.trim(), metric_unit:$("#gUnit").value.trim(),
+      metric_baseline:$("#gBase").value, metric_target:$("#gTarget").value,
+      color:$("#gColor").value.trim()
+    };
+    if (g) payload.id = g.id;
+    $("#mSave").disabled = true;
+    try { await rpc("pm_save_goal", { p_token:TOKEN, p_goal:payload, p_actor:ME });
+          close(); await refresh(true); toast(g ? "Goal saved" : "Goal created"); }
+    catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
+  };
+  if (g) $("#gDel").onclick = async () => {
+    if (!confirm("Archive the goal “" + g.name + "”? Its tasks stay, but lose their goal.")) return;
+    try { await rpc("pm_delete_goal", { p_token:TOKEN, p_id:g.id, p_actor:ME });
+          close(); await refresh(true); toast("Goal archived"); }
+    catch(err){ fail(err, "Could not archive"); }
+  };
+}
+
+/* ---------------- milestone ---------------- */
+function openMilestone(id){
+  const m = id ? DATA.milestones.find(x => x.id === id) : null;
+  const v = (k, dflt) => (m && m[k] != null ? m[k] : (dflt ?? ""));
+  const w = m ? msWindow(m) : null;
+  const close = modal(
+    head(m ? "Edit milestone" : "New milestone", m && m.code) +
+    '<div class="modal-body">' +
+      '<div class="field"><label for="sName">Milestone</label>' +
+        '<input class="input" id="sName" value="' + esc(v("name")) + '" placeholder="Meal Prep works end to end"></div>' +
+      '<div class="field"><label for="sDesc">What done looks like</label>' +
+        '<textarea class="input" id="sDesc" style="min-height:56px">' + esc(v("description")) + '</textarea></div>' +
+      '<div class="grid2">' +
+        '<div class="field"><label for="sGoal">Goal</label><select class="input" id="sGoal">' +
+          selOpts(DATA.goals.filter(g => g.horizon !== "north-star"), v("goal_id"), "— none —") + '</select></div>' +
+        '<div class="field"><label for="sOwner">Owner</label><select class="input" id="sOwner">' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "—") + '</select></div>' +
+      '</div>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="sStatus">Status</label><select class="input" id="sStatus">' +
+          selOpts(MS_STATUS, v("status","Not Started")) + '</select></div>' +
+        '<div class="field"><label for="sStarts">Starts</label>' +
+          '<input class="input" id="sStarts" type="date" value="' + esc(v("starts")) + '"></div>' +
+        '<div class="field"><label for="sEnds">Due</label>' +
+          '<input class="input" id="sEnds" type="date" value="' + esc(v("ends")) + '"></div>' +
+      '</div>' +
+      (m && w && w.starts ? '<div class="note">The Gantt draws this from the tasks under it: ' +
+        fmtDateY(w.starts) + ' → ' + fmtDateY(w.ends) + '. The dates above are the fallback when it has no dated tasks.</div>' : '') +
+    '</div>' +
+    foot(m ? "Save milestone" : "Create milestone",
+         m ? '<button class="btn btn-danger" id="sDel">Archive</button>' : ""));
+  $("#sName").focus();
+  $("#mSave").onclick = async () => {
+    const name = $("#sName").value.trim();
+    if (!name) return toast("Give the milestone a name", true);
+    const payload = { name, description:$("#sDesc").value.trim(), goal_id:$("#sGoal").value,
+                      owner:$("#sOwner").value, status:$("#sStatus").value,
+                      starts:$("#sStarts").value, ends:$("#sEnds").value };
+    if (m) payload.id = m.id;
+    $("#mSave").disabled = true;
+    try { await rpc("pm_save_milestone", { p_token:TOKEN, p_ms:payload, p_actor:ME });
+          close(); await refresh(true); toast(m ? "Saved" : "Milestone created"); }
+    catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
+  };
+  if (m) $("#sDel").onclick = async () => {
+    if (!confirm("Archive “" + m.name + "”? Its tasks stay but lose their milestone.")) return;
+    try { await rpc("pm_delete_milestone", { p_token:TOKEN, p_id:m.id, p_actor:ME });
+          close(); await refresh(true); toast("Archived"); }
+    catch(err){ fail(err, "Could not archive"); }
+  };
+}
+
+/* ---------------- doc ---------------- */
+function openDoc(key){
+  const doc = key ? DATA.docs.find(x => x.key === key) : null;
+  const v = (k, dflt) => (doc && doc[k] != null ? doc[k] : (dflt ?? ""));
+  const close = modal(
+    head(doc ? "Edit: " + doc.title : "New document") +
+    '<div class="modal-body">' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="dTitle">Title</label>' +
+          '<input class="input" id="dTitle" value="' + esc(v("title")) + '"></div>' +
+        '<div class="field"><label for="dSection">Section</label>' +
+          '<input class="input" id="dSection" value="' + esc(v("section","Direction")) + '" list="secList">' +
+          '<datalist id="secList">' + uniq(DATA.docs.map(x => x.section).filter(Boolean))
+            .map(s => '<option value="' + esc(s) + '">').join("") + '</datalist></div>' +
+        '<div class="field"><label for="dIcon">Icon</label>' +
+          '<input class="input" id="dIcon" value="' + esc(v("icon","📄")) + '"></div>' +
+      '</div>' +
+      '<div class="field"><label for="dSummary">One-line summary</label>' +
+        '<input class="input" id="dSummary" value="' + esc(v("summary")) + '"></div>' +
+      '<div class="field"><label for="dBody">Body <span class="hint" style="display:inline">' +
+        'Markdown. Use [[Document title]] to link to another page.</span></label>' +
+        '<textarea class="input md-edit" id="dBody">' + esc(v("body")) + '</textarea></div>' +
+    '</div>' +
+    foot(doc ? "Save document" : "Create document"), { wide:true });
+  $("#dTitle").focus();
+  $("#mSave").onclick = async () => {
+    const title = $("#dTitle").value.trim();
+    if (!title) return toast("Give it a title", true);
+    const payload = { title, section:$("#dSection").value.trim(), icon:$("#dIcon").value.trim(),
+                      summary:$("#dSummary").value.trim(), body:$("#dBody").value };
+    if (doc) payload.id = doc.id;
+    else payload.key = title.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,48);
+    $("#mSave").disabled = true;
+    try {
+      const row = await rpc("pm_save_doc", { p_token:TOKEN, p_doc:payload, p_actor:ME });
+      close(); await refresh(true);
+      if (row && row.key) UI.doc = row.key;
+      render(); toast("Saved");
+    } catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
+  };
+}
+
+/* ---------------- provider ---------------- */
+function openProvider(id){
+  const p = id ? DATA.providers.find(x => x.id === id) : null;
+  const v = (k, dflt) => (p && p[k] != null ? p[k] : (dflt ?? ""));
+  const close = modal(
+    head(p ? "Edit provider" : "New provider") +
+    '<div class="modal-body">' +
+      '<div class="grid2">' +
+        '<div class="field"><label for="vName">Provider</label>' +
+          '<input class="input" id="vName" value="' + esc(v("name")) + '" placeholder="Figma"></div>' +
+        '<div class="field"><label for="vCat">Category</label>' +
+          '<input class="input" id="vCat" value="' + esc(v("category")) + '" list="catList" placeholder="Design">' +
+          '<datalist id="catList">' + uniq(DATA.providers.map(x => x.category).filter(Boolean))
+            .map(s => '<option value="' + esc(s) + '">').join("") + '</datalist></div>' +
+      '</div>' +
+      '<div class="field"><label for="vPurpose">What we use it for</label>' +
+        '<input class="input" id="vPurpose" value="' + esc(v("purpose")) + '"></div>' +
+      '<div class="field"><label for="vSens">Risk level</label>' +
+        '<select class="input" id="vSens">' +
+          '<option value="low"' + (v("sensitivity","low")==="low"?" selected":"") + '>Low risk — password may be stored here</option>' +
+          '<option value="critical"' + (v("sensitivity")==="critical"?" selected":"") + '>Critical — can spend money or delete production</option>' +
+        '</select>' +
+        '<span class="hint">Critical accounts store no password, by database rule. They record where the credential lives instead.</span></div>' +
+      '<div class="grid2">' +
+        '<div class="field"><label for="vUrl">URL</label>' +
+          '<input class="input" id="vUrl" value="' + esc(v("url")) + '" placeholder="https://…"></div>' +
+        '<div class="field"><label for="vOwner">Owner</label><select class="input" id="vOwner">' +
+          selOpts(DATA.people.filter(x => x.active).map(x => x.name), v("owner"), "—") + '</select></div>' +
+      '</div>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="vPlan">Plan</label>' +
+          '<input class="input" id="vPlan" value="' + esc(v("plan")) + '" placeholder="Pro"></div>' +
+        '<div class="field"><label for="vCost">Cost</label>' +
+          '<input class="input" id="vCost" type="number" step="any" value="' + esc(v("cost_amount")) + '"></div>' +
+        '<div class="field"><label for="vCycle">Billing</label><select class="input" id="vCycle">' +
+          selOpts(["monthly","yearly","usage","free","one-off"], v("cost_cycle","monthly")) + '</select></div>' +
+      '</div>' +
+      '<div class="grid2">' +
+        '<div class="field"><label for="vRenew">Renews on</label>' +
+          '<input class="input" id="vRenew" type="date" value="' + esc(v("renewal_date")) + '"></div>' +
+        '<div class="field"><label for="vEmail">Account email</label>' +
+          '<input class="input" id="vEmail" value="' + esc(v("account_email")) + '"></div>' +
+      '</div>' +
+      '<div id="lowBox" class="' + (v("sensitivity","low")==="low" ? "" : "hidden") + '">' +
+        '<div class="grid2">' +
+          '<div class="field"><label for="vUser">Username</label>' +
+            '<input class="input" id="vUser" value="' + esc(v("username")) + '" autocomplete="off"></div>' +
+          '<div class="field"><label for="vSecret">Password</label>' +
+            '<input class="input" id="vSecret" type="text" autocomplete="off" placeholder="' +
+              (p && p.has_secret ? "unchanged — type to replace" : "") + '">' +
+            '<span class="hint">Stored in the database, hidden until someone clicks Show. Every reveal is logged.</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="critBox" class="' + (v("sensitivity")==="critical" ? "" : "hidden") + '">' +
+        '<div class="grid2">' +
+          '<div class="field"><label for="vVault">Where the credential lives</label>' +
+            '<input class="input" id="vVault" value="' + esc(v("vault_location")) + '" placeholder="Bitwarden › Ops"></div>' +
+          '<div class="field"><label for="vAccess">How to get access</label>' +
+            '<input class="input" id="vAccess" value="' + esc(v("access_note")) + '" placeholder="Ask Joaquin to invite your account"></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="field"><label for="vNotes">Notes</label>' +
+        '<textarea class="input" id="vNotes" style="min-height:56px">' + esc(v("notes")) + '</textarea></div>' +
+    '</div>' +
+    foot(p ? "Save" : "Add provider",
+         p ? '<button class="btn btn-danger" id="vDel">Remove</button>' : ""), { wide:true });
+
+  $("#vSens").addEventListener("change", e => {
+    const crit = e.target.value === "critical";
+    $("#lowBox").classList.toggle("hidden", crit);
+    $("#critBox").classList.toggle("hidden", !crit);
+  });
+  $("#vName").focus();
+
+  $("#mSave").onclick = async () => {
+    const name = $("#vName").value.trim();
+    if (!name) return toast("Give it a name", true);
+    const crit = $("#vSens").value === "critical";
+    const payload = {
+      name, category:$("#vCat").value.trim(), purpose:$("#vPurpose").value.trim(),
+      url:$("#vUrl").value.trim(), owner:$("#vOwner").value, plan:$("#vPlan").value.trim(),
+      cost_amount:$("#vCost").value, cost_cycle:$("#vCycle").value,
+      renewal_date:$("#vRenew").value, account_email:$("#vEmail").value.trim(),
+      sensitivity: crit ? "critical" : "low", notes:$("#vNotes").value.trim()
+    };
+    if (crit){
+      payload.vault_location = $("#vVault").value.trim();
+      payload.access_note = $("#vAccess").value.trim();
+    } else {
+      payload.username = $("#vUser").value.trim();
+      /* only send the password when one was typed, so saving does not wipe it */
+      const s = $("#vSecret").value;
+      if (s) payload.secret = s;
+    }
+    if (p) payload.id = p.id;
+    $("#mSave").disabled = true;
+    try { await rpc("pm_save_provider", { p_token:TOKEN, p_p:payload, p_actor:ME });
+          close(); await refresh(true); toast("Saved"); }
+    catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
+  };
+  if (p) $("#vDel").onclick = async () => {
+    if (!confirm("Remove “" + p.name + "” from the stack?")) return;
+    try { await rpc("pm_delete_provider", { p_token:TOKEN, p_id:p.id, p_actor:ME });
+          close(); await refresh(true); toast("Removed"); }
+    catch(err){ fail(err, "Could not remove"); }
+  };
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const RENDERERS = {
+  overview: renderOverview,
+  goals:    renderGoals,
+  topdown:  renderTopDown,
+  bottomup: renderBottomUp,
+  gantt:    renderGantt,
+  planner:  renderPlanner,
+  phases:   renderPhases,
+  board:    renderBoard,
+  people:   renderPeople,
+  area:     renderArea,
+  activity: renderActivity,
+  handbook: renderHandbook,
+  start:    renderStart,
+  stack:    renderStack,
+  team:     renderTeam
+};
 
 function renderStats(list){
   const done = list.filter(t => t.status === "Done").length;
@@ -451,22 +2406,31 @@ function renderStats(list){
     (late ? '<span style="color:var(--p0)"><b>' + late + '</b> overdue</span>' : '');
 }
 
+function renderNav(){
+  $("#groups").innerHTML = GROUPS.map(g =>
+    '<button class="tab' + (g.k === GROUP ? " on" : "") + '" data-group="' + g.k + '">' +
+    esc(g.label) + '</button>').join("");
+  const grp = GROUPS.find(g => g.k === GROUP) || GROUPS[0];
+  $("#views").innerHTML = grp.views.map(v =>
+    '<button class="subtab' + (v.k === VIEW ? " on" : "") + '" data-view="' + v.k + '">' +
+    esc(v.label) + '</button>').join("");
+}
+
 function render(){
+  renderNav();
   const list = visible();
-  const main = $("#main");
-  if (VIEW === "board")         main.innerHTML = renderBoard(list);
-  else if (VIEW === "people")   main.innerHTML = renderPeople(list);
-  else if (VIEW === "area")     main.innerHTML = renderArea(list);
-  else if (VIEW === "timeline") main.innerHTML = renderTimeline(list);
-  else                          main.innerHTML = renderActivity();
-  renderStats(list);
-  wireCards();
+  $("#filters").classList.toggle("hidden", !TASKY.has(VIEW));
+  const fn = RENDERERS[VIEW] || renderOverview;
+  $("#main").innerHTML = fn(list);
+  if (TASKY.has(VIEW)) renderStats(list);
+  wireMain();
 }
 
 /* ============================ interaction ============================ */
 let dragId = null;
 
-function wireCards(){
+function wireMain(){
+  /* cards: click to open, drag to change status */
   $$(".card").forEach(el => {
     el.addEventListener("click", () => openTask(el.dataset.id));
     el.addEventListener("dragstart", e => {
@@ -477,7 +2441,6 @@ function wireCards(){
     });
     el.addEventListener("dragend", () => { el.classList.remove("dragging"); dragId = null; });
   });
-
   $$(".col[data-drop]").forEach(col => {
     col.addEventListener("dragover", e => { e.preventDefault(); col.classList.add("drop"); });
     col.addEventListener("dragleave", () => col.classList.remove("drop"));
@@ -489,7 +2452,7 @@ function wireCards(){
       const t = DATA.tasks.find(x => x.id === id);
       if (!t || t.status === status) return;
       const prev = t.status;
-      t.status = status;              // optimistic
+      t.status = status;                 // optimistic
       render();
       try {
         const row = await rpc("pm_set_status", { p_token:TOKEN, p_id:id, p_status:status, p_actor:ME });
@@ -501,131 +2464,78 @@ function wireCards(){
       }
     });
   });
+
+  /* everything that opens something */
+  $$("[data-task]").forEach(el => el.onclick = () => openTask(el.dataset.task));
+  $$("[data-goal]").forEach(el => el.onclick = e => {
+    if (e.target.closest("a")) return;
+    openGoal(el.dataset.goal);
+  });
+  $$("[data-ms]").forEach(el => el.onclick = () => openMilestone(el.dataset.ms));
+  $$("[data-editdoc]").forEach(el => el.onclick = e => { e.stopPropagation(); openDoc(el.dataset.editdoc); });
+  $$("[data-editprov]").forEach(el => el.onclick = () => openProvider(el.dataset.editprov));
+  $$(".doc-card[data-doc]").forEach(el => el.onclick = () => { UI.doc = el.dataset.doc; render(); });
+  $$("a.wl[data-doc]").forEach(el => el.onclick = e => {
+    e.preventDefault();
+    GROUP = "company"; VIEW = "handbook"; UI.doc = el.dataset.doc;
+    store.set("gp_group", GROUP); store.set("gp_view", VIEW);
+    render(); $("#main").scrollTop = 0;
+  });
+  $$("[data-goview]").forEach(el => el.onclick = e => {
+    e.preventDefault();
+    goView(el.dataset.goview);
+  });
+  const back = $("#docBack");
+  if (back) back.onclick = () => { UI.doc = null; render(); };
+
+  const nd = $("#newDoc");   if (nd) nd.onclick = () => openDoc(null);
+  const ng = $("#newGoal");  if (ng) ng.onclick = () => openGoal(null);
+  const nm = $("#newMs");    if (nm) nm.onclick = () => openMilestone(null);
+  const np = $("#newProv");  if (np) np.onclick = () => openProvider(null);
+
+  /* credentials: reading one is a separate, logged call */
+  $$("[data-reveal]").forEach(el => el.onclick = async () => {
+    const id = el.dataset.reveal;
+    el.disabled = true; el.textContent = "…";
+    try {
+      const r = await rpc("pm_reveal_secret", { p_token:TOKEN, p_id:id, p_actor:ME });
+      if (!r || r.ok !== true){
+        toast(r && r.reason === "critical_no_secret"
+          ? "No password is stored for a critical account — see where it lives."
+          : "No password recorded for that one.", true);
+        el.disabled = false; el.textContent = "Show password";
+        return;
+      }
+      UI.revealed[id] = { secret:r.secret, username:r.username };
+      await refresh(true);          // so the reveal shows in Activity straight away
+      toast("Shown, and written to Activity under your name");
+    } catch(err){ el.disabled = false; el.textContent = "Show password"; fail(err, "Could not read that"); }
+  });
+  $$("[data-hide]").forEach(el => el.onclick = () => { delete UI.revealed[el.dataset.hide]; render(); });
+
+  if (VIEW === "gantt") wireGantt();
+  if (VIEW === "planner" || VIEW === "bottomup" || VIEW === "overview") wirePlanner();
 }
 
-function fail(err, msg){
-  if (String(err.message).includes("unauthorized")) return logout("Session expired — sign in again.");
-  toast(msg + ": " + err.message, true);
-}
-
-/* ---------------- task modal ---------------- */
-function openTask(id){
-  const t = id ? DATA.tasks.find(x => x.id === id) : null;
-  const v = (k, d) => (t && t[k] != null ? t[k] : (d ?? ""));
-  const sel = (list, cur, blank) =>
-    (blank ? '<option value="">' + blank + '</option>' : '') +
-    list.map(o => '<option value="' + esc(o.k ?? o.key ?? o) + '"' +
-      ((o.k ?? o.key ?? o) === cur ? " selected" : "") + '>' +
-      esc(o.t ?? o.name ?? o.k ?? o) + '</option>').join("");
-
-  const owners = new Set(t ? (t.owners || []) : (ME ? [ME] : []));
-  const html =
-    '<div class="scrim" id="scrim"><div class="modal" role="dialog" aria-modal="true">' +
-      '<div class="modal-head">' +
-        (t && t.code ? '<span class="code">' + esc(t.code) + '</span>' : '') +
-        '<h2>' + (t ? "Edit task" : "New task") + '</h2>' +
-        '<button class="x" id="mClose" aria-label="Close">×</button>' +
-      '</div>' +
-      '<div class="modal-body">' +
-        '<div class="field"><label for="mTitle">Task</label>' +
-          '<input class="input" id="mTitle" value="' + esc(v("title")) + '" placeholder="What needs to happen?"></div>' +
-        '<div class="grid3">' +
-          '<div class="field"><label for="mStatus">Status</label><select class="input" id="mStatus">' +
-            sel(STATUSES, v("status","Not Started")) + '</select></div>' +
-          '<div class="field"><label for="mPri">Priority</label><select class="input" id="mPri">' +
-            sel(PRIOS, v("priority"), "—") + '</select></div>' +
-          '<div class="field"><label for="mEff">Effort</label><select class="input" id="mEff">' +
-            sel(EFFORTS, v("effort"), "—") + '</select></div>' +
-        '</div>' +
-        '<div class="grid3">' +
-          '<div class="field"><label for="mCat">Area</label><select class="input" id="mCat">' +
-            sel(CATS, v("category"), "—") + '</select></div>' +
-          '<div class="field"><label for="mPhase">Objective / phase</label><select class="input" id="mPhase">' +
-            sel(DATA.phases, v("phase_key"), "—") + '</select></div>' +
-          '<div class="field"><label for="mDate">Target date</label>' +
-            '<input class="input" id="mDate" type="date" value="' + esc(v("target_date")) + '"></div>' +
-        '</div>' +
-        '<div class="field"><label>Owners</label><div class="owner-pick" id="mOwners">' +
-          DATA.people.filter(p => p.active).map(p =>
-            '<label class="opt' + (owners.has(p.name) ? " on" : "") + '">' +
-              '<input type="checkbox" value="' + esc(p.name) + '"' + (owners.has(p.name) ? " checked" : "") + '>' +
-              '<span class="av" style="background:' + p.color + '">' + esc(p.initials || "") + '</span>' +
-              esc(p.name) + '</label>').join("") +
-        '</div></div>' +
-        '<div class="field"><label for="mDesc">Description / acceptance</label>' +
-          '<textarea class="input" id="mDesc" placeholder="What does done look like?">' + esc(v("description")) + '</textarea></div>' +
-        '<div class="field"><label for="mNotes">Comments</label>' +
-          '<textarea class="input" id="mNotes" style="min-height:60px">' + esc(v("notes")) + '</textarea></div>' +
-        (t ? '<div style="font-size:11.5px;color:var(--ink-3)">Added by ' + esc(t.created_by || "—") +
-             ' · updated ' + ago(t.updated_at) + '</div>' : '') +
-      '</div>' +
-      '<div class="modal-foot">' +
-        (t ? '<button class="btn btn-danger" id="mDel">Archive</button>' : '') +
-        '<div class="spacer"></div>' +
-        '<button class="btn btn-ghost" id="mCancel">Cancel</button>' +
-        '<button class="btn btn-primary" id="mSave">' + (t ? "Save changes" : "Create task") + '</button>' +
-      '</div>' +
-    '</div></div>';
-
-  document.body.insertAdjacentHTML("beforeend", html);
-  const scrim = $("#scrim");
-  const close = () => scrim.remove();
-  scrim.addEventListener("click", e => { if (e.target === scrim) close(); });
-  $("#mClose").onclick = close;
-  $("#mCancel").onclick = close;
-  document.addEventListener("keydown", function onEsc(e){
-    if (e.key === "Escape"){ close(); document.removeEventListener("keydown", onEsc); }
-  });
-  $$("#mOwners .opt").forEach(l => {
-    l.querySelector("input").addEventListener("change", e =>
-      l.classList.toggle("on", e.target.checked));
-  });
-  $("#mTitle").focus();
-
-  $("#mSave").onclick = async () => {
-    const title = $("#mTitle").value.trim();
-    if (!title) return toast("Give the task a title", true);
-    const payload = {
-      title,
-      status: $("#mStatus").value,
-      priority: $("#mPri").value,
-      effort: $("#mEff").value,
-      category: $("#mCat").value,
-      phase_key: $("#mPhase").value,
-      target_date: $("#mDate").value,
-      description: $("#mDesc").value.trim(),
-      notes: $("#mNotes").value.trim(),
-      owners: $$("#mOwners input:checked").map(i => i.value)
-    };
-    if (t) payload.id = t.id;
-    $("#mSave").disabled = true;
-    try {
-      await rpc("pm_save_task", { p_token:TOKEN, p_task:payload, p_actor:ME });
-      close();
-      await refresh();
-      toast(t ? "Saved" : "Task created");
-    } catch(err){
-      $("#mSave").disabled = false;
-      fail(err, "Could not save");
-    }
-  };
-
-  if (t) $("#mDel").onclick = async () => {
-    if (!confirm("Archive “" + t.title + "”? It leaves the board but stays in the database.")) return;
-    try {
-      await rpc("pm_delete_task", { p_token:TOKEN, p_id:t.id, p_actor:ME });
-      close();
-      await refresh();
-      toast("Archived");
-    } catch(err){ fail(err, "Could not archive"); }
-  };
+function goView(view){
+  const grp = GROUPS.find(g => g.views.some(v => v.k === view));
+  if (grp) GROUP = grp.k;
+  VIEW = view;
+  UI.doc = null;
+  store.set("gp_view", VIEW); store.set("gp_group", GROUP);
+  render();
+  $("#main").scrollTop = 0;
 }
 
 /* ---------------- data ---------------- */
 async function refresh(quiet){
   try {
-    const d = await rpc("pm_bootstrap", { p_token:TOKEN });
-    DATA = { people:d.people||[], phases:d.phases||[], tasks:d.tasks||[], activity:d.activity||[] };
+    const x = await rpc("pm_bootstrap", { p_token:TOKEN });
+    DATA = {
+      people:x.people||[], phases:x.phases||[], tasks:x.tasks||[],
+      goals:x.goals||[], milestones:x.milestones||[], docs:x.docs||[],
+      providers:x.providers||[], metrics:x.metrics||[], activity:x.activity||[]
+    };
     buildFilters();
     populateWho();
     render();
@@ -644,7 +2554,10 @@ function buildFilters(){
     CATS.map(c => '<option>' + esc(c) + '</option>').join("");
   $("#fPhase").innerHTML = '<option value="">All phases</option>' +
     DATA.phases.map(p => '<option value="' + esc(p.key) + '">' + esc(p.name) + '</option>').join("");
-  keep("#fPerson", F.person); keep("#fCat", F.cat); keep("#fPhase", F.phase);
+  $("#fGoal").innerHTML = '<option value="">All goals</option>' +
+    DATA.goals.filter(g => g.horizon !== "north-star")
+      .map(g => '<option value="' + esc(g.id) + '">' + esc(g.name) + '</option>').join("");
+  keep("#fPerson", F.person); keep("#fCat", F.cat); keep("#fPhase", F.phase); keep("#fGoal", F.goal);
   if (!$("#fPri").children.length){
     $("#fPri").innerHTML = PRIOS.map(p =>
       '<button class="chip" data-pri="' + p.k + '" title="' + esc(p.t) + '">' + p.k + '</button>').join("");
@@ -665,13 +2578,11 @@ function logout(msg){
   $("#loginErr").textContent = msg || "";
   $("#pass").value = "";
 }
-
 function startApp(){
   $("#login").classList.add("hidden");
   $("#app").classList.remove("hidden");
   refresh(true);
 }
-
 /* The roster comes from pm_people, so adding a teammate is a database change only. */
 function populateWho(){
   const names = DATA.people.filter(p => p.active).map(p => p.name);
@@ -682,7 +2593,6 @@ function populateWho(){
     '<option' + (n === ME ? " selected" : "") + '>' + esc(n) + '</option>').join("");
   paintWho();
 }
-
 function paintWho(){
   const a = $("#whoAv");
   a.textContent = initials(ME);
@@ -721,16 +2631,28 @@ $("#loginForm").addEventListener("submit", async e => {
 });
 
 /* ---------------- wiring ---------------- */
-$("#tabs").addEventListener("click", e => {
-  const b = e.target.closest(".tab"); if (!b) return;
-  VIEW = b.dataset.view;
-  $$("#tabs .tab").forEach(x => x.classList.toggle("on", x === b));
+$("#groups").addEventListener("click", e => {
+  const b = e.target.closest("[data-group]"); if (!b) return;
+  GROUP = b.dataset.group;
+  const grp = GROUPS.find(g => g.k === GROUP);
+  if (grp && !grp.views.some(v => v.k === VIEW)) VIEW = grp.views[0].k;
+  UI.doc = null;
+  store.set("gp_group", GROUP); store.set("gp_view", VIEW);
   render();
+});
+$("#views").addEventListener("click", e => {
+  const b = e.target.closest("[data-view]"); if (!b) return;
+  VIEW = b.dataset.view;
+  UI.doc = null;
+  store.set("gp_view", VIEW);
+  render();
+  $("#main").scrollTop = 0;
 });
 $("#q").addEventListener("input", e => { F.q = e.target.value; render(); });
 $("#fPerson").addEventListener("change", e => { F.person = e.target.value; render(); });
 $("#fCat").addEventListener("change", e => { F.cat = e.target.value; render(); });
 $("#fPhase").addEventListener("change", e => { F.phase = e.target.value; render(); });
+$("#fGoal").addEventListener("change", e => { F.goal = e.target.value; render(); });
 $("#fMine").addEventListener("click", e => { F.mine = !F.mine; e.target.classList.toggle("on"); render(); });
 $("#fOpen").addEventListener("click", e => { F.open = !F.open; e.target.classList.toggle("on"); render(); });
 $("#whoSel").addEventListener("change", e => {
@@ -740,7 +2662,17 @@ $("#whoSel").addEventListener("change", e => {
   render();
 });
 $("#refreshBtn").addEventListener("click", () => refresh());
-$("#newBtn").addEventListener("click", () => openTask(null));
+/* "+ New" makes whatever the current view is about */
+$("#newBtn").addEventListener("click", () => {
+  if (VIEW === "goals") openGoal(null);
+  else if (VIEW === "handbook") openDoc(null);
+  else if (VIEW === "stack") openProvider(null);
+  else openTask(null);
+});
+
+/* make sure a stored view still exists after a rename */
+if (!RENDERERS[VIEW]) VIEW = "overview";
+if (!GROUPS.some(g => g.k === GROUP)) GROUP = "picture";
 
 if (TOKEN) startApp();
 </script>

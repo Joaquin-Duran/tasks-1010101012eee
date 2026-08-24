@@ -3,11 +3,39 @@
 A single-page task board for the GoPrep team, built from `GoPrep_Project_Management3.xlsx`.
 Tasks are split by **person**, **area**, and **objective (roadmap phase)**.
 
+The board has four levels of altitude, and every view is one way of reading them:
+
+    north star  ->  goal  ->  milestone  ->  task
+
+The nav has two tiers: a group on top, its views underneath.
+
+**Big picture**
+- **Overview** — the landing page. North star, goal health, what is due, what is rotting.
+- **Goals** — outcomes with a metric and a target, grouped by area.
+- **Top-down** — goal → milestone → task. *Is anybody actually doing what we said matters?*
+  Surfaces goals with no open work.
+- **Bottom-up** — task → milestone → goal, plus where the effort actually goes.
+  *What is all this work buying us?* Surfaces tasks attached to no goal.
+
+**Timeline**
+- **Gantt** — collapsible to goals, milestones or tasks. Two bars per row: the pale one is
+  the plan, the solid one is what has actually happened. Weeks or months, with a today line.
+- **Planner** — week / month / quarter × everyone / just me × by date / by person.
+- **Phases** — the original roadmap phases with progress and success criteria.
+
+**The work**
 - **Board** — Kanban by status, drag cards between columns
 - **By person** — a column per team member, plus Unassigned
 - **By area** — Feature / Bug / Content / Infra / Marketing / Mobile / Ops / UX
-- **Timeline** — roadmap phases with progress and success criteria
-- **Activity** — who changed what, most recent first
+- **Activity** — who changed what, most recent first. Credential reveals are flagged in red.
+
+**Company**
+- **Start here** — onboarding path for a new joiner.
+- **Handbook** — vision, philosophy, marketing strategy, design principles, how we work,
+  glossary, decision log. Markdown, editable in the browser, `[[linked]]` to each other.
+- **The stack** — every provider and subscription, what it costs, who owns it, and how to
+  get access. See *Credentials* below.
+- **Who we are** — the roster, what each person owns, and where the load is unbalanced.
 
 ## Deploying to GitHub Pages
 
@@ -84,9 +112,46 @@ Pick a colour that isn't already taken; the current ones are listed in `pm_peopl
 | `pm_config` | The bcrypt hash of the team passcode. |
 | `pm_sessions` | Live session tokens with expiry. |
 | `pm_login_attempts` | Failed-login counters driving the lockout. |
+| `pm_goals` | Outcomes with a metric, a target, an owner and a health flag. |
+| `pm_milestones` | Dated deliverables under a goal. Tasks hang off these. |
+| `pm_metric_points` | One reading per goal per date. Drives the sparklines. |
+| `pm_docs` | Handbook pages, stored as markdown. |
+| `pm_providers` | Subscriptions and accounts. See *Credentials*. |
 
 All of it lives in the existing **Goprep Pro** Supabase project, prefixed `pm_`. Nothing
 references, triggers, or modifies the 22 tables the product itself uses.
+
+## Credentials
+
+`pm_providers` splits every account into one of two kinds, and the split is enforced by a
+database constraint, not by convention:
+
+- **low** — a password may be stored. It never leaves the database in `pm_bootstrap`; the
+  page only learns `has_secret`. Reading it is a separate `pm_reveal_secret` call that
+  writes a row to `pm_activity` naming whoever asked.
+- **critical** — anything that can spend money or delete production. `pm_providers` carries
+  a `check (sensitivity = 'low' or secret is null)`, so a critical row **cannot** hold a
+  password even if the page sends one. It stores `vault_location` and `access_note` instead.
+
+The reason is the shared passcode. One string opens this board for the whole team and cannot
+be revoked for one person, so the blast radius of a leak must not include the ad accounts or
+the production database.
+
+## Onboarding a new person
+
+1. Send them the passcode directly — not in a group channel.
+2. Point them at **Company → Start here**. It walks through the handbook in reading order,
+   tells them how to get access to the tools their role needs, and suggests a small overdue
+   task to pick up.
+3. Add them to `pm_people` (below) so they appear in the identity picker.
+
+## Keeping the board honest
+
+Three habits, all of which the Overview will nag about if you skip them:
+
+- **Weekly** — clear the Icebox. Every item gets a goal and a date, or gets archived.
+- **Weekly** — fix dates that have passed. An overdue column nobody clears stops meaning anything.
+- **Monthly** — open each goal and log a metric reading. Without one, the health flags are opinion.
 
 ## Conventions carried over from the workbook
 
