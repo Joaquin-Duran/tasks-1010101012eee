@@ -248,6 +248,10 @@ main{flex:1;overflow:auto;padding:20px}
 .tg-task .st{width:7px;height:7px;border-radius:50%;flex:none}
 .tg-task .tt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tg-task.done .tt{color:var(--ink-3);text-decoration:line-through}
+/* a destination with nothing scheduled against it reads differently from live work */
+.tree-goal.someday{background:repeating-linear-gradient(135deg,var(--white),var(--white) 9px,var(--paper) 9px,var(--paper) 18px);
+                   border-style:dashed}
+.tree-goal.someday .tg-head{opacity:.92}
 .flag{display:flex;align-items:flex-start;gap:9px;padding:11px 14px;border-radius:10px;font-size:12.5px;line-height:1.55;margin-bottom:8px;border:1px solid}
 .flag.bad{background:rgba(199,56,59,.05);border-color:rgba(199,56,59,.22);color:#8E2A2C}
 .flag.warn{background:rgba(214,154,34,.07);border-color:rgba(214,154,34,.25);color:#7A5609}
@@ -631,6 +635,11 @@ function taskStart(t){
   if (!t.target_date) return null;
   return addDays(t.target_date, -(EFFORT_DAYS[t.effort] || 3));
 }
+/* Goals we hold ourselves to this year. A north star is the number above them all,
+   and a 'someday' goal is a destination with nothing scheduled against it -- neither
+   should be nagged about for having no tasks or no metric reading. */
+function liveGoals(){ return DATA.goals.filter(g => g.horizon !== "north-star" && g.horizon !== "someday"); }
+function somedayGoals(){ return DATA.goals.filter(g => g.horizon === "someday"); }
 function goalOf(t){ return t.goal_id ? byId(DATA.goals)[t.goal_id] : null; }
 function msOf(t){ return t.milestone_id ? byId(DATA.milestones)[t.milestone_id] : null; }
 function tasksOfGoal(g, list){ return (list || DATA.tasks).filter(t => t.goal_id === g.id); }
@@ -968,7 +977,7 @@ function rollupActual(win, pct, allDone){
 }
 
 function renderGantt(list){
-  const goals = DATA.goals.filter(g => g.horizon !== "north-star" && (!F.goal || g.id === F.goal));
+  const goals = liveGoals().filter(g => !F.goal || g.id === F.goal);
   if (!goals.length) return '<div class="empty">No goals yet. Add one from the Goals view.</div>';
 
   /* work out the window the chart should cover */
@@ -1219,8 +1228,8 @@ function plannerItems(list){
                  owners: m.owner ? [m.owner] : [], badge:"milestone", tone:"mute",
                  colour: g ? g.color : "" });
   });
-  DATA.goals.forEach(g => {
-    if (!g.ends || g.status === "Achieved" || g.horizon === "north-star") return;
+  liveGoals().forEach(g => {
+    if (!g.ends || g.status === "Achieved") return;
     if (F.goal && g.id !== F.goal) return;
     if (UI.plannerScope === "me" && ME && g.owner !== ME) return;
     items.push({ kind:"goal", id:g.id, title:g.name, sub:g.area || "", due:g.ends,
@@ -1329,8 +1338,9 @@ function wirePlanner(){
    The question it answers: is anybody actually doing this?
    ============================================================ */
 function renderTopDown(list){
-  const goals = DATA.goals.filter(g => g.horizon !== "north-star");
+  const goals = liveGoals();
   const ns = DATA.goals.find(g => g.horizon === "north-star");
+  const someday = somedayGoals();
 
   const silent = goals.filter(g => !tasksOfGoal(g).filter(isOpen).length);
   const unmeasured = goals.filter(g => g.metric_name && g.metric_current == null);
@@ -1430,6 +1440,22 @@ function renderTopDown(list){
                 '<span class="tt">' + esc(t.title) + '</span></div>').join("") + '</div></div>'
           : "") +
       '</div></div>';
+  });
+
+  someday.forEach(g => {
+    out += '<div class="tree-goal someday" style="--gc:' + g.color + '">' +
+      '<div class="tg-head" data-goal="' + g.id + '">' +
+        '<div style="flex:1;min-width:230px">' +
+          '<div class="ga">' + esc(g.area || "") + ' · someday</div>' +
+          '<h3>' + esc(g.name) + '</h3>' +
+          (g.statement ? '<p class="note" style="margin:5px 0 0">' + esc(g.statement) + '</p>' : '') +
+        '</div>' +
+        '<span class="pill mute">not scheduled</span>' +
+        (g.owner ? avatar(g.owner) : "") +
+      '</div>' +
+      (g.why ? '<div class="tg-body"><p class="note" style="margin:0;font-style:italic">' +
+        esc(g.why) + '</p></div>' : '') +
+    '</div>';
   });
 
   return out + '</div>';
@@ -1551,7 +1577,7 @@ function renderOverview(list){
   const overdue = open.filter(isLate);
   const dueNow = open.filter(t => t.target_date && t.target_date >= today && t.target_date <= w.e);
   const ns = DATA.goals.find(g => g.horizon === "north-star");
-  const goals = DATA.goals.filter(g => g.horizon !== "north-star");
+  const goals = liveGoals();
   const mine = ME ? open.filter(t => (t.owners||[]).includes(ME)) : [];
 
   /* things that quietly rot if nobody looks */
@@ -1675,7 +1701,8 @@ function renderGoals(){
   const goals = DATA.goals.slice().sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
   if (!goals.length) return '<div class="empty">No goals yet.</div>';
   const ns = goals.filter(g => g.horizon === "north-star");
-  const rest = goals.filter(g => g.horizon !== "north-star");
+  const later = goals.filter(g => g.horizon === "someday");
+  const rest = goals.filter(g => g.horizon !== "north-star" && g.horizon !== "someday");
   const byArea = {};
   rest.forEach(g => { (byArea[g.area || "Other"] = byArea[g.area || "Other"] || []).push(g); });
 
@@ -1715,6 +1742,12 @@ function renderGoals(){
     out += '<div class="section-title">' + esc(area) + '</div><div class="grid-auto">' +
       byArea[area].map(cardOf).join("") + '</div>';
   });
+  if (later.length){
+    out += '<div class="section-title">Someday — where this is all going</div>' +
+      '<p class="note" style="margin:-4px 0 10px;max-width:640px">Nothing is scheduled against these and ' +
+      'nobody is working on them. They sit here so the plan has a visible destination instead of ' +
+      'living in a slide deck.</p><div class="grid-auto">' + later.map(cardOf).join("") + '</div>';
+  }
   return out + '</div>';
 }
 
@@ -1814,11 +1847,24 @@ function renderStack(){
   const ps = DATA.providers;
   const cats = {};
   ps.forEach(p => { (cats[p.category || "Other"] = cats[p.category || "Other"] || []).push(p); });
-  const monthly = ps.reduce((sum,p) => {
+  /* run rate counts what we still pay for; lapsed rows are kept for the record only */
+  const live = ps.filter(p => (p.category || "") !== "Lapsed");
+  const spend = {};
+  live.forEach(p => {
     const a = Number(p.cost_amount) || 0;
-    return sum + (p.cost_cycle === "yearly" ? a/12 : p.cost_cycle === "monthly" ? a : 0);
-  }, 0);
+    if (!a) return;
+    const cur = p.cost_currency || "EUR";
+    spend[cur] = (spend[cur] || 0) + (p.cost_cycle === "yearly" ? a/12 : p.cost_cycle === "monthly" ? a : 0);
+  });
+  const sym = c => ({ EUR:"\u20AC", USD:"$", GBP:"\u00A3" })[c] || (c + " ");
+  const monthlyLabel = Object.keys(spend).length
+    ? Object.entries(spend).map(([cur,v]) => sym(cur) + Math.round(v)).join(" + ")
+    : "\u2014";
+  const yearlyLabel = Object.keys(spend).length
+    ? Object.entries(spend).map(([cur,v]) => sym(cur) + Math.round(v*12)).join(" + ")
+    : "\u2014";
   const crit = ps.filter(p => p.sensitivity === "critical").length;
+  const lapsed = ps.length - live.length;
   const soon = ps.filter(p => p.renewal_date && p.renewal_date >= todayISO() &&
                               daysBetween(todayISO(), p.renewal_date) <= 45);
 
@@ -1828,8 +1874,10 @@ function renderStack(){
     '<button class="btn btn-ghost btn-sm" id="newProv">+ Provider</button></div></div>';
 
   out += '<div class="tiles">' +
-    '<div class="tile"><div class="n">' + ps.length + '</div><div class="l">providers</div></div>' +
-    '<div class="tile"><div class="n">€' + Math.round(monthly) + '</div><div class="l">per month (recorded)</div></div>' +
+    '<div class="tile"><div class="n">' + live.length + '</div><div class="l">live providers' +
+      (lapsed ? ' · ' + lapsed + ' lapsed' : '') + '</div></div>' +
+    '<div class="tile"><div class="n" style="font-size:21px">' + monthlyLabel + '</div>' +
+      '<div class="l">per month · ' + yearlyLabel + ' a year</div></div>' +
     '<div class="tile"><div class="n">' + crit + '</div><div class="l">critical accounts</div></div>' +
     '<div class="tile' + (soon.length ? " alert" : "") + '"><div class="n">' + soon.length +
       '</div><div class="l">renewing within 45 days</div></div>' +

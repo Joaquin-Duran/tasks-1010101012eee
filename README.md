@@ -118,6 +118,10 @@ Pick a colour that isn't already taken; the current ones are listed in `pm_peopl
 | `pm_docs` | Handbook pages, stored as markdown. |
 | `pm_providers` | Subscriptions and accounts. See *Credentials*. |
 
+Goals carry a `horizon`: `north-star` (the one number), `quarter` and `year` (live work),
+and `someday` — a destination with nothing scheduled against it. `someday` goals are kept
+out of the Gantt, the Planner and the "nobody is working on this" warnings on purpose.
+
 All of it lives in the existing **Goprep Pro** Supabase project, prefixed `pm_`. Nothing
 references, triggers, or modifies the 22 tables the product itself uses.
 
