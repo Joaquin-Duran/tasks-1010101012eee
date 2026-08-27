@@ -139,6 +139,49 @@ main{flex:1;overflow:auto;padding:20px}
 .pill.bad{background:rgba(199,56,59,.12);color:var(--bad)}
 .pill.mute{background:var(--paper);color:var(--ink-3)}
 
+/* ---------- the company strip: the big picture, one line, on My week ---------- */
+.strip{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:var(--white);
+       border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;transition:.15s;flex-wrap:wrap}
+.strip:hover{border-color:rgba(43,44,44,.24);box-shadow:var(--shadow)}
+.strip-ns{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.strip-ns .ga{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.strip-name{font-size:14px;font-weight:600;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strip-goals{display:flex;gap:5px;flex:none}
+.sg{position:relative;display:block;width:13px;height:13px}
+.sg i{position:absolute;inset:0;border-radius:4px;opacity:.85}
+.sg b{position:absolute;right:-1px;bottom:-1px;width:6px;height:6px;border-radius:50%;
+      border:1.5px solid var(--white);background:var(--ink-3)}
+.sg b.ok{background:var(--ok)} .sg b.warn{background:var(--warn)} .sg b.bad{background:var(--bad)}
+.strip-go{font-size:12px;font-weight:600;color:var(--orange);flex:none}
+
+/* ---------- the handy shelf ---------- */
+.quick{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:9px}
+.qcard{display:flex;align-items:center;gap:11px;text-align:left;background:var(--white);
+       border:1px solid var(--line);border-radius:11px;padding:12px 14px;transition:.15s;width:100%}
+.qcard:hover{border-color:rgba(43,44,44,.24);box-shadow:var(--shadow);transform:translateY(-1px)}
+.qi{font-size:19px;line-height:1;flex:none}
+.qt{display:flex;flex-direction:column;gap:1px;font-size:13.2px;font-weight:600;min-width:0}
+.qt small{font-weight:400;font-size:11.5px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- fold: detail that should not shout ---------- */
+.fold{margin:0 0 12px}
+.fold>summary{cursor:pointer;font-size:12.5px;color:var(--ink-2);padding:9px 13px;background:var(--white);
+              border:1px solid var(--line-2);border-radius:9px;list-style:none;font-weight:500}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::before{content:"▸ ";color:var(--ink-3)}
+.fold[open]>summary::before{content:"▾ "}
+.fold>summary:hover{border-color:var(--ink-3)}
+
+/* ---------- phases: closed windows and the rescue ---------- */
+.tlp.closed{opacity:.9}
+.tlp.closed .tlp-head h3{color:var(--ink-2)}
+.rescue{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 16px 12px;padding:11px 14px;
+        background:rgba(199,56,59,.05);border:1px solid rgba(199,56,59,.22);border-radius:10px;
+        font-size:12.5px;line-height:1.55;color:#8E2A2C}
+.rescue>div{flex:1;min-width:220px}
+.crit.verdict{color:var(--ink-2);padding-top:10px}
+.crit.verdict b{color:var(--ink)}
+
 /* ---------- goals ---------- */
 .goal-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:0;overflow:hidden;position:relative;display:flex;flex-direction:column}
 .goal-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gc,var(--orange))}
@@ -376,6 +419,12 @@ main{flex:1;overflow:auto;padding:20px}
   .grow{grid-template-columns:200px minmax(var(--track-min,600px),1fr)}
   .gbody{min-width:calc(200px + var(--track-min,600px))}
   .gmeta{display:none}
+  .strip{gap:10px}
+  .strip-go{display:none}
+  .quick{grid-template-columns:1fr 1fr;gap:7px}
+  .qcard{padding:10px 11px;gap:8px}
+  .qt{font-size:12.4px}
+  .qt small{display:none}
   .grow.lvl-ms .gname{padding-left:20px}
   .grow.lvl-task .gname{padding-left:34px}
 }
@@ -475,34 +524,30 @@ const GOAL_STATUS = ["Not started","On track","At risk","Off track","Achieved"];
 const GOAL_STATUS_TONE = { "Not started":"mute","On track":"ok","At risk":"warn","Off track":"bad","Achieved":"ok" };
 const MS_STATUS = ["Not Started","In Progress","Blocked","Done"];
 
-/* the nav: groups on top, views underneath */
-const GROUPS = [
-  { k:"picture", label:"Big picture", views:[
-      { k:"overview",  label:"Overview" },
-      { k:"goals",     label:"Goals" },
-      { k:"topdown",   label:"Top-down" },
-      { k:"bottomup",  label:"Bottom-up" }
-  ]},
-  { k:"time", label:"Timeline", views:[
-      { k:"gantt",     label:"Gantt" },
-      { k:"planner",   label:"Planner" },
-      { k:"phases",    label:"Phases" }
-  ]},
-  { k:"work", label:"The work", views:[
-      { k:"board",     label:"Board" },
-      { k:"people",    label:"By person" },
-      { k:"area",      label:"By area" },
-      { k:"activity",  label:"Activity" }
-  ]},
-  { k:"company", label:"Company", views:[
-      { k:"start",     label:"Start here" },
-      { k:"handbook",  label:"Handbook" },
-      { k:"stack",     label:"The stack" },
-      { k:"team",      label:"Who we are" }
-  ]}
+/* Three destinations, and a path between them.
+   Everything else is a section or a toggle inside one of these. */
+const NAV = [
+  { k:"my",      label:"My week",      view:"my" },
+  { k:"where",   label:"Where we are", view:"where" },
+  { k:"company", label:"Company",      view:"handbook" }
 ];
-/* views that filter tasks, and so want the filter bar visible */
-const TASKY = new Set(["board","people","area","phases","gantt","planner","topdown","bottomup","goals","overview"]);
+/* the reference shelf is the one place a second row earns its keep */
+const COMPANY_VIEWS = [
+  { k:"start",    label:"Start here" },
+  { k:"handbook", label:"Handbook" },
+  { k:"stack",    label:"The stack" },
+  { k:"team",     label:"Team" },
+  { k:"activity", label:"Activity" }
+];
+/* which destination lights up for a given view, including the drill-downs
+   that have no tab of their own */
+const VIEW_HOME = {
+  my:"my", tasks:"my",
+  where:"where", goal:"where",
+  start:"company", handbook:"company", stack:"company", team:"company", activity:"company"
+};
+/* views that filter tasks, and so want the filter bar */
+const TASKY = new Set(["tasks","where","goal"]);
 
 /* ---- storage that degrades gracefully in sandboxed previews ---- */
 const mem = {};
@@ -515,16 +560,19 @@ const store = {
 let TOKEN = store.get("gp_token") || null;
 let ME = store.get("gp_me") || "";
 let DATA = { people:[], phases:[], tasks:[], goals:[], milestones:[], docs:[], providers:[], metrics:[], activity:[] };
-let VIEW  = store.get("gp_view")  || "overview";
-let GROUP = store.get("gp_group") || "picture";
+let VIEW = store.get("gp_view") || "my";
 const F = { q:"", person:"", cat:"", phase:"", goal:"", pri:new Set(), mine:false, open:false };
 /* per-view local state */
 const UI = {
+  whereMode:    store.get("gp_wmode")  || "cards",    // cards | timeline
+  timelineMode: store.get("gp_tlmode") || "goals",    // goals | phases
+  taskGroup:    store.get("gp_tgroup") || "status",   // status | person | goal | area
+  goal: null,                                          // the goal being drilled into
   ganttScale: store.get("gp_gscale") || "week",   // week | month
   ganttLevel: store.get("gp_glevel") || "ms",     // goal | ms | task
   collapsed: new Set(JSON.parse(store.get("gp_collapsed") || "[]")),
   plannerRange: store.get("gp_prange") || "week", // week | month | quarter
-  plannerScope: store.get("gp_pscope") || "team", // team | me
+  plannerScope: store.get("gp_pscope") || "me",   // me | team
   plannerBy: store.get("gp_pby") || "date",       // date | person
   doc: null,
   revealed: {}
@@ -1239,517 +1287,17 @@ function plannerItems(list){
   return items.sort((a,b) => a.due < b.due ? -1 : a.due > b.due ? 1 : 0);
 }
 
-function renderPlanner(list){
-  const w = plannerWindow();
-  const today = todayISO();
-  const scoped = UI.plannerScope === "me" && ME
-    ? list.filter(t => (t.owners||[]).includes(ME)) : list;
-  const items = plannerItems(scoped);
 
-  const buckets = [
-    { key:"over", label:"Overdue", sub:"should already have happened", tone:"bad",
-      test: o => o.due < today },
-    { key:"now",  label: w.label, sub: w.sub, tone:"warn",
-      test: o => o.due >= today && o.due <= w.e },
-    { key:"next", label: w.nextLabel, sub: fmtDate(w.nextS) + " – " + fmtDateY(w.nextE), tone:"mute",
-      test: o => o.due >= w.nextS && o.due <= w.nextE },
-    { key:"later",label:"Later", sub:"beyond that", tone:"mute",
-      test: o => o.due > w.nextE }
-  ];
 
-  const undated = scoped.filter(t => !t.target_date && t.status !== "Done");
 
-  let body = "";
-  if (UI.plannerBy === "person"){
-    const people = DATA.people.filter(p => p.active);
-    const rows = people.map(p => {
-      const mine = items.filter(o => (o.owners||[]).includes(p.name));
-      const over = mine.filter(o => o.due < today).length;
-      const now  = mine.filter(o => o.due >= today && o.due <= w.e).length;
-      if (!mine.length) return '<div class="pl-person">' + avatar(p.name) +
-        '<h4>' + esc(p.name) + '</h4><span class="lc">nothing due</span></div>';
-      return '<div class="pl-person">' + avatar(p.name) + '<h4>' + esc(p.name) + '</h4>' +
-        (p.role ? '<span class="note">' + esc(p.role) + '</span>' : '') +
-        '<span class="lc">' + (over ? over + " overdue · " : "") + now + " due " + esc(w.label.toLowerCase()) +
-        ' · ' + mine.length + ' open</span></div>' +
-        '<div class="pl-rows">' + mine.slice(0, 40).map(plannerItem).join("") + '</div>';
-    }).join("");
-    const none = items.filter(o => !(o.owners||[]).length);
-    body = rows + (none.length
-      ? '<div class="pl-person"><span class="av" style="background:#B9B4AA">?</span>' +
-        '<h4>Nobody</h4><span class="lc">' + none.length + ' with no owner</span></div>' +
-        '<div class="pl-rows">' + none.map(plannerItem).join("") + '</div>'
-      : "");
-  } else {
-    body = buckets.map(b => {
-      const got = items.filter(b.test);
-      if (!got.length && b.key === "later") return "";
-      return '<div class="pl-bucket">' +
-        '<div class="pl-head"><span class="pill ' + b.tone + '">' + got.length + '</span>' +
-          '<h3>' + esc(b.label) + '</h3><span class="when">' + esc(b.sub) + '</span></div>' +
-        (got.length ? '<div class="pl-rows">' + got.map(plannerItem).join("") + '</div>'
-                    : '<div class="empty">Nothing</div>') +
-      '</div>';
-    }).join("");
-  }
 
-  return '<div class="wrap">' +
-    '<div class="panel"><div class="panel-head">' +
-      '<h3>Planner</h3><span class="sub">what falls due, and on whom</span>' +
-      '<div class="spacer"></div>' +
-      '<div class="seg" id="plRange">' + ["week","month","quarter"].map(k =>
-        '<button data-r="' + k + '"' + (UI.plannerRange===k?' class="on"':'') + '>' +
-        k[0].toUpperCase()+k.slice(1) + '</button>').join("") + '</div>' +
-      '<div class="seg" id="plScope">' +
-        '<button data-sc="team"' + (UI.plannerScope==="team"?' class="on"':'') + '>Everyone</button>' +
-        '<button data-sc="me"' + (UI.plannerScope==="me"?' class="on"':'') + '>Just me</button>' +
-      '</div>' +
-      '<div class="seg" id="plBy">' +
-        '<button data-by="date"' + (UI.plannerBy==="date"?' class="on"':'') + '>By date</button>' +
-        '<button data-by="person"' + (UI.plannerBy==="person"?' class="on"':'') + '>By person</button>' +
-      '</div>' +
-    '</div><div class="panel-body">' + (body || '<div class="empty">Nothing scheduled.</div>') + '</div></div>' +
-    (undated.length ? '<div class="panel"><div class="panel-head"><h3>No date at all</h3>' +
-      '<span class="sub">' + undated.length + ' open ' + (undated.length===1?"task":"tasks") +
-      ' nobody has committed to</span></div><div class="panel-body"><div class="pl-rows">' +
-      undated.map(t => plannerItem({ kind:"task", id:t.id, title:t.title, sub:t.code,
-        owners:t.owners||[], badge:t.priority||"task", tone:"mute", colour:PRIO_HEX[t.priority]||"" })).join("") +
-      '</div></div></div>' : "") +
-  '</div>';
-}
 
-function wirePlanner(){
-  const set = (sel, attr, key, storeKey) => $$(sel + " button").forEach(b => b.onclick = () => {
-    UI[key] = b.dataset[attr]; store.set(storeKey, UI[key]); render();
-  });
-  set("#plRange","r","plannerRange","gp_prange");
-  set("#plScope","sc","plannerScope","gp_pscope");
-  set("#plBy","by","plannerBy","gp_pby");
-  $$("[data-open]").forEach(el => el.onclick = () => {
-    const [kind, id] = el.dataset.open.split(":");
-    if (kind === "task") openTask(id);
-    else if (kind === "goal") openGoal(id);
-    else if (kind === "milestone") openMilestone(id);
-  });
-}
 
-/* ============================================================
-   TOP-DOWN  —  start from what we said matters, drill into the work.
-   The question it answers: is anybody actually doing this?
-   ============================================================ */
-function renderTopDown(list){
-  const goals = liveGoals();
-  const ns = DATA.goals.find(g => g.horizon === "north-star");
-  const someday = somedayGoals();
 
-  const silent = goals.filter(g => !tasksOfGoal(g).filter(isOpen).length);
-  const unmeasured = goals.filter(g => g.metric_name && g.metric_current == null);
 
-  let out = '<div class="wrap">';
-  if (ns){
-    out += '<div class="tree-goal" style="--gc:' + ns.color + '"><div class="tg-head" data-goal="' + ns.id + '">' +
-      '<div><div class="ga" style="color:' + ns.color + '">North star</div>' +
-      '<h3>' + esc(ns.name) + '</h3></div><div class="spacer"></div>' +
-      (ns.metric_name ? '<div style="min-width:190px">' + metricBlock(ns) + '</div>' : '') +
-      '</div>' +
-      (ns.statement ? '<div class="tg-body"><p class="note" style="font-size:13px">' + esc(ns.statement) + '</p></div>' : '') +
-    '</div>';
-  }
 
-  if (silent.length) out += '<div class="flag bad"><span class="fi">◆</span><div>' +
-    '<b>' + silent.length + ' goal' + (silent.length===1?"":"s") + ' with no open work: ' +
-    silent.map(g => esc(g.name)).join(", ") + '.</b> ' +
-    'Either somebody picks up a task, or the goal is not really a goal this quarter. ' +
-    'Saying it out loud is cheaper than discovering it in December.</div></div>';
 
-  if (unmeasured.length) out += '<div class="flag warn"><span class="fi">◆</span><div>' +
-    '<b>' + unmeasured.length + ' goal' + (unmeasured.length===1?" has":"s have") +
-    ' a metric that has never been measured.</b> ' +
-    'Until somebody enters a number, the health flags on those goals are opinion. ' +
-    'Open the goal and use “Log a reading”.</div></div>';
 
-  goals.forEach(g => {
-    const all = tasksOfGoal(g);
-    const shown = tasksOfGoal(g, list);
-    const pr = progress(all);
-    const overdue = all.filter(isLate).length;
-    const mss = msOfGoal(g);
-    const w = goalWindow(g);
-
-    out += '<div class="tree-goal" style="--gc:' + g.color + '">' +
-      '<div class="tg-head" data-goal="' + g.id + '">' +
-        '<div style="min-width:230px;flex:1">' +
-          '<div class="ga">' + esc(g.area || "") + '</div>' +
-          '<h3>' + esc(g.name) + '</h3>' +
-          (g.statement ? '<p class="note" style="margin:5px 0 0">' + esc(g.statement) + '</p>' : '') +
-        '</div>' +
-        '<div style="min-width:180px;flex:none">' + metricBlock(g) + '</div>' +
-        '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex:none">' +
-          goalPill(g) +
-          '<div class="prog" title="' + pr.done + ' of ' + pr.total + ' tasks done"><span style="width:' + pr.pct + '%"></span></div>' +
-          '<span class="note">' + pr.done + '/' + pr.total + ' tasks' + (overdue ? ' · ' : '') +
-            (overdue ? '<b style="color:var(--p0)">' + overdue + ' late</b>' : '') + '</span>' +
-          (g.owner ? '<span class="note">' + avatar(g.owner) + ' ' + esc(g.owner) + '</span>' : '') +
-          (w.starts ? '<span class="note">' + fmtDate(w.starts) + ' → ' + fmtDateY(w.ends) + '</span>' : '') +
-        '</div>' +
-      '</div>' +
-      '<div class="tg-body">' +
-        (g.why ? '<p class="note" style="margin:0 0 12px;font-style:italic">' + esc(g.why) + '</p>' : '') +
-        (mss.length ? mss.map(m => {
-          const mt = tasksOfMs(m, list);
-          const mAll = tasksOfMs(m);
-          const mpr = progress(mAll);
-          const mw = msWindow(m);
-          const late = mw.ends && mw.ends < todayISO() && m.status !== "Done";
-          return '<div class="tg-ms">' +
-            '<div class="tg-ms-head" data-ms="' + m.id + '" style="cursor:pointer">' +
-              '<span class="code">' + esc(m.code || "") + '</span>' +
-              '<span>' + esc(m.name) + '</span>' +
-              '<span class="pill ' + (m.status==="Done"?"ok":late?"bad":"mute") + '">' + esc(m.status) + '</span>' +
-              (mw.ends ? '<span class="note">' + (late ? '<b style="color:var(--p0)">' : '') +
-                fmtDateY(mw.ends) + (late ? '</b>' : '') + '</span>' : '<span class="note">no date</span>') +
-              '<div class="spacer"></div>' +
-              (m.owner ? avatar(m.owner) : "") +
-              '<span class="count">' + mpr.done + "/" + mpr.total + '</span>' +
-            '</div>' +
-            (mt.length
-              ? '<div class="tg-tasks">' + mt.map(t =>
-                  '<div class="tg-task' + (t.status==="Done"?" done":"") + '" data-task="' + t.id + '">' +
-                    '<span class="st" style="background:' + (STATUS_HEX[t.status]||"#8A8A8A") + '"></span>' +
-                    '<span class="code">' + esc(t.code||"") + '</span>' +
-                    '<span class="tt">' + esc(t.title) + '</span>' +
-                    '<div class="spacer"></div>' +
-                    (t.owners||[]).slice(0,3).map(o => avatar(o)).join("") +
-                    (t.target_date ? '<span class="due' + (isLate(t)?" late":"") + '">' + relDue(t.target_date) + '</span>' : '') +
-                  '</div>').join("") + '</div>'
-              : '<div class="note" style="padding:2px 8px;font-style:italic">' +
-                (mAll.length ? mAll.length + ' task(s), all hidden by the current filters'
-                             : 'No tasks under this milestone yet') + '</div>') +
-          '</div>';
-        }).join("")
-        : '<div class="flag warn" style="margin:0"><span class="fi">◆</span><div>' +
-          'No milestones under this goal. A goal with no dated deliverables is a wish — ' +
-          'add one so the Gantt has something to draw.</div></div>') +
-        (shown.filter(t => !t.milestone_id).length
-          ? '<div class="tg-ms" style="border-color:rgba(214,154,34,.4)">' +
-            '<div class="tg-ms-head"><span>Attached to the goal but no milestone</span></div>' +
-            '<div class="tg-tasks">' + shown.filter(t => !t.milestone_id).map(t =>
-              '<div class="tg-task' + (t.status==="Done"?" done":"") + '" data-task="' + t.id + '">' +
-                '<span class="st" style="background:' + (STATUS_HEX[t.status]||"#8A8A8A") + '"></span>' +
-                '<span class="code">' + esc(t.code||"") + '</span>' +
-                '<span class="tt">' + esc(t.title) + '</span></div>').join("") + '</div></div>'
-          : "") +
-      '</div></div>';
-  });
-
-  someday.forEach(g => {
-    out += '<div class="tree-goal someday" style="--gc:' + g.color + '">' +
-      '<div class="tg-head" data-goal="' + g.id + '">' +
-        '<div style="flex:1;min-width:230px">' +
-          '<div class="ga">' + esc(g.area || "") + ' · someday</div>' +
-          '<h3>' + esc(g.name) + '</h3>' +
-          (g.statement ? '<p class="note" style="margin:5px 0 0">' + esc(g.statement) + '</p>' : '') +
-        '</div>' +
-        '<span class="pill mute">not scheduled</span>' +
-        (g.owner ? avatar(g.owner) : "") +
-      '</div>' +
-      (g.why ? '<div class="tg-body"><p class="note" style="margin:0;font-style:italic">' +
-        esc(g.why) + '</p></div>' : '') +
-    '</div>';
-  });
-
-  return out + '</div>';
-}
-
-/* ============================================================
-   BOTTOM-UP  —  start from the work in flight and roll it upward.
-   The question it answers: what is all this effort actually buying?
-   ============================================================ */
-function renderBottomUp(list){
-  const open = list.filter(isOpen);
-  const orphans = open.filter(t => !t.goal_id);
-  const inflight = open.filter(t => t.status === "In Progress");
-  const weight = t => ({ S:1, M:3, L:10, XL:21 })[t.effort] || 3;
-
-  /* where is the effort actually going */
-  const byGoal = {};
-  open.forEach(t => {
-    const k = t.goal_id || "__none";
-    byGoal[k] = (byGoal[k] || 0) + weight(t);
-  });
-  const totalW = Object.values(byGoal).reduce((a,b) => a+b, 0) || 1;
-  const shares = Object.entries(byGoal).map(([k,v]) => {
-    const g = k === "__none" ? null : byId(DATA.goals)[k];
-    return { id:k, name: g ? g.name : "No goal", colour: g ? g.color : "#C7383B",
-             w:v, pct: Math.round(v/totalW*100) };
-  }).sort((a,b) => b.w - a.w);
-
-  let out = '<div class="wrap">';
-
-  out += '<div class="tiles">' +
-    '<div class="tile"><div class="n">' + open.length + '</div><div class="l">open tasks</div></div>' +
-    '<div class="tile"><div class="n">' + inflight.length + '</div><div class="l">in progress right now</div></div>' +
-    '<div class="tile' + (orphans.length ? " alert" : "") + '"><div class="n">' + orphans.length +
-      '</div><div class="l">serving no goal</div></div>' +
-    '<div class="tile"><div class="n">' + shares.length + '</div><div class="l">goals receiving effort</div></div>' +
-  '</div>';
-
-  if (orphans.length) out += '<div class="flag bad"><span class="fi">◆</span><div>' +
-    '<b>' + orphans.length + ' open task' + (orphans.length===1?"":"s") + ' answer to no goal.</b> ' +
-    'That is fine for genuine housekeeping and a warning sign for anything else — it means somebody ' +
-    'is spending their evenings on work the company has not said it wants. Attach them or drop them.</div></div>';
-
-  out += '<div class="panel"><div class="panel-head"><h3>Where the effort is going</h3>' +
-    '<span class="sub">open tasks weighted by effort size, not counted</span></div><div class="panel-body">' +
-    '<div class="effort-bar">' + shares.map(s =>
-      '<div style="width:' + s.pct + '%;background:' + s.colour + '" title="' +
-      esc(s.name + " — " + s.pct + "%") + '">' + (s.pct >= 8 ? s.pct + "%" : "") + '</div>').join("") + '</div>' +
-    '<div class="legend-row">' + shares.map(s =>
-      '<span><i style="background:' + s.colour + '"></i>' + esc(s.name) + ' · ' + s.pct + '%</span>').join("") + '</div>' +
-    '<p class="note" style="margin:12px 0 0">Compare this with the Goals view. If a goal you call ' +
-    'critical is taking 4% of the effort, one of the two is wrong.</p>' +
-  '</div></div>';
-
-  /* what each person's work rolls up to */
-  out += '<div class="section-title">What each person is building toward</div>';
-  DATA.people.filter(p => p.active).forEach(p => {
-    const mine = open.filter(t => (t.owners||[]).includes(p.name));
-    if (!mine.length) return;
-    const goalsHit = {};
-    mine.forEach(t => {
-      const g = goalOf(t);
-      const k = g ? g.id : "__none";
-      goalsHit[k] = goalsHit[k] || { g, n:0 };
-      goalsHit[k].n++;
-    });
-    const late = mine.filter(isLate).length;
-    out += '<div class="panel"><div class="panel-head">' +
-      avatar(p.name) + '<h3>' + esc(p.name) + '</h3>' +
-      (p.role ? '<span class="sub">' + esc(p.role) + '</span>' : '') +
-      '<div class="spacer"></div>' +
-      (late ? '<span class="pill bad">' + late + ' overdue</span>' : '') +
-      '<span class="count">' + mine.length + ' open</span>' +
-    '</div><div class="panel-body" style="display:flex;flex-wrap:wrap;gap:8px">' +
-      Object.values(goalsHit).sort((a,b) => b.n - a.n).map(x =>
-        '<span class="tag goal" style="--tc:' + (x.g ? x.g.color : "#C7383B") + ';font-size:12px;padding:5px 11px">' +
-        esc(x.g ? x.g.name : "no goal") + ' · ' + x.n + '</span>').join("") +
-    '</div></div>';
-  });
-
-  /* the raw in-flight list, rolled up */
-  out += '<div class="section-title">In progress right now, and what it feeds</div>';
-  out += '<div class="panel"><div class="panel-body"><div class="pl-rows">' +
-    (inflight.length ? inflight.map(t => {
-      const g = goalOf(t), m = msOf(t);
-      return '<div class="pl-row" data-open="task:' + t.id + '" style="--pc:' + (PRIO_HEX[t.priority]||"transparent") + '">' +
-        '<span class="code">' + esc(t.code||"") + '</span>' +
-        '<span class="t">' + esc(t.title) +
-          '<small>→ ' + esc(m ? m.name : "no milestone") + ' → ' + esc(g ? g.name : "no goal") + '</small></span>' +
-        '<div class="spacer"></div>' +
-        (t.owners||[]).slice(0,3).map(o => avatar(o)).join("") +
-        (t.target_date ? '<span class="due' + (isLate(t)?" late":"") + '" style="margin-left:8px">' +
-          relDue(t.target_date) + '</span>' : '') +
-      '</div>';
-    }).join("") : '<div class="empty">Nothing in progress.</div>') +
-  '</div></div></div>';
-
-  if (orphans.length){
-    out += '<div class="section-title">Open work with no goal attached</div>' +
-      '<div class="panel"><div class="panel-body"><div class="pl-rows">' +
-      orphans.map(t => '<div class="pl-row" data-open="task:' + t.id + '" style="--pc:var(--p0)">' +
-        '<span class="code">' + esc(t.code||"") + '</span>' +
-        '<span class="t">' + esc(t.title) + '</span><div class="spacer"></div>' +
-        (t.owners||[]).slice(0,3).map(o => avatar(o)).join("") + '</div>').join("") +
-      '</div></div></div>';
-  }
-
-  return out + '</div>';
-}
-
-/* ============================================================
-   OVERVIEW  —  the landing page. Where are we, right now.
-   ============================================================ */
-function renderOverview(list){
-  const today = todayISO();
-  const w = plannerWindow();
-  const all = DATA.tasks;
-  const open = all.filter(isOpen);
-  const overdue = open.filter(isLate);
-  const dueNow = open.filter(t => t.target_date && t.target_date >= today && t.target_date <= w.e);
-  const ns = DATA.goals.find(g => g.horizon === "north-star");
-  const goals = liveGoals();
-  const mine = ME ? open.filter(t => (t.owners||[]).includes(ME)) : [];
-
-  /* things that quietly rot if nobody looks */
-  const attention = [];
-  const silent = goals.filter(g => !tasksOfGoal(g).filter(isOpen).length);
-  const noGoal = open.filter(t => !t.goal_id);
-  const noDate = open.filter(t => !t.target_date);
-  const icebox = all.filter(t => t.phase_key === "icebox" && isOpen(t));
-  const unmeasured = goals.filter(g => g.metric_name && g.metric_current == null);
-  const noOwner = open.filter(t => !(t.owners||[]).length);
-
-  if (overdue.length) attention.push({ tone:"bad", n:overdue.length,
-    text:"<b>" + overdue.length + " open tasks are past their date</b>, the oldest since " +
-      fmtDateY(overdue.map(t => t.target_date).sort()[0]) +
-      ". Either move the dates or move the work — an overdue column nobody clears stops meaning anything.",
-    go:["planner"] });
-  if (silent.length) attention.push({ tone:"bad", n:silent.length,
-    text:"<b>" + silent.length + " goal" + (silent.length===1?" has":"s have") + " no open work: " +
-      silent.map(g => esc(g.name)).join(", ") + ".</b> Nobody is moving them.", go:["topdown"] });
-  if (noGoal.length) attention.push({ tone:"warn", n:noGoal.length,
-    text:"<b>" + noGoal.length + " open tasks are not attached to any goal.</b> Work that answers to nothing.",
-    go:["bottomup"] });
-  if (unmeasured.length) attention.push({ tone:"warn", n:unmeasured.length,
-    text:"<b>" + unmeasured.length + " goals have never had their metric measured.</b> " +
-      "Their health flags are guesses until somebody enters a number.", go:["goals"] });
-  if (icebox.length) attention.push({ tone:"warn", n:icebox.length,
-    text:"<b>" + icebox.length + " tasks sit in the Icebox</b> with no phase and mostly no date. " +
-      "The weekly job is to give each one a goal and a date, or archive it.", go:["board"] });
-  if (noDate.length) attention.push({ tone:"warn", n:noDate.length,
-    text:"<b>" + noDate.length + " open tasks have no date at all</b>, so they appear in no plan and no Gantt bar.",
-    go:["planner"] });
-  if (noOwner.length) attention.push({ tone:"warn", n:noOwner.length,
-    text:"<b>" + noOwner.length + " open tasks have no owner.</b>", go:["people"] });
-
-  /* is the work spread across the team, or piled on one person */
-  const load = DATA.people.filter(p => p.active).map(p => ({
-    p, n: open.filter(t => (t.owners||[]).includes(p.name)).length
-  })).sort((a,b) => b.n - a.n);
-  const top = load[0];
-  const totalAssign = load.reduce((a,b) => a + b.n, 0) || 1;
-  if (top && top.n / totalAssign > 0.4) attention.push({ tone:"bad", n:top.n,
-    text:"<b>" + esc(top.p.name) + " is on " + top.n + " of the " + totalAssign +
-      " assigned open tasks.</b> Everything queues behind one person, and the other " +
-      (load.length-1) + " cannot start.", go:["people"] });
-
-  let out = '<div class="wrap">';
-
-  if (ns){
-    out += '<div class="panel" style="border-left:4px solid ' + ns.color + '">' +
-      '<div class="panel-body" style="display:flex;gap:22px;flex-wrap:wrap;align-items:center">' +
-        '<div style="flex:1;min-width:250px">' +
-          '<div class="ga" style="color:' + ns.color + ';font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase">North star</div>' +
-          '<h2 style="font-size:19px;margin:5px 0 6px;letter-spacing:-.02em">' + esc(ns.name) + '</h2>' +
-          (ns.statement ? '<p class="note" style="font-size:13px;margin:0">' + esc(ns.statement) + '</p>' : '') +
-        '</div>' +
-        '<div style="min-width:200px;--gc:' + ns.color + '">' + metricBlock(ns) + '</div>' +
-      '</div></div>';
-  }
-
-  out += '<div class="tiles">' +
-    '<div class="tile"><div class="n">' + open.length + '</div><div class="l">open tasks</div></div>' +
-    '<div class="tile' + (overdue.length ? " alert" : " good") + '"><div class="n">' + overdue.length +
-      '</div><div class="l">overdue</div></div>' +
-    '<div class="tile"><div class="n">' + dueNow.length + '</div><div class="l">due ' + esc(w.label.toLowerCase()) + '</div></div>' +
-    '<div class="tile"><div class="n">' + all.filter(t => t.status==="Done").length + '</div><div class="l">done all time</div></div>' +
-    (ME ? '<div class="tile"><div class="n">' + mine.length + '</div><div class="l">open for ' + esc(ME) + '</div></div>' : "") +
-  '</div>';
-
-  if (attention.length){
-    out += '<div class="section-title">Needs attention</div>';
-    out += attention.map(a =>
-      '<div class="flag ' + a.tone + '"><span class="fi">◆</span><div>' + a.text +
-      (a.go ? ' <a href="#" data-goview="' + a.go[0] + '">Look →</a>' : '') + '</div></div>').join("");
-  } else {
-    out += '<div class="flag ok"><span class="fi">◆</span><div>Nothing rotting. Dates are current, ' +
-      'every goal has work under it and every task has a home.</div></div>';
-  }
-
-  /* goal health at a glance */
-  out += '<div class="section-title">Goal health</div><div class="grid-auto">';
-  goals.forEach(g => {
-    const all2 = tasksOfGoal(g);
-    const pr = progress(all2);
-    const late = all2.filter(isLate).length;
-    out += '<div class="goal-card" style="--gc:' + g.color + '" data-goal="' + g.id + '">' +
-      '<div class="gh">' +
-        '<div class="ga">' + esc(g.area||"") + '</div>' +
-        '<h3>' + esc(g.name) + '</h3>' +
-        (g.statement ? '<p class="gs">' + esc(g.statement) + '</p>' : '') +
-        metricBlock(g) +
-      '</div>' +
-      '<div class="gf">' + goalPill(g) +
-        '<div class="prog" title="' + pr.done + '/' + pr.total + '"><span style="width:' + pr.pct + '%"></span></div>' +
-        '<span class="note">' + pr.done + '/' + pr.total + '</span>' +
-        (late ? '<span class="pill bad">' + late + ' late</span>' : '') +
-        '<div class="spacer"></div>' + (g.owner ? avatar(g.owner) : "") +
-      '</div></div>';
-  });
-  out += '</div>';
-
-  /* due this week */
-  out += '<div class="section-title">Due ' + esc(w.label.toLowerCase()) + ' · ' + esc(w.sub) + '</div>';
-  const soon = plannerItems(open).filter(o => o.due >= today && o.due <= w.e);
-  out += '<div class="panel"><div class="panel-body">' +
-    (soon.length ? '<div class="pl-rows">' + soon.map(plannerItem).join("") + '</div>'
-                 : '<div class="empty">Nothing due in this window.</div>') +
-    '</div></div>';
-
-  if (overdue.length){
-    out += '<div class="section-title">Overdue</div><div class="panel"><div class="panel-body"><div class="pl-rows">' +
-      plannerItems(overdue).map(plannerItem).join("") + '</div></div></div>';
-  }
-
-  return out + '</div>';
-}
-
-/* ============================================================
-   GOALS
-   ============================================================ */
-function renderGoals(){
-  const goals = DATA.goals.slice().sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
-  if (!goals.length) return '<div class="empty">No goals yet.</div>';
-  const ns = goals.filter(g => g.horizon === "north-star");
-  const later = goals.filter(g => g.horizon === "someday");
-  const rest = goals.filter(g => g.horizon !== "north-star" && g.horizon !== "someday");
-  const byArea = {};
-  rest.forEach(g => { (byArea[g.area || "Other"] = byArea[g.area || "Other"] || []).push(g); });
-
-  const cardOf = g => {
-    const all = tasksOfGoal(g);
-    const pr = progress(all);
-    const late = all.filter(isLate).length;
-    const w = goalWindow(g);
-    const mss = msOfGoal(g);
-    return '<div class="goal-card" style="--gc:' + g.color + '" data-goal="' + g.id + '">' +
-      '<div class="gh">' +
-        '<div class="ga">' + esc(g.area || "") + ' · ' + esc(g.horizon) + '</div>' +
-        '<h3>' + esc(g.name) + '</h3>' +
-        (g.statement ? '<p class="gs">' + esc(g.statement) + '</p>' : '') +
-        metricBlock(g) +
-        (g.why ? '<p class="note" style="margin:11px 0 0;font-style:italic">' + esc(g.why) + '</p>' : '') +
-        '<div class="note" style="margin-top:10px">' +
-          mss.length + ' milestone' + (mss.length===1?"":"s") + ' · ' + all.length + ' task' + (all.length===1?"":"s") +
-          (w.starts ? ' · ' + fmtDate(w.starts) + ' → ' + fmtDateY(w.ends) : '') +
-        '</div>' +
-      '</div>' +
-      '<div class="gf">' + goalPill(g) +
-        '<div class="prog"><span style="width:' + pr.pct + '%"></span></div>' +
-        '<span class="note">' + pr.done + '/' + pr.total + '</span>' +
-        (late ? '<span class="pill bad">' + late + ' late</span>' : '') +
-        '<div class="spacer"></div>' + (g.owner ? avatar(g.owner, g.owner + " owns this goal") : "") +
-      '</div></div>';
-  };
-
-  let out = '<div class="wrap">';
-  out += '<div class="panel"><div class="panel-head"><h3>Goals</h3>' +
-    '<span class="sub">what we want to be true, and how we would know</span><div class="spacer"></div>' +
-    '<button class="btn btn-ghost btn-sm" id="newGoal">+ Goal</button>' +
-    '<button class="btn btn-ghost btn-sm" id="newMs">+ Milestone</button></div></div>';
-  if (ns.length) out += '<div class="section-title">North star</div><div class="grid-auto">' + ns.map(cardOf).join("") + '</div>';
-  Object.keys(byArea).sort().forEach(area => {
-    out += '<div class="section-title">' + esc(area) + '</div><div class="grid-auto">' +
-      byArea[area].map(cardOf).join("") + '</div>';
-  });
-  if (later.length){
-    out += '<div class="section-title">Someday — where this is all going</div>' +
-      '<p class="note" style="margin:-4px 0 10px;max-width:640px">Nothing is scheduled against these and ' +
-      'nobody is working on them. They sit here so the plan has a visible destination instead of ' +
-      'living in a slide deck.</p><div class="grid-auto">' + later.map(cardOf).join("") + '</div>';
-  }
-  return out + '</div>';
-}
 
 /* ============================================================
    HANDBOOK
@@ -1937,47 +1485,58 @@ function renderStack(){
   return out + '</div>';
 }
 
-/* ============================================================
-   the original views, unchanged in spirit
-   ============================================================ */
-function renderBoard(list){
-  return '<div class="cols">' + STATUSES.map(s =>
-    column(s.k, s.c, list.filter(t => t.status === s.k), s.k)).join("") + '</div>';
-}
-function renderPeople(list){
-  const cols = DATA.people.filter(p => p.active).map(p =>
-    column(p.name, p.color, list.filter(t => (t.owners || []).includes(p.name))));
-  cols.push(column("Unassigned", "#B9B4AA", list.filter(t => !(t.owners || []).length)));
-  return '<div class="cols">' + cols.join("") + '</div>';
-}
-function renderArea(list){
-  const used = CATS.filter(c => list.some(t => t.category === c));
-  const cols = used.map(c => column(c, "#5A5B5B", list.filter(t => t.category === c)));
-  const none = list.filter(t => !t.category);
-  if (none.length) cols.push(column("Uncategorised", "#B9B4AA", none));
-  return '<div class="cols">' + (cols.length ? cols.join("") : '<div class="empty">No tasks match.</div>') + '</div>';
-}
+
+
+
 function renderPhases(list){
+  const today = todayISO();
+  /* Where stranded work should go. Not simply "the current phase" -- a window
+     that closes next week is no better a home than the one it came from. Take the
+     first phase with at least a fortnight of runway left. */
+  const target = DATA.phases
+    .filter(f => f.ends && daysBetween(today, f.ends) >= 14)
+    .sort((a,b) => (a.sort_order||0) - (b.sort_order||0))[0];
+
   return '<div class="tl">' + DATA.phases.map(ph => {
     const ts = list.filter(t => t.phase_key === ph.key);
-    if (!ts.length) return "";
+    const allTs = DATA.tasks.filter(t => t.phase_key === ph.key);
+    const upcoming = ph.ends && ph.ends >= today;
+    if (!allTs.length && ph.key !== "icebox" && !upcoming) return "";
     const pr = progress(ts);
+    const openN = allTs.filter(isOpen).length;
+    const closed = ph.ends && ph.ends < today;
+    const live = ph.starts && ph.ends && ph.starts <= today && ph.ends >= today;
     const win = ph.starts ? fmtDate(ph.starts) + " → " + fmtDateY(ph.ends) : "unscheduled";
-    const past = ph.ends && ph.ends < todayISO() && pr.pct < 100;
-    return '<section class="tlp" style="--pc:' + ph.color + '">' +
+
+    return '<section class="tlp' + (closed ? " closed" : "") + '" style="--pc:' + ph.color + '">' +
       '<div class="tlp-head">' +
         '<h3>' + esc(ph.name) + '</h3>' +
         '<span class="win">' + esc(win) + '</span>' +
+        (live ? '<span class="pill warn">now</span>' : '') +
+        (closed ? '<span class="pill mute">closed</span>' : '') +
         (ph.theme ? '<span class="theme">' + esc(ph.theme) + '</span>' : '') +
-        (past ? '<span class="pill bad">window closed, ' + (pr.total-pr.done) + ' still open</span>' : '') +
+        '<div class="spacer"></div>' +
         '<div class="prog" title="' + pr.done + ' of ' + pr.total + ' done"><span style="width:' + pr.pct + '%"></span></div>' +
         '<span class="count">' + pr.done + '/' + pr.total + '</span>' +
+        '<button class="btn btn-ghost btn-sm" data-phase="' + esc(ph.key) + '">Edit</button>' +
       '</div>' +
-      '<div class="tlp-body">' + ts.map(card).join("") + '</div>' +
+      (closed && openN && target && target.key !== ph.key
+        ? '<div class="rescue"><div><b>' + openN + ' task' + (openN===1?"":"s") +
+          ' still open in a window that closed ' + relDue(ph.ends) + '.</b> ' +
+          'Leaving them here makes every date on this board a little less true.</div>' +
+          '<button class="btn btn-primary btn-sm" data-move-from="' + esc(ph.key) +
+          '" data-move-to="' + esc(target.key) + '">Move to ' + esc(target.name) + '</button></div>'
+        : '') +
+      (!allTs.length && upcoming
+        ? '<div class="crit" style="padding-top:12px"><i>Nothing planned into this window yet.</i></div>'
+        : '') +
+      (ph.verdict ? '<div class="crit verdict"><b>Verdict:</b> ' + esc(ph.verdict) + '</div>' : '') +
+      (ts.length ? '<div class="tlp-body">' + ts.map(card).join("") + '</div>' : '') +
       (ph.success_criteria ? '<div class="crit"><b>Success:</b> ' + esc(ph.success_criteria) + '</div>' : '') +
     '</section>';
   }).join("") + '</div>';
 }
+
 function renderActivity(){
   if (!DATA.activity.length) return '<div class="empty">No activity yet.</div>';
   return '<div class="feed">' + DATA.activity.map(a =>
@@ -1987,6 +1546,436 @@ function renderActivity(){
       '<span class="ttl">' + esc(a.task_title) + '</span>' +
       '<span class="when">' + ago(a.at) + '</span>' +
     '</div>').join("") + '</div>';
+}
+
+/* ============================================================
+   THE THREE DESTINATIONS
+   My week -> what I owe.  Where we are -> the company, drillable.
+   Company -> the reference shelf.
+   Everything else is a section or a toggle inside one of those.
+   ============================================================ */
+
+/* ---- shared: the health checks, used on Where we are ---- */
+function attentionList(){
+  const today = todayISO();
+  const all = DATA.tasks, open = all.filter(isOpen);
+  const goals = liveGoals();
+  const out = [];
+  const overdue = open.filter(isLate);
+  const silent = goals.filter(g => !tasksOfGoal(g).filter(isOpen).length);
+  const noGoal = open.filter(t => !t.goal_id);
+  const noDate = open.filter(t => !t.target_date);
+  const icebox = all.filter(t => t.phase_key === "icebox" && isOpen(t));
+  const unmeasured = goals.filter(g => g.metric_name && g.metric_current == null);
+
+  if (overdue.length) out.push({ tone:"bad",
+    text:"<b>" + overdue.length + " open tasks are past their date</b>, the oldest since " +
+      fmtDateY(overdue.map(t => t.target_date).sort()[0]) + ".", go:"tasks" });
+  if (silent.length) out.push({ tone:"bad",
+    text:"<b>" + silent.length + " goal" + (silent.length===1?" has":"s have") + " no open work: " +
+      silent.map(g => esc(g.name)).join(", ") + ".</b>", go:"where" });
+  if (unmeasured.length) out.push({ tone:"warn",
+    text:"<b>" + unmeasured.length + " goals have never been measured.</b> Their health is a guess " +
+      "until somebody enters a number.", go:"where" });
+  if (icebox.length) out.push({ tone:"warn",
+    text:"<b>" + icebox.length + " tasks sit in the Icebox</b> with no date. Give each one a goal " +
+      "and a date, or archive it.", go:"tasks" });
+  if (noGoal.length) out.push({ tone:"warn",
+    text:"<b>" + noGoal.length + " open tasks serve no goal.</b>", go:"tasks" });
+  if (noDate.length) out.push({ tone:"warn",
+    text:"<b>" + noDate.length + " open tasks have no date</b>, so they appear in no plan.", go:"tasks" });
+
+  const load = DATA.people.filter(p => p.active)
+    .map(p => ({ p, n: open.filter(t => (t.owners||[]).includes(p.name)).length }))
+    .sort((a,b) => b.n - a.n);
+  const total = load.reduce((a,b) => a + b.n, 0) || 1;
+  if (load[0] && load[0].n / total > 0.4) out.push({ tone:"bad",
+    text:"<b>" + esc(load[0].p.name) + " is on " + load[0].n + " of the " + total +
+      " assigned open tasks.</b> Everything queues behind one person.", go:"tasks" });
+  return out;
+}
+
+/* ---- shared: where the effort actually goes ---- */
+function effortSection(){
+  const open = DATA.tasks.filter(isOpen);
+  const weight = t => ({ S:1, M:3, L:10, XL:21 })[t.effort] || 3;
+  const byGoal = {};
+  open.forEach(t => { const k = t.goal_id || "__none"; byGoal[k] = (byGoal[k]||0) + weight(t); });
+  const total = Object.values(byGoal).reduce((a,b) => a+b, 0) || 1;
+  const shares = Object.entries(byGoal).map(([k,v]) => {
+    const g = k === "__none" ? null : byId(DATA.goals)[k];
+    return { name: g ? g.name : "No goal", colour: g ? g.color : "#C7383B",
+             id: g ? g.id : null, pct: Math.round(v/total*100) };
+  }).sort((a,b) => b.pct - a.pct);
+
+  return '<div class="panel"><div class="panel-head"><h3>Where the effort goes</h3>' +
+    '<span class="sub">open tasks weighted by size, not counted</span></div>' +
+    '<div class="panel-body">' +
+      '<div class="effort-bar">' + shares.map(s =>
+        '<div style="width:' + s.pct + '%;background:' + s.colour + '" title="' +
+        esc(s.name + " — " + s.pct + "%") + '">' + (s.pct >= 8 ? s.pct + "%" : "") + '</div>').join("") + '</div>' +
+      '<div class="legend-row">' + shares.map(s =>
+        '<span' + (s.id ? ' data-open-goal="' + s.id + '" style="cursor:pointer"' : '') + '>' +
+        '<i style="background:' + s.colour + '"></i>' + esc(s.name) + ' · ' + s.pct + '%</span>').join("") + '</div>' +
+      '<p class="note" style="margin:12px 0 0">If a goal you call critical is taking 4% of the ' +
+      'effort, one of the two is wrong.</p>' +
+    '</div></div>';
+}
+
+/* ---- shared: the handy shelf ---- */
+const QUICK = [
+  { doc:"vision",          icon:"🧭", label:"Where we are going",   sub:"the four stages" },
+  { doc:"design",          icon:"🎨", label:"Design principles",     sub:"palette, type, tone" },
+  { doc:"strategy",        icon:"📣", label:"How we plan to win",    sub:"the marketing thesis" },
+  { doc:"audience",        icon:"🎯", label:"Who we build for",      sub:"the archetypes" },
+  { doc:"ways-of-working", icon:"⚙️", label:"How we work",           sub:"pillars, cadence, rules" },
+  { doc:"library",         icon:"📚", label:"Reference library",     sub:"the long documents" }
+];
+function quickAccess(){
+  const have = QUICK.filter(q => DATA.docs.some(d => d.key === q.doc));
+  return '<div class="section-title">Handy</div>' +
+    '<div class="quick">' +
+      have.map(q => '<button class="qcard" data-doc="' + esc(q.doc) + '">' +
+        '<span class="qi">' + q.icon + '</span>' +
+        '<span class="qt">' + esc(q.label) + '<small>' + esc(q.sub) + '</small></span></button>').join("") +
+      '<button class="qcard" data-goview="stack"><span class="qi">🔑</span>' +
+        '<span class="qt">The stack<small>subscriptions, logins, costs</small></span></button>' +
+      '<button class="qcard" data-goview="start"><span class="qi">👋</span>' +
+        '<span class="qt">Start here<small>new? read this first</small></span></button>' +
+    '</div>';
+}
+
+/* ---- the compact company strip: the big picture without leaving My week ---- */
+function companyStrip(){
+  const ns = DATA.goals.find(g => g.horizon === "north-star");
+  const goals = liveGoals();
+  return '<button class="strip" data-goview="where">' +
+    '<div class="strip-ns">' +
+      '<span class="ga">North star</span>' +
+      '<span class="strip-name">' + esc(ns ? ns.name : "No north star set") + '</span>' +
+    '</div>' +
+    '<div class="strip-goals">' + goals.map(g => {
+      const pr = progress(tasksOfGoal(g));
+      return '<span class="sg" title="' + esc(g.name + " — " + g.status + " · " + pr.done + "/" + pr.total) + '">' +
+        '<i style="background:' + g.color + '"></i>' +
+        '<b class="' + (GOAL_STATUS_TONE[g.status]||"mute") + '"></b></span>';
+    }).join("") + '</div>' +
+    '<span class="strip-go">Where we are →</span>' +
+  '</button>';
+}
+
+/* ============================================================
+   1 · MY WEEK  — the landing page
+   ============================================================ */
+function renderMyWeek(){
+  const today = todayISO();
+  const w = plannerWindow();
+  const meName = ME || "";
+  const justMe = UI.plannerScope === "me" && meName;
+  const open = DATA.tasks.filter(isOpen);
+  const mine = justMe ? open.filter(t => (t.owners||[]).includes(meName)) : open;
+  const items = plannerItems(mine);
+  const myOverdue = mine.filter(isLate);
+  const myDue = mine.filter(t => t.target_date && t.target_date >= today && t.target_date <= w.e);
+  const myProg = mine.filter(t => t.status === "In Progress");
+  const undated = mine.filter(t => !t.target_date);
+
+  const buckets = [
+    { label:"Overdue", sub:"should already have happened", tone:"bad", test:o => o.due < today },
+    { label:w.label, sub:w.sub, tone:"warn", test:o => o.due >= today && o.due <= w.e },
+    { label:w.nextLabel, sub:fmtDate(w.nextS) + " – " + fmtDateY(w.nextE), tone:"mute",
+      test:o => o.due >= w.nextS && o.due <= w.nextE }
+  ];
+
+  let out = '<div class="wrap">' + companyStrip();
+
+  out += '<div class="panel-head" style="border:none;padding:18px 0 10px">' +
+    (justMe ? avatar(meName) : "") +
+    '<h2 style="font-size:19px;letter-spacing:-.02em">' +
+      (justMe ? esc(meName) + "’s week" : "The team’s week") + '</h2>' +
+    '<div class="spacer"></div>' +
+    '<div class="seg" id="plRange">' + ["week","month","quarter"].map(k =>
+      '<button data-r="' + k + '"' + (UI.plannerRange===k?' class="on"':'') + '>' +
+      k[0].toUpperCase()+k.slice(1) + '</button>').join("") + '</div>' +
+    '<div class="seg" id="plScope">' +
+      '<button data-sc="me"' + (UI.plannerScope==="me"?' class="on"':'') + '>Just me</button>' +
+      '<button data-sc="team"' + (UI.plannerScope==="team"?' class="on"':'') + '>Everyone</button>' +
+    '</div>' +
+  '</div>';
+
+  out += '<div class="tiles">' +
+    '<div class="tile' + (myOverdue.length ? " alert" : " good") + '"><div class="n">' +
+      myOverdue.length + '</div><div class="l">overdue</div></div>' +
+    '<div class="tile"><div class="n">' + myDue.length + '</div><div class="l">due ' + esc(w.label.toLowerCase()) + '</div></div>' +
+    '<div class="tile"><div class="n">' + myProg.length + '</div><div class="l">in progress</div></div>' +
+    '<div class="tile"><div class="n">' + mine.length + '</div><div class="l">open in total</div></div>' +
+  '</div>';
+
+  const body = buckets.map(b => {
+    const got = items.filter(b.test);
+    if (!got.length) return "";
+    return '<div class="pl-bucket">' +
+      '<div class="pl-head"><span class="pill ' + b.tone + '">' + got.length + '</span>' +
+        '<h3>' + esc(b.label) + '</h3><span class="when">' + esc(b.sub) + '</span></div>' +
+      '<div class="pl-rows">' + got.map(plannerItem).join("") + '</div></div>';
+  }).join("");
+
+  out += '<div class="panel"><div class="panel-body">' +
+    (body || '<div class="empty">Nothing due in this window. ' +
+      (undated.length ? undated.length + ' of your tasks have no date at all.' : 'You are clear.') + '</div>') +
+    '</div></div>';
+
+  if (undated.length){
+    out += '<details class="fold"><summary>' + undated.length +
+      ' of your tasks have no date <span class="note">— they appear in no plan</span></summary>' +
+      '<div class="pl-rows" style="margin-top:8px">' + undated.map(t => plannerItem({
+        kind:"task", id:t.id, title:t.title, sub:t.code, owners:t.owners||[],
+        badge:t.priority||"task", tone:"mute", colour:PRIO_HEX[t.priority]||"" })).join("") +
+      '</div></details>';
+  }
+
+  out += '<div style="margin:10px 0 4px"><button class="btn btn-ghost btn-sm" data-goview="tasks">' +
+    'See every task →</button></div>';
+
+  out += quickAccess();
+
+  const recent = DATA.activity.slice(0,5);
+  if (recent.length){
+    out += '<div class="section-title">Lately</div><div class="feed">' + recent.map(a =>
+      '<div class="ev' + (String(a.action).indexOf("revealed") === 0 ? " sec" : "") + '">' +
+        '<span class="actor" style="color:' + personColor(a.actor) + '">' + esc(a.actor) + '</span>' +
+        '<span class="act">' + esc(a.action) + '</span>' +
+        '<span class="ttl">' + esc(a.task_title) + '</span>' +
+        '<span class="when">' + ago(a.at) + '</span></div>').join("") + '</div>';
+  }
+  return out + '</div>';
+}
+
+/* ============================================================
+   2 · WHERE WE ARE  — the company on one page, drillable
+   ============================================================ */
+function renderWhere(list){
+  const ns = DATA.goals.find(g => g.horizon === "north-star");
+  const goals = liveGoals();
+  const later = somedayGoals();
+  const checks = attentionList();
+
+  let out = '<div class="wrap">';
+
+  if (ns){
+    out += '<div class="panel" style="border-left:4px solid ' + ns.color + '">' +
+      '<div class="panel-body" style="display:flex;gap:22px;flex-wrap:wrap;align-items:center">' +
+        '<div style="flex:1;min-width:250px">' +
+          '<div class="ga" style="color:' + ns.color + '">North star</div>' +
+          '<h2 style="font-size:19px;margin:5px 0 6px;letter-spacing:-.02em">' + esc(ns.name) + '</h2>' +
+          (ns.statement ? '<p class="note" style="font-size:13px;margin:0">' + esc(ns.statement) + '</p>' : '') +
+        '</div>' +
+        '<div style="min-width:200px;--gc:' + ns.color + '">' + metricBlock(ns) + '</div>' +
+      '</div></div>';
+  }
+
+  /* health checks: the first one always, the rest folded away */
+  if (checks.length){
+    out += '<div class="flag ' + checks[0].tone + '"><span class="fi">◆</span><div>' + checks[0].text +
+      ' <a href="#" data-goview="' + checks[0].go + '">Look →</a></div></div>';
+    if (checks.length > 1){
+      out += '<details class="fold"><summary>' + (checks.length-1) + ' more thing' +
+        (checks.length === 2 ? "" : "s") + ' worth a look</summary><div style="margin-top:8px">' +
+        checks.slice(1).map(c => '<div class="flag ' + c.tone + '"><span class="fi">◆</span><div>' +
+          c.text + ' <a href="#" data-goview="' + c.go + '">Look →</a></div></div>').join("") +
+        '</div></details>';
+    }
+  } else {
+    out += '<div class="flag ok"><span class="fi">◆</span><div>Nothing rotting.</div></div>';
+  }
+
+  out += '<div class="panel-head" style="border:none;padding:16px 0 10px">' +
+    '<h2 style="font-size:17px">The goals</h2>' +
+    '<span class="sub">click one to open it</span><div class="spacer"></div>' +
+    '<div class="seg" id="wMode">' +
+      '<button data-w="cards"' + (UI.whereMode==="cards"?' class="on"':'') + '>Cards</button>' +
+      '<button data-w="timeline"' + (UI.whereMode==="timeline"?' class="on"':'') + '>Timeline</button>' +
+    '</div>' +
+    '<button class="btn btn-ghost btn-sm" id="newGoal">+ Goal</button>' +
+  '</div>';
+
+  if (UI.whereMode === "timeline"){
+    out += '<div class="seg" id="tlMode" style="margin-bottom:12px">' +
+      '<button data-t="goals"' + (UI.timelineMode==="goals"?' class="on"':'') + '>By goal</button>' +
+      '<button data-t="phases"' + (UI.timelineMode==="phases"?' class="on"':'') + '>By phase</button>' +
+    '</div>';
+    out += UI.timelineMode === "phases" ? renderPhases(list) : renderGantt(list);
+  } else {
+    const byArea = {};
+    goals.forEach(g => { (byArea[g.area || "Other"] = byArea[g.area || "Other"] || []).push(g); });
+    Object.keys(byArea).sort().forEach(area => {
+      out += '<div class="section-title">' + esc(area) + '</div><div class="grid-auto">' +
+        byArea[area].map(goalCard).join("") + '</div>';
+    });
+    if (later.length){
+      out += '<div class="section-title">Someday — where this is all going</div>' +
+        '<p class="note" style="margin:-4px 0 10px;max-width:640px">Nothing is scheduled against these. ' +
+        'They sit here so the plan has a visible destination.</p>' +
+        '<div class="grid-auto">' + later.map(goalCard).join("") + '</div>';
+    }
+    out += effortSection();
+  }
+  return out + '</div>';
+}
+
+function goalCard(g){
+  const all = tasksOfGoal(g);
+  const pr = progress(all);
+  const late = all.filter(isLate).length;
+  const mss = msOfGoal(g);
+  const someday = g.horizon === "someday";
+  return '<div class="goal-card' + (someday ? " someday" : "") + '" style="--gc:' + g.color +
+      '" data-open-goal="' + g.id + '">' +
+    '<div class="gh">' +
+      '<div class="ga">' + esc(g.area || "") + (someday ? " · someday" : "") + '</div>' +
+      '<h3>' + esc(g.name) + '</h3>' +
+      (g.statement ? '<p class="gs">' + esc(g.statement) + '</p>' : '') +
+      metricBlock(g) +
+      (someday ? '' : '<div class="note" style="margin-top:10px">' + mss.length + ' milestone' +
+        (mss.length===1?"":"s") + ' · ' + all.length + ' task' + (all.length===1?"":"s") + '</div>') +
+    '</div>' +
+    '<div class="gf">' + goalPill(g) +
+      (someday ? '' :
+        '<div class="prog" title="' + pr.done + '/' + pr.total + '"><span style="width:' + pr.pct + '%"></span></div>' +
+        '<span class="note">' + pr.done + '/' + pr.total + '</span>' +
+        (late ? '<span class="pill bad">' + late + ' late</span>' : '')) +
+      '<div class="spacer"></div>' + (g.owner ? avatar(g.owner, g.owner + " owns this") : "") +
+    '</div></div>';
+}
+
+/* ============================================================
+   3 · ONE GOAL  — everything about it, and nothing else
+   ============================================================ */
+function renderGoalDetail(list){
+  const g = DATA.goals.find(x => x.id === UI.goal);
+  if (!g){ UI.goal = null; return renderWhere(list); }
+  const all = tasksOfGoal(g);
+  const pr = progress(all);
+  const late = all.filter(isLate).length;
+  const mss = msOfGoal(g);
+  const w = goalWindow(g);
+  const loose = all.filter(t => !t.milestone_id);
+
+  let out = '<div class="wrap">' +
+    '<button class="btn btn-ghost btn-sm" data-goview="where" style="margin-bottom:12px">← Where we are</button>' +
+    '<div class="tree-goal' + (g.horizon === "someday" ? " someday" : "") + '" style="--gc:' + g.color + '">' +
+      '<div class="tg-head" style="cursor:default">' +
+        '<div style="flex:1;min-width:240px">' +
+          '<div class="ga">' + esc(g.area||"") + ' · ' + esc(g.horizon) + '</div>' +
+          '<h3 style="font-size:19px;margin:3px 0 6px">' + esc(g.name) + '</h3>' +
+          (g.statement ? '<p class="note" style="margin:0;font-size:13px">' + esc(g.statement) + '</p>' : '') +
+        '</div>' +
+        (g.metric_name ? '<div style="min-width:190px">' + metricBlock(g) + '</div>' : '') +
+        '<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">' +
+          goalPill(g) +
+          (g.horizon === "someday" ? '' :
+            '<div class="prog"><span style="width:' + pr.pct + '%"></span></div>' +
+            '<span class="note">' + pr.done + '/' + pr.total + ' tasks' +
+            (late ? ' · <b style="color:var(--p0)">' + late + ' late</b>' : '') + '</span>') +
+          (g.owner ? '<span class="note">' + avatar(g.owner) + ' ' + esc(g.owner) + '</span>' : '') +
+          (w.starts ? '<span class="note">' + fmtDate(w.starts) + ' → ' + fmtDateY(w.ends) + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      (g.why ? '<div class="tg-body"><p class="note" style="margin:0;font-style:italic">' + esc(g.why) + '</p></div>' : '') +
+    '</div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px">' +
+      '<button class="btn btn-ghost btn-sm" data-goal="' + g.id + '">Edit goal</button>' +
+      '<button class="btn btn-ghost btn-sm" id="newMs">+ Milestone</button>' +
+      '<button class="btn btn-ghost btn-sm" id="newTaskHere">+ Task</button>' +
+    '</div>';
+
+  if (g.horizon === "someday" && !mss.length && !all.length){
+    return out + '<div class="flag warn" style="margin:0"><span class="fi">◆</span><div>' +
+      'Nothing is scheduled against this, on purpose. It is a destination, not this quarter&rsquo;s work.' +
+      '</div></div></div>';
+  }
+
+  out += '<div class="section-title">Milestones</div>';
+  out += mss.length ? mss.map(m => {
+    const mAll = tasksOfMs(m);
+    const mpr = progress(mAll);
+    const mw = msWindow(m);
+    const mLate = mw.ends && mw.ends < todayISO() && m.status !== "Done";
+    return '<div class="panel"><div class="panel-head">' +
+      '<span class="code">' + esc(m.code||"") + '</span>' +
+      '<h3>' + esc(m.name) + '</h3>' +
+      '<span class="pill ' + (m.status==="Done"?"ok":mLate?"bad":"mute") + '">' + esc(m.status) + '</span>' +
+      (mw.ends ? '<span class="sub">' + (mLate ? "was due " : "due ") + fmtDateY(mw.ends) + '</span>'
+               : '<span class="sub">no date</span>') +
+      '<div class="spacer"></div>' +
+      (m.owner ? avatar(m.owner) : "") +
+      '<span class="count">' + mpr.done + '/' + mpr.total + '</span>' +
+      '<button class="btn btn-ghost btn-sm" data-ms="' + m.id + '">Edit</button>' +
+    '</div><div class="panel-body">' +
+      (m.description ? '<p class="note" style="margin:0 0 10px">' + esc(m.description) + '</p>' : '') +
+      (mAll.length ? '<div class="tg-tasks">' + mAll.map(taskRow).join("") + '</div>'
+                   : '<div class="empty">No tasks yet</div>') +
+    '</div></div>';
+  }).join("")
+  : '<div class="flag warn"><span class="fi">◆</span><div>No milestones. A goal with no dated ' +
+    'deliverables is a wish — add one so it can appear on a timeline.</div></div>';
+
+  if (loose.length){
+    out += '<div class="section-title">On the goal, but under no milestone</div>' +
+      '<div class="panel"><div class="panel-body"><div class="tg-tasks">' +
+      loose.map(taskRow).join("") + '</div></div></div>';
+  }
+  return out + '</div>';
+}
+
+function taskRow(t){
+  return '<div class="tg-task' + (t.status==="Done"?" done":"") + '" data-task="' + t.id + '">' +
+    '<span class="st" style="background:' + (STATUS_HEX[t.status]||"#8A8A8A") + '"></span>' +
+    '<span class="code">' + esc(t.code||"") + '</span>' +
+    '<span class="tt">' + esc(t.title) + '</span>' +
+    '<div class="spacer"></div>' +
+    (t.owners||[]).slice(0,3).map(o => avatar(o)).join("") +
+    (t.target_date ? '<span class="due' + (isLate(t)?" late":"") + '">' + relDue(t.target_date) + '</span>' : '') +
+  '</div>';
+}
+
+/* ============================================================
+   EVERY TASK  — one page, grouped however you like
+   ============================================================ */
+function renderTasks(list){
+  const by = UI.taskGroup;
+  let cols = "";
+  if (by === "person"){
+    const c = DATA.people.filter(p => p.active).map(p =>
+      column(p.name, p.color, list.filter(t => (t.owners||[]).includes(p.name))));
+    c.push(column("Unassigned", "#B9B4AA", list.filter(t => !(t.owners||[]).length)));
+    cols = c.join("");
+  } else if (by === "area"){
+    const used = CATS.filter(x => list.some(t => t.category === x));
+    const c = used.map(x => column(x, "#5A5B5B", list.filter(t => t.category === x)));
+    const none = list.filter(t => !t.category);
+    if (none.length) c.push(column("Uncategorised", "#B9B4AA", none));
+    cols = c.join("") || '<div class="empty">No tasks match.</div>';
+  } else if (by === "goal"){
+    const c = liveGoals().map(g => column(g.name, g.color, list.filter(t => t.goal_id === g.id)));
+    const none = list.filter(t => !t.goal_id);
+    if (none.length) c.push(column("No goal", "#C7383B", none));
+    cols = c.join("");
+  } else {
+    cols = STATUSES.map(s => column(s.k, s.c, list.filter(t => t.status === s.k), s.k)).join("");
+  }
+  return '<div class="wrap" style="max-width:none">' +
+    '<div class="panel-head" style="border:none;padding:0 0 12px">' +
+      '<h2 style="font-size:17px">Every task</h2>' +
+      '<span class="sub">' + list.length + ' shown' +
+        (by === "status" ? " · drag between columns to change status" : "") + '</span>' +
+      '<div class="spacer"></div>' +
+      '<div class="seg" id="tGroup">' + [
+        ["status","Status"],["person","Person"],["goal","Goal"],["area","Area"]
+      ].map(x => '<button data-tg="' + x[0] + '"' + (by===x[0]?' class="on"':'') + '>' + x[1] + '</button>').join("") +
+      '</div>' +
+    '</div>' +
+    '<div class="cols">' + cols + '</div></div>';
 }
 
 /* ============================================================
@@ -2029,7 +2018,7 @@ function foot(saveLabel, danger){
 }
 
 /* ---------------- task ---------------- */
-function openTask(id){
+function openTask(id, seed){
   const t = id ? DATA.tasks.find(x => x.id === id) : null;
   const v = (k, dflt) => (t && t[k] != null ? t[k] : (dflt ?? ""));
   const owners = new Set(t ? (t.owners || []) : (ME ? [ME] : []));
@@ -2056,7 +2045,7 @@ function openTask(id){
           selOpts(msList, v("milestone_id"), "— not attached —") +
           '</select><span class="hint">Sets the goal automatically.</span></div>' +
         '<div class="field"><label for="mGoal">Goal</label><select class="input" id="mGoal">' +
-          selOpts(DATA.goals.filter(g => g.horizon !== "north-star"), v("goal_id"), "— none —") +
+          selOpts(liveGoals(), v("goal_id", seed && seed.goal), "— none —") +
           '</select><span class="hint">Only needed without a milestone.</span></div>' +
       '</div>' +
       '<div class="grid3">' +
@@ -2420,25 +2409,68 @@ function openProvider(id){
   };
 }
 
+/* ---------------- phase ---------------- */
+function openPhase(key){
+  const f = byKey(DATA.phases, "key")[key];
+  if (!f) return;
+  const v = (k, dflt) => (f[k] != null ? f[k] : (dflt ?? ""));
+  const open = DATA.tasks.filter(t => t.phase_key === key && isOpen(t)).length;
+  const closed = f.ends && f.ends < todayISO();
+
+  const close = modal(
+    head("Edit phase", f.key) +
+    '<div class="modal-body">' +
+      '<div class="field"><label for="fName">Name</label>' +
+        '<input class="input" id="fName" value="' + esc(v("name")) + '"></div>' +
+      '<div class="field"><label for="fTheme">Theme</label>' +
+        '<input class="input" id="fTheme" value="' + esc(v("theme")) + '" placeholder="Stabilize + listen"></div>' +
+      '<div class="grid2">' +
+        '<div class="field"><label for="fStarts">Starts</label>' +
+          '<input class="input" id="fStarts" type="date" value="' + esc(v("starts")) + '"></div>' +
+        '<div class="field"><label for="fEnds">Ends</label>' +
+          '<input class="input" id="fEnds" type="date" value="' + esc(v("ends")) + '"></div>' +
+      '</div>' +
+      '<div class="field"><label for="fCrit">Success criteria</label>' +
+        '<textarea class="input" id="fCrit" style="min-height:60px">' + esc(v("success_criteria")) + '</textarea></div>' +
+      '<div class="field"><label for="fVerdict">Verdict' +
+        (closed ? '' : ' <span class="hint" style="display:inline">— write this when the window closes</span>') +
+        '</label><textarea class="input" id="fVerdict" style="min-height:60px" placeholder="Did we hit it? Say so plainly.">' +
+        esc(v("verdict")) + '</textarea></div>' +
+      (closed && open
+        ? '<div class="flag warn" style="margin:0"><span class="fi">◆</span><div>' + open +
+          ' task' + (open===1?"":"s") + ' still open in a closed window. Moving the end date forward ' +
+          'is a re-plan; moving the tasks to a live phase is a tidy-up. Prefer whichever is actually true.' +
+          '</div></div>'
+        : '') +
+    '</div>' +
+    foot("Save phase"));
+
+  $("#fName").focus();
+  $("#mSave").onclick = async () => {
+    const payload = { key:f.key, name:$("#fName").value.trim(), theme:$("#fTheme").value.trim(),
+                      starts:$("#fStarts").value, ends:$("#fEnds").value,
+                      success_criteria:$("#fCrit").value.trim(), verdict:$("#fVerdict").value.trim() };
+    if (!payload.name) return toast("Give the phase a name", true);
+    $("#mSave").disabled = true;
+    try { await rpc("pm_save_phase", { p_token:TOKEN, p_phase:payload, p_actor:ME });
+          close(); await refresh(true); toast("Phase saved"); }
+    catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
+  };
+}
+
 /* ============================================================
    RENDER
    ============================================================ */
 const RENDERERS = {
-  overview: renderOverview,
-  goals:    renderGoals,
-  topdown:  renderTopDown,
-  bottomup: renderBottomUp,
-  gantt:    renderGantt,
-  planner:  renderPlanner,
-  phases:   renderPhases,
-  board:    renderBoard,
-  people:   renderPeople,
-  area:     renderArea,
-  activity: renderActivity,
+  my:       renderMyWeek,
+  where:    renderWhere,
+  goal:     renderGoalDetail,
+  tasks:    renderTasks,
   handbook: renderHandbook,
   start:    renderStart,
   stack:    renderStack,
-  team:     renderTeam
+  team:     renderTeam,
+  activity: renderActivity
 };
 
 function renderStats(list){
@@ -2455,20 +2487,23 @@ function renderStats(list){
 }
 
 function renderNav(){
-  $("#groups").innerHTML = GROUPS.map(g =>
-    '<button class="tab' + (g.k === GROUP ? " on" : "") + '" data-group="' + g.k + '">' +
-    esc(g.label) + '</button>').join("");
-  const grp = GROUPS.find(g => g.k === GROUP) || GROUPS[0];
-  $("#views").innerHTML = grp.views.map(v =>
+  const home = VIEW_HOME[VIEW] || "my";
+  $("#groups").innerHTML = NAV.map(n =>
+    '<button class="tab' + (n.k === home ? " on" : "") + '" data-dest="' + n.k + '">' +
+    esc(n.label) + '</button>').join("");
+  /* only the reference shelf gets a second row */
+  const subs = home === "company" ? COMPANY_VIEWS : [];
+  $("#views").innerHTML = subs.map(v =>
     '<button class="subtab' + (v.k === VIEW ? " on" : "") + '" data-view="' + v.k + '">' +
     esc(v.label) + '</button>').join("");
+  $("#views").classList.toggle("hidden", !subs.length);
 }
 
 function render(){
   renderNav();
   const list = visible();
   $("#filters").classList.toggle("hidden", !TASKY.has(VIEW));
-  const fn = RENDERERS[VIEW] || renderOverview;
+  const fn = RENDERERS[VIEW] || renderMyWeek;
   $("#main").innerHTML = fn(list);
   if (TASKY.has(VIEW)) renderStats(list);
   wireMain();
@@ -2525,9 +2560,8 @@ function wireMain(){
   $$(".doc-card[data-doc]").forEach(el => el.onclick = () => { UI.doc = el.dataset.doc; render(); });
   $$("a.wl[data-doc]").forEach(el => el.onclick = e => {
     e.preventDefault();
-    GROUP = "company"; VIEW = "handbook"; UI.doc = el.dataset.doc;
-    store.set("gp_group", GROUP); store.set("gp_view", VIEW);
-    render(); $("#main").scrollTop = 0;
+    const k = el.dataset.doc;
+    goView("handbook"); UI.doc = k; render(); $("#main").scrollTop = 0;
   });
   $$("[data-goview]").forEach(el => el.onclick = e => {
     e.preventDefault();
@@ -2561,16 +2595,63 @@ function wireMain(){
   });
   $$("[data-hide]").forEach(el => el.onclick = () => { delete UI.revealed[el.dataset.hide]; render(); });
 
-  if (VIEW === "gantt") wireGantt();
-  if (VIEW === "planner" || VIEW === "bottomup" || VIEW === "overview") wirePlanner();
+  /* drill down into a goal, as opposed to editing it */
+  $$("[data-open-goal]").forEach(el => el.onclick = e => {
+    if (e.target.closest("button,[data-goal],[data-ms],[data-task]")) return;
+    goView("goal", { goal: el.dataset.openGoal });
+  });
+
+  /* the toggles that replaced whole tabs */
+  const seg = (sel, attr, key, storeKey) => $$(sel + " button").forEach(b => b.onclick = () => {
+    UI[key] = b.dataset[attr]; store.set(storeKey, UI[key]); render();
+  });
+  seg("#wMode",   "w",  "whereMode",    "gp_wmode");
+  seg("#tlMode",  "t",  "timelineMode", "gp_tlmode");
+  seg("#tGroup",  "tg", "taskGroup",    "gp_tgroup");
+  seg("#plRange", "r",  "plannerRange", "gp_prange");
+  seg("#plScope", "sc", "plannerScope", "gp_pscope");
+
+  /* quick-access cards jump straight to a handbook page */
+  $$(".qcard[data-doc]").forEach(el => el.onclick = () => {
+    UI.doc = el.dataset.doc; goView("handbook"); UI.doc = el.dataset.doc; render();
+  });
+
+  const nth = $("#newTaskHere");
+  if (nth) nth.onclick = () => openTask(null, { goal: UI.goal });
+
+  /* phases: edit the window, or rescue what is stranded in a closed one */
+  $$("[data-phase]").forEach(el => el.onclick = e => { e.stopPropagation(); openPhase(el.dataset.phase); });
+  $$("[data-move-from]").forEach(el => el.onclick = async () => {
+    const from = byKey(DATA.phases,"key")[el.dataset.moveFrom];
+    const to   = byKey(DATA.phases,"key")[el.dataset.moveTo];
+    const n = DATA.tasks.filter(t => t.phase_key === from.key && isOpen(t)).length;
+    if (!confirm("Move " + n + " open task" + (n===1?"":"s") + " from “" + from.name +
+                 "” into “" + to.name + "”?\n\nTheir dates are left alone — change those " +
+                 "individually, so the new plan is a decision rather than a shuffle.")) return;
+    el.disabled = true;
+    try {
+      const r = await rpc("pm_move_phase_tasks", { p_token:TOKEN, p_from:from.key, p_to:to.key,
+                                                   p_shift_days:0, p_actor:ME });
+      await refresh(true);
+      toast("Moved " + (r && r.moved != null ? r.moved : n) + " into " + to.name);
+    } catch(err){ el.disabled = false; fail(err, "Could not move those"); }
+  });
+
+  if (VIEW === "where" && UI.whereMode === "timeline" && UI.timelineMode === "goals") wireGantt();
+  $$("[data-open]").forEach(el => el.onclick = () => {
+    const [kind, id] = el.dataset.open.split(":");
+    if (kind === "task") openTask(id);
+    else if (kind === "goal") goView("goal", { goal:id });
+    else if (kind === "milestone") openMilestone(id);
+  });
 }
 
-function goView(view){
-  const grp = GROUPS.find(g => g.views.some(v => v.k === view));
-  if (grp) GROUP = grp.k;
+function goView(view, opts){
   VIEW = view;
-  UI.doc = null;
-  store.set("gp_view", VIEW); store.set("gp_group", GROUP);
+  if (!opts || !opts.keepGoal) UI.goal = (view === "goal" && opts && opts.goal) ? opts.goal : null;
+  if (view === "goal" && opts && opts.goal) UI.goal = opts.goal;
+  if (view !== "handbook") UI.doc = null;
+  store.set("gp_view", VIEW);
   render();
   $("#main").scrollTop = 0;
 }
@@ -2680,21 +2761,13 @@ $("#loginForm").addEventListener("submit", async e => {
 
 /* ---------------- wiring ---------------- */
 $("#groups").addEventListener("click", e => {
-  const b = e.target.closest("[data-group]"); if (!b) return;
-  GROUP = b.dataset.group;
-  const grp = GROUPS.find(g => g.k === GROUP);
-  if (grp && !grp.views.some(v => v.k === VIEW)) VIEW = grp.views[0].k;
-  UI.doc = null;
-  store.set("gp_group", GROUP); store.set("gp_view", VIEW);
-  render();
+  const b = e.target.closest("[data-dest]"); if (!b) return;
+  const n = NAV.find(x => x.k === b.dataset.dest);
+  if (n) goView(n.view);
 });
 $("#views").addEventListener("click", e => {
   const b = e.target.closest("[data-view]"); if (!b) return;
-  VIEW = b.dataset.view;
-  UI.doc = null;
-  store.set("gp_view", VIEW);
-  render();
-  $("#main").scrollTop = 0;
+  goView(b.dataset.view);
 });
 $("#q").addEventListener("input", e => { F.q = e.target.value; render(); });
 $("#fPerson").addEventListener("change", e => { F.person = e.target.value; render(); });
@@ -2712,15 +2785,14 @@ $("#whoSel").addEventListener("change", e => {
 $("#refreshBtn").addEventListener("click", () => refresh());
 /* "+ New" makes whatever the current view is about */
 $("#newBtn").addEventListener("click", () => {
-  if (VIEW === "goals") openGoal(null);
+  if (VIEW === "where" && UI.whereMode === "cards") openGoal(null);
   else if (VIEW === "handbook") openDoc(null);
   else if (VIEW === "stack") openProvider(null);
   else openTask(null);
 });
 
-/* make sure a stored view still exists after a rename */
-if (!RENDERERS[VIEW]) VIEW = "overview";
-if (!GROUPS.some(g => g.k === GROUP)) GROUP = "picture";
+/* a view stored before the nav was reorganised should not strand anyone */
+if (!RENDERERS[VIEW]) VIEW = "my";
 
 if (TOKEN) startApp();
 </script>

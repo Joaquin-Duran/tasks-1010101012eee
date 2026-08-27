@@ -3,39 +3,30 @@
 A single-page task board for the GoPrep team, built from `GoPrep_Project_Management3.xlsx`.
 Tasks are split by **person**, **area**, and **objective (roadmap phase)**.
 
-The board has four levels of altitude, and every view is one way of reading them:
+The board has four levels of altitude:
 
     north star  ->  goal  ->  milestone  ->  task
 
-The nav has two tiers: a group on top, its views underneath.
+and **three destinations**, arranged as a path rather than a menu.
 
-**Big picture**
-- **Overview** — the landing page. North star, goal health, what is due, what is rotting.
-- **Goals** — outcomes with a metric and a target, grouped by area.
-- **Top-down** — goal → milestone → task. *Is anybody actually doing what we said matters?*
-  Surfaces goals with no open work.
-- **Bottom-up** — task → milestone → goal, plus where the effort actually goes.
-  *What is all this work buying us?* Surfaces tasks attached to no goal.
+**My week** — the landing page. What you personally owe, this week / month / quarter,
+with a Just me ⇄ Everyone toggle. Above it, one line carrying the north star and every
+goal's health, so the big picture is never more than a glance away. Below it, a **Handy**
+shelf linking straight to the handbook pages people actually reach for, plus the stack.
 
-**Timeline**
-- **Gantt** — collapsible to goals, milestones or tasks. Two bars per row: the pale one is
-  the plan, the solid one is what has actually happened. Weeks or months, with a today line.
-- **Planner** — week / month / quarter × everyone / just me × by date / by person.
-- **Phases** — the original roadmap phases with progress and success criteria.
+**Where we are** — the company on one page. North star, health checks (the first one
+always visible, the rest folded), and every goal as a card. Click a goal to open it:
+its metric, its milestones, its tasks, all in one place. A `Cards ⇄ Timeline` toggle
+swaps the cards for a Gantt (by goal) or the roadmap phases (by phase).
 
-**The work**
-- **Board** — Kanban by status, drag cards between columns
-- **By person** — a column per team member, plus Unassigned
-- **By area** — Feature / Bug / Content / Infra / Marketing / Mobile / Ops / UX
-- **Activity** — who changed what, most recent first. Credential reveals are flagged in red.
+**Company** — the reference shelf, and the one place with a second row of tabs:
+Start here · Handbook · The stack · Team · Activity.
 
-**Company**
-- **Start here** — onboarding path for a new joiner.
-- **Handbook** — vision, philosophy, marketing strategy, design principles, how we work,
-  glossary, decision log. Markdown, editable in the browser, `[[linked]]` to each other.
-- **The stack** — every provider and subscription, what it costs, who owns it, and how to
-  get access. See *Credentials* below.
-- **Who we are** — the roster, what each person owns, and where the load is unbalanced.
+Two pages have no tab and are reached by drilling: **a goal** (from Where we are) and
+**every task** (from My week, grouped by status, person, goal or area).
+
+Nothing was removed in the reorganisation — the old top-down and bottom-up views became
+the drill path itself and the "Where the effort goes" section.
 
 ## Deploying to GitHub Pages
 
