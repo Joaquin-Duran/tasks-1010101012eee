@@ -14,7 +14,7 @@ and **six destinations**, every one a concrete noun a newcomer can guess the con
 | **My week** | What you personally owe. The landing page. Week/month/quarter, Just me / Everyone. Carries a one-line company strip and a "Handy" shelf of shortcuts. |
 | **Where we are** | The company on one page: north star, health checks, every goal as a card. Click a goal to open it — its metric, milestones and tasks. |
 | **Timeline** | The same work against a calendar. *By goal* is the plan-vs-actual Gantt; *by phase* is the roadmap, with verdicts and a rescue for work stranded in a closed window. |
-| **Marketing** | Strategy · Q1 plan · Audience · Files (logos, creatives, templates, source workbooks). |
+| **Marketing** | Strategy · Q1 plan · Audience · Competitors · Files (logos, creatives, templates, source workbooks). |
 | **Subscriptions** | Every provider, cost, owner and access route. See *Credentials*. |
 | **Company** | Start here · Handbook · Team · Activity. |
 
@@ -23,6 +23,30 @@ Two pages have no tab and are reached by drilling: **a goal** (from Where we are
 
 `pm_assets` is a registry, not storage — a static page cannot host files. Each entry
 carries a link where one exists and an honest location where it does not.
+
+## Brand assets
+
+The brand material lives in **Azure Blob**, in the same storage account as the recipe
+images (`goprepassets`), in a container called `brand` with blob-level public read:
+
+    https://goprepassets.blob.core.windows.net/brand/
+      logos/{byn,cmyk,rgb}/…   97 files, ~14 MB
+      patterns/…
+      fonts/…                  Murs Gothic Wide Dark · Poppins Italic
+      hero-bg.png
+
+Public read means these URLs work in a deck, an email or a browser with no login, and
+the container itself cannot be listed. At 14 MB the storage cost is a rounding error on
+the Azure bill that already exists.
+
+Only material meant to be distributed goes in there. To upload, you need
+**Storage Blob Data Contributor** on the storage account — control-plane Contributor is
+not enough, which is a distinction Azure does not make obvious:
+
+```bash
+az storage blob upload-batch --account-name goprepassets --auth-mode login \
+  --destination brand --source ./your-folder --overwrite
+```
 
 ## Deploying to GitHub Pages
 

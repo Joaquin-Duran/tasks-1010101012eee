@@ -139,6 +139,7 @@ main{flex:1;overflow:auto;padding:20px}
 .pill.bad{background:rgba(199,56,59,.12);color:var(--bad)}
 .pill.mute{background:var(--paper);color:var(--ink-3)}
 
+
 /* ---------- the company strip: the big picture, one line, on My week ---------- */
 .strip{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:var(--white);
        border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;transition:.15s;flex-wrap:wrap}
@@ -358,6 +359,13 @@ main{flex:1;overflow:auto;padding:20px}
 .secret{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:var(--ink);color:var(--cream);padding:6px 11px;border-radius:7px;user-select:all;word-break:break-all}
 .vault{font-size:12px;color:var(--ink-2);background:var(--paper);border:1px dashed var(--line);border-radius:8px;padding:8px 11px;line-height:1.5}
 
+/* a logo you can actually see beats a filename */
+.thumb{display:block;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;
+       background:repeating-conic-gradient(var(--paper) 0% 25%, var(--white) 0% 50%) 50%/14px 14px;
+       min-height:88px;display:grid;place-items:center;padding:10px}
+.thumb img{max-width:100%;max-height:120px;object-fit:contain;display:block}
+.thumb:hover{border-color:var(--ink-3)}
+
 /* ---------- modal ---------- */
 .scrim{position:fixed;inset:0;background:rgba(43,44,44,.45);backdrop-filter:blur(3px);z-index:60;display:grid;place-items:center;padding:20px;overflow:auto}
 .modal{background:var(--white);border-radius:16px;width:100%;max-width:600px;box-shadow:var(--shadow-lg);max-height:calc(100vh - 40px);display:flex;flex-direction:column;margin:auto}
@@ -537,10 +545,11 @@ const NAV = [
 /* the two destinations deep enough to want a second row */
 const SUB_VIEWS = {
   marketing: [
-    { k:"mkt-strategy", label:"Strategy",  doc:"strategy" },
-    { k:"mkt-q1",       label:"Q1 plan",   doc:"q1-plan" },
-    { k:"mkt-audience", label:"Audience",  doc:"audience" },
-    { k:"files",        label:"Files" }
+    { k:"mkt-strategy",    label:"Strategy" },
+    { k:"mkt-q1",          label:"Q1 plan" },
+    { k:"mkt-audience",    label:"Audience" },
+    { k:"mkt-competitors", label:"Competitors" },
+    { k:"files",           label:"Files" }
   ],
   company: [
     { k:"start",    label:"Start here" },
@@ -554,12 +563,14 @@ const VIEW_HOME = {
   my:"my", tasks:"my",
   where:"where", goal:"where",
   timeline:"timeline",
-  "mkt-strategy":"marketing", "mkt-q1":"marketing", "mkt-audience":"marketing", files:"marketing",
+  "mkt-strategy":"marketing", "mkt-q1":"marketing", "mkt-audience":"marketing",
+  "mkt-competitors":"marketing", files:"marketing",
   stack:"subs",
   start:"company", handbook:"company", team:"company", activity:"company"
 };
 /* marketing sub-tabs that are really just a handbook page in disguise */
-const MKT_DOC = { "mkt-strategy":"strategy", "mkt-q1":"q1-plan", "mkt-audience":"audience" };
+const MKT_DOC = { "mkt-strategy":"strategy", "mkt-q1":"q1-plan",
+                  "mkt-audience":"audience", "mkt-competitors":"competitors" };
 /* views that filter tasks, and so want the filter bar */
 const TASKY = new Set(["tasks","where","goal","timeline"]);
 
@@ -752,7 +763,8 @@ function md(src){
   const inline = txt => {
     let x = esc(txt);
     x = x.replace(/`([^`]+)`/g, (m,c) => '<code>' + c + '</code>');
-    x = x.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    /* non-greedy, so bold can contain italics: **a *b* c** */
+    x = x.replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
     x = x.replace(/(^|[\s(])\*([^*\n]+)\*/g, '$1<em>$2</em>');
     // [[Doc title]] -> jump to that handbook doc
     x = x.replace(/\[\[([^\]]+)\]\]/g, (m, name) => {
@@ -1231,6 +1243,7 @@ function wireGantt(){
     });
   });
 }
+
 
 /* ============================================================
    PLANNER
@@ -1882,6 +1895,10 @@ function renderFiles(){
             (a.url ? '<a href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer" class="note">open ↗</a>'
                    : '<span class="pill mute">no link</span>') +
           '</div>' +
+          (a.url && /\.(png|jpe?g|gif|webp|svg)$/i.test(a.url)
+            ? '<a href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer" class="thumb">' +
+              '<img src="' + esc(a.url) + '" alt="" loading="lazy"></a>'
+            : '') +
           (a.description ? '<p class="purpose">' + esc(a.description) + '</p>' : '') +
           (a.location ? '<div class="vault"><b>Where it is:</b> ' + esc(a.location) + '</div>' : '') +
           '<div class="pv-foot">' + (a.owner ? avatar(a.owner) + '<span class="note">' + esc(a.owner) + '</span>' : '') +
@@ -2610,6 +2627,7 @@ const RENDERERS = {
   "mkt-strategy": renderMktDoc,
   "mkt-q1":       renderMktDoc,
   "mkt-audience": renderMktDoc,
+  "mkt-competitors": renderMktDoc,
   files:    renderFiles,
   stack:    renderStack,
   start:    renderStart,
