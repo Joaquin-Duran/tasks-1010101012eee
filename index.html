@@ -366,6 +366,67 @@ main{flex:1;overflow:auto;padding:20px}
 .thumb img{max-width:100%;max-height:120px;object-fit:contain;display:block}
 .thumb:hover{border-color:var(--ink-3)}
 
+/* ---------- file browser ---------- */
+.fold-tabs{flex-wrap:wrap;margin-bottom:14px;max-width:100%}
+.fold-tabs button b{font-weight:600;color:var(--ink-3);margin-left:3px;font-size:11px}
+.fold-tabs button.on b{color:var(--orange)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:11px}
+.fcard{background:var(--white);border:1px solid var(--line);border-radius:11px;overflow:hidden;
+       cursor:pointer;transition:.15s;display:flex;flex-direction:column}
+.fcard:hover{border-color:rgba(43,44,44,.26);box-shadow:var(--shadow);transform:translateY(-1px)}
+.fthumb{height:118px;display:grid;place-items:center;padding:12px;
+        background:repeating-conic-gradient(var(--paper) 0% 25%, var(--white) 0% 50%) 50%/13px 13px}
+.fthumb img{max-width:100%;max-height:94px;object-fit:contain;display:block}
+.fthumb.glyph{font-size:34px;background:var(--paper)}
+.fmeta{padding:9px 11px 6px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.fname{font-size:12.6px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fsub{font-size:10.5px;color:var(--ink-3)}
+.factions{display:flex;gap:6px;padding:0 11px 10px;margin-top:auto}
+.factions a,.factions button{font-size:11.5px;font-weight:600;color:var(--ink-2);background:var(--paper);
+  border:1px solid var(--line-2);border-radius:7px;padding:4px 9px;text-decoration:none;flex:1;text-align:center}
+.factions a:hover,.factions button:hover{background:var(--cream);color:var(--ink);border-color:var(--ink-3)}
+.lightbox{background:repeating-conic-gradient(var(--paper) 0% 25%, var(--white) 0% 50%) 50%/16px 16px;
+          border:1px solid var(--line);border-radius:11px;padding:20px;display:grid;place-items:center;min-height:220px}
+.lightbox img{max-width:100%;max-height:52vh;object-fit:contain}
+.lightbox.glyph{font-size:56px}
+
+/* ---------- journey graph ---------- */
+.jscroll{overflow-x:auto;padding:4px 2px 14px}
+.jflow{display:flex;align-items:stretch;gap:0;min-width:min-content}
+.jcol{display:flex;flex-direction:column;gap:10px;min-width:212px;max-width:212px;position:relative;
+      padding-right:30px}
+.jcol:last-child{padding-right:0}
+/* the connector between columns */
+.jcol:not(:last-child)::after{content:"";position:absolute;right:8px;top:38px;width:14px;height:2px;
+  background:var(--line);}
+.jcol:not(:last-child)::before{content:"";position:absolute;right:6px;top:34px;border:5px solid transparent;
+  border-left-color:var(--line);z-index:1}
+.jstep-no{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--ink-3);
+          text-transform:uppercase;padding-left:2px}
+.jnode{background:var(--white);border:1px solid var(--line);border-radius:11px;padding:11px 12px;
+       cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+.jnode::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gc,var(--line))}
+.jnode:hover{border-color:rgba(43,44,44,.28);box-shadow:var(--shadow);transform:translateY(-1px)}
+.jnode.s-problem{border-color:rgba(199,56,59,.4);background:rgba(199,56,59,.035)}
+.jnode.s-idea,.jnode.s-planned{background:repeating-linear-gradient(135deg,var(--white),var(--white) 8px,var(--paper) 8px,var(--paper) 16px)}
+.jnode-head{display:flex;align-items:flex-start;gap:7px;margin-bottom:3px}
+.jname{font-size:13px;font-weight:600;line-height:1.3;flex:1;min-width:0}
+.jnode-head .pill{flex:none;font-size:9.5px;padding:1.5px 6px}
+.jsub{font-size:11px;color:var(--ink-3);margin-bottom:6px}
+.jdesc{font-size:11.5px;color:var(--ink-2);line-height:1.5}
+.jfoot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:9px;
+       padding-top:8px;border-top:1px solid var(--line-2)}
+.jfoot .tag{font-size:10px;padding:1.5px 6px}
+.jtask{font-size:10.5px;font-weight:700;color:var(--orange);letter-spacing:.03em;margin-left:auto}
+.jtask.none{color:var(--ink-3);font-weight:500}
+
+/* ---------- brand marks in prose ---------- */
+.cmarks{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 16px}
+.cm{display:inline-flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--line);
+    border-radius:10px;padding:6px 12px 6px 6px;font-size:12.5px;font-weight:600;color:var(--ink)}
+.cm i{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;flex:none;
+      background:var(--c,#8A8A8A);color:#fff;font-style:normal;font-weight:700;font-size:10.5px;letter-spacing:-.02em}
+
 /* ---------- modal ---------- */
 .scrim{position:fixed;inset:0;background:rgba(43,44,44,.45);backdrop-filter:blur(3px);z-index:60;display:grid;place-items:center;padding:20px;overflow:auto}
 .modal{background:var(--white);border-radius:16px;width:100%;max-width:600px;box-shadow:var(--shadow-lg);max-height:calc(100vh - 40px);display:flex;flex-direction:column;margin:auto}
@@ -430,6 +491,8 @@ main{flex:1;overflow:auto;padding:20px}
   .strip{gap:10px}
   .strip-go{display:none}
   .quick{grid-template-columns:1fr 1fr;gap:7px}
+  .fgrid{grid-template-columns:1fr 1fr;gap:8px}
+  .jcol{min-width:180px;max-width:180px}
   .qcard{padding:10px 11px;gap:8px}
   .qt{font-size:12.4px}
   .qt small{display:none}
@@ -551,6 +614,10 @@ const SUB_VIEWS = {
     { k:"mkt-competitors", label:"Competitors" },
     { k:"files",           label:"Files" }
   ],
+  timeline: [
+    { k:"timeline", label:"Roadmap" },
+    { k:"journey",  label:"Journeys" }
+  ],
   company: [
     { k:"start",    label:"Start here" },
     { k:"handbook", label:"Handbook" },
@@ -562,7 +629,7 @@ const SUB_VIEWS = {
 const VIEW_HOME = {
   my:"my", tasks:"my",
   where:"where", goal:"where",
-  timeline:"timeline",
+  timeline:"timeline", journey:"timeline",
   "mkt-strategy":"marketing", "mkt-q1":"marketing", "mkt-audience":"marketing",
   "mkt-competitors":"marketing", files:"marketing",
   stack:"subs",
@@ -585,13 +652,16 @@ const store = {
 let TOKEN = store.get("gp_token") || null;
 let ME = store.get("gp_me") || "";
 let DATA = { people:[], phases:[], tasks:[], goals:[], milestones:[], docs:[],
-             providers:[], assets:[], metrics:[], activity:[] };
+             providers:[], assets:[], files:[], journey:[],
+             metrics:[], activity:[] };
 let VIEW = store.get("gp_view") || "my";
 const F = { q:"", person:"", cat:"", phase:"", goal:"", pri:new Set(), mine:false, open:false };
 /* per-view local state */
 const UI = {
   timelineMode: store.get("gp_tlmode") || "goals",    // goals | phases
   taskGroup:    store.get("gp_tgroup") || "status",   // status | person | goal | area
+  journey:      store.get("gp_journey") || "user",    // user | value
+  fileFolder:   store.get("gp_ffolder") || null,
   goal: null,                                          // the goal being drilled into
   ganttScale: store.get("gp_gscale") || "week",   // week | month
   ganttLevel: store.get("gp_glevel") || "ms",     // goal | ms | task
@@ -754,9 +824,26 @@ function md(src){
   const blocks = [];
   let s = String(src).replace(/\r\n/g, "\n");
 
-  // pull fenced code out first so nothing else touches it
+  // pull fenced blocks out first so nothing else touches them.
+  // ```marks is a small extension: one "Label|#colour" per line, rendered as
+  // colour chips. It exists so docs can show brand marks without the renderer
+  // having to allow raw HTML through.
   s = s.replace(/```([\w-]*)\n([\s\S]*?)```/g, (m, lang, code) => {
-    blocks.push('<pre><code>' + esc(code.replace(/\n$/, "")) + '</code></pre>');
+    if (lang === "marks"){
+      const chips = code.trim().split("\n").map(line => {
+        const [label, colour] = line.split("|").map(x => (x||"").trim());
+        if (!label) return "";
+        /* MyFitnessPal -> MFP, Eat This Much -> ETM, Yazio -> YAZ */
+        const caps = (label.match(/[A-Z]/g) || []);
+        const initials = (caps.length >= 2 ? caps.join("") : label.replace(/[^A-Za-z]/g,"").slice(0,3))
+          .slice(0,3).toUpperCase();
+        return '<span class="cm" style="--c:' + esc(colour || "#8A8A8A") + '">' +
+          '<i>' + esc(initials) + '</i><b>' + esc(label) + '</b></span>';
+      }).join("");
+      blocks.push('<div class="cmarks">' + chips + '</div>');
+    } else {
+      blocks.push('<pre><code>' + esc(code.replace(/\n$/, "")) + '</code></pre>');
+    }
     return "@@BLOCK" + (blocks.length - 1) + "@@";
   });
 
@@ -1857,59 +1944,7 @@ function renderTimeline(list){
   '</div>';
 }
 
-/* ============================================================
-   MARKETING · FILES  — logos, creatives, templates, plans
-   ============================================================ */
-function renderFiles(){
-  const all = DATA.assets || [];
-  const cats = {};
-  all.forEach(a => { (cats[a.category || "Other"] = cats[a.category || "Other"] || []).push(a); });
-  const KIND = { logo:"🅖", image:"🖼", document:"📄", video:"🎬",
-                 template:"🧩", folder:"📁", link:"🔗", file:"📎" };
-  const linked = all.filter(a => a.url).length;
 
-  let out = '<div class="wrap">' +
-    '<div class="panel-head" style="border:none;padding:0 0 12px">' +
-      '<h2 style="font-size:17px">Files</h2>' +
-      '<span class="sub">logos, creatives, templates and the source workbooks</span>' +
-      '<div class="spacer"></div>' +
-      '<button class="btn btn-ghost btn-sm" id="newAsset">+ File</button>' +
-    '</div>';
-
-  if (all.length && linked < all.length){
-    out += '<div class="flag warn"><span class="fi">◆</span><div>' +
-      '<b>' + (all.length - linked) + ' of ' + all.length + ' entries have no link yet.</b> ' +
-      'This page is a registry, not storage — a static site cannot host files. ' +
-      'Put them somewhere the team can reach (Drive is already paid for, 30 GB, under ' +
-      'joaquin@goprep.pro) and paste the link in. Until then the location tells you where to ask.' +
-      '</div></div>';
-  }
-
-  Object.keys(cats).sort().forEach(cat => {
-    out += '<div class="section-title">' + esc(cat) + '</div><div class="grid-auto">' +
-      cats[cat].map(a =>
-        '<div class="pv" style="--sc:' + (a.url ? "var(--s-done)" : "var(--line)") + '">' +
-          '<div class="pv-top"><span style="font-size:15px">' + (KIND[a.kind]||"📎") + '</span>' +
-            '<h3>' + esc(a.name) + '</h3>' +
-            '<div class="spacer"></div>' +
-            (a.url ? '<a href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer" class="note">open ↗</a>'
-                   : '<span class="pill mute">no link</span>') +
-          '</div>' +
-          (a.url && /\.(png|jpe?g|gif|webp|svg)$/i.test(a.url)
-            ? '<a href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer" class="thumb">' +
-              '<img src="' + esc(a.url) + '" alt="" loading="lazy"></a>'
-            : '') +
-          (a.description ? '<p class="purpose">' + esc(a.description) + '</p>' : '') +
-          (a.location ? '<div class="vault"><b>Where it is:</b> ' + esc(a.location) + '</div>' : '') +
-          '<div class="pv-foot">' + (a.owner ? avatar(a.owner) + '<span class="note">' + esc(a.owner) + '</span>' : '') +
-            '<div class="spacer"></div>' +
-            '<button class="btn btn-ghost btn-sm" data-editasset="' + a.id + '">Edit</button>' +
-          '</div>' +
-        '</div>').join("") + '</div>';
-  });
-  if (!all.length) out += '<div class="empty">Nothing here yet. Add the logos and creatives so everyone can find them.</div>';
-  return out + '</div>';
-}
 
 /* a marketing sub-tab that is really a handbook page */
 function renderMktDoc(){
@@ -2080,6 +2115,242 @@ function renderTasks(list){
 }
 
 /* ============================================================
+   FILES  —  a real browser over the Azure container
+   ============================================================ */
+function fmtBytes(n){
+  n = Number(n) || 0;
+  if (n < 1024) return n + " B";
+  if (n < 1048576) return Math.round(n/1024) + " KB";
+  return (n/1048576).toFixed(1) + " MB";
+}
+const FILE_ICON = { image:"🖼", source:"🎨", font:"🔤", file:"📎" };
+
+function renderFiles(){
+  const files = DATA.files || [];
+  const assets = DATA.assets || [];
+  const folders = uniq(files.map(f => f.folder)).sort();
+  /* default to the fullest folder rather than whichever sorts first -- landing on
+     a folder with one file in it makes the whole browser look empty */
+  const biggest = folders.slice().sort((a,b) =>
+    files.filter(f => f.folder === b).length - files.filter(f => f.folder === a).length)[0];
+  const cur = UI.fileFolder && folders.includes(UI.fileFolder) ? UI.fileFolder : (biggest || null);
+  const shown = files.filter(f => f.folder === cur);
+  const totalBytes = files.reduce((a,b) => a + Number(b.bytes || 0), 0);
+
+  let out = '<div class="wrap" style="max-width:none">' +
+    '<div class="panel-head" style="border:none;padding:0 0 12px">' +
+      '<h2 style="font-size:17px">Files</h2>' +
+      '<span class="sub">' + files.length + ' brand files · ' + fmtBytes(totalBytes) +
+      ' · hosted on Azure, public links</span>' +
+      '<div class="spacer"></div>' +
+      '<button class="btn btn-ghost btn-sm" id="newAsset">+ Elsewhere</button>' +
+    '</div>';
+
+  if (!files.length){
+    out += '<div class="empty">Nothing indexed yet.</div>';
+  } else {
+    out += '<div class="seg fold-tabs" id="fFolder">' + folders.map(f =>
+      '<button data-ff="' + esc(f) + '"' + (f === cur ? ' class="on"' : '') + '>' + esc(f) +
+      ' <b>' + files.filter(x => x.folder === f).length + '</b></button>').join("") + '</div>';
+
+    out += '<div class="fgrid">' + shown.map(f =>
+      '<div class="fcard" data-file="' + f.id + '">' +
+        (f.kind === "image"
+          ? '<div class="fthumb"><img src="' + esc(f.url) + '" alt="" loading="lazy"></div>'
+          : '<div class="fthumb glyph">' + (FILE_ICON[f.kind] || "📎") + '</div>') +
+        '<div class="fmeta">' +
+          '<span class="fname" title="' + esc(f.path) + '">' + esc(f.name) + '</span>' +
+          '<span class="fsub">' + esc(f.path.split(".").pop().toUpperCase()) + ' · ' + fmtBytes(f.bytes) + '</span>' +
+        '</div>' +
+        '<div class="factions">' +
+          '<a href="' + esc(f.url) + '" target="_blank" rel="noopener noreferrer" title="Open in a tab">Open</a>' +
+          '<button data-dl="' + f.id + '" title="Save to your computer">Download</button>' +
+        '</div>' +
+      '</div>').join("") + '</div>';
+
+    out += '<div class="note" style="margin:14px 0 0">Every file above lives at ' +
+      '<code>goprepassets.blob.core.windows.net/brand/…</code> and is publicly readable, so ' +
+      'these links work in a deck or an email with no login. ' +
+      '<b>Download all of a folder:</b> select the files you want and use Download, or grab the ' +
+      'whole container with the az command in the README.</div>';
+  }
+
+  const elsewhere = assets.filter(a => !a.url || a.url.indexOf("/brand/") === -1);
+  if (elsewhere.length){
+    out += '<div class="section-title">Elsewhere — not in the container</div><div class="grid-auto">' +
+      elsewhere.map(a =>
+        '<div class="pv" style="--sc:' + (a.url ? "var(--s-done)" : "var(--line)") + '">' +
+          '<div class="pv-top"><h3>' + esc(a.name) + '</h3><div class="spacer"></div>' +
+            (a.url ? '<a href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer" class="note">open ↗</a>'
+                   : '<span class="pill mute">local only</span>') + '</div>' +
+          (a.description ? '<p class="purpose">' + esc(a.description) + '</p>' : '') +
+          (a.location ? '<div class="vault"><b>Where it is:</b> ' + esc(a.location) + '</div>' : '') +
+          '<div class="pv-foot"><div class="spacer"></div>' +
+            '<button class="btn btn-ghost btn-sm" data-editasset="' + a.id + '">Edit</button></div>' +
+        '</div>').join("") + '</div>';
+  }
+  return out + '</div>';
+}
+
+/* lightbox for a single file */
+function openFile(id){
+  const f = (DATA.files || []).find(x => x.id === id);
+  if (!f) return;
+  const close = modal(
+    head(f.name, f.path.split("/")[0]) +
+    '<div class="modal-body" style="text-align:center">' +
+      (f.kind === "image"
+        ? '<div class="lightbox"><img src="' + esc(f.url) + '" alt=""></div>'
+        : '<div class="lightbox glyph">' + (FILE_ICON[f.kind] || "📎") + '</div>') +
+      '<div class="note" style="margin-top:12px;text-align:left">' +
+        '<b>Path</b> <code>' + esc(f.path) + '</code><br>' +
+        '<b>Size</b> ' + fmtBytes(f.bytes) + '<br>' +
+        '<b>Link</b> <a href="' + esc(f.url) + '" target="_blank" rel="noopener noreferrer">' +
+          esc(f.url) + '</a></div>' +
+    '</div>' +
+    '<div class="modal-foot"><div class="spacer"></div>' +
+      '<button class="btn btn-ghost" id="mCancel">Close</button>' +
+      '<button class="btn btn-primary" id="fDl">Download</button></div>', { wide:true });
+  $("#fDl").onclick = () => downloadFile(f);
+}
+
+/* Azure has CORS open for GET, so the page can fetch the bytes and hand the
+   browser a real save rather than opening the image in a tab. */
+async function downloadFile(f){
+  try {
+    const r = await fetch(f.url);
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const blob = await r.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = f.path.split("/").pop();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast("Saved " + a.download);
+  } catch(err){
+    window.open(f.url, "_blank", "noopener");
+    toast("Opened in a tab — save it from there", true);
+  }
+}
+
+/* ============================================================
+   JOURNEY  —  the flow as a node graph
+   ============================================================ */
+const JSTATUS = {
+  live:     { label:"live",     tone:"ok"   },
+  building: { label:"building", tone:"warn" },
+  planned:  { label:"planned",  tone:"mute" },
+  idea:     { label:"someday",  tone:"mute" },
+  problem:  { label:"problem",  tone:"bad"  }
+};
+
+function renderJourney(){
+  const which = UI.journey;
+  const steps = (DATA.journey || []).filter(s => s.journey === which);
+  const cols = [];
+  steps.forEach(s => {
+    (cols[s.step_no] = cols[s.step_no] || []).push(s);
+  });
+
+  const head2 = which === "user"
+    ? { h:"The user journey", s:"what somebody actually walks through, start to finish" }
+    : { h:"Value creation", s:"how one profile turns into more and more of the job being done for them" };
+
+  let out = '<div class="wrap" style="max-width:none">' +
+    '<div class="panel-head" style="border:none;padding:0 0 12px">' +
+      '<h2 style="font-size:17px">' + esc(head2.h) + '</h2>' +
+      '<span class="sub">' + esc(head2.s) + '</span>' +
+      '<div class="spacer"></div>' +
+      '<div class="seg" id="jMode">' +
+        '<button data-j="user"' + (which==="user"?' class="on"':'') + '>User journey</button>' +
+        '<button data-j="value"' + (which==="value"?' class="on"':'') + '>Value creation</button>' +
+      '</div>' +
+    '</div>' +
+    '<p class="note" style="margin:-4px 0 14px;max-width:720px">Every box is a step. Click one to ' +
+    'open the task that would improve it — or to create that task if it does not exist yet. ' +
+    'A red box is a step we know is weak.</p>';
+
+  out += '<div class="jscroll"><div class="jflow">';
+  cols.forEach((group, i) => {
+    if (!group) return;
+    out += '<div class="jcol">' +
+      '<div class="jstep-no">' + i + '</div>' +
+      group.map(s => {
+        const st = JSTATUS[s.status] || JSTATUS.planned;
+        const t = s.task_code ? DATA.tasks.find(x => x.code === s.task_code) : null;
+        const g = s.goal_key ? DATA.goals.find(x => x.key === s.goal_key) : null;
+        return '<div class="jnode s-' + esc(s.status) + '" data-step="' + s.id + '"' +
+            (g ? ' style="--gc:' + g.color + '"' : '') + '>' +
+          '<div class="jnode-head">' +
+            '<span class="jname">' + esc(s.name) + '</span>' +
+            '<span class="pill ' + st.tone + '">' + st.label + '</span>' +
+          '</div>' +
+          (s.subtitle ? '<div class="jsub">' + esc(s.subtitle) + '</div>' : '') +
+          (s.description ? '<div class="jdesc">' + esc(s.description) + '</div>' : '') +
+          '<div class="jfoot">' +
+            (g ? '<span class="tag goal" style="--tc:' + g.color + '">' + esc(g.name) + '</span>' : '') +
+            (t ? '<span class="jtask">' + esc(t.code) + '</span>'
+               : '<span class="jtask none">+ task</span>') +
+          '</div>' +
+        '</div>';
+      }).join("") +
+    '</div>';
+  });
+  out += '</div></div>';
+
+  const problems = steps.filter(s => s.status === "problem");
+  if (problems.length){
+    out += '<div class="section-title">Known weak steps</div>' +
+      problems.map(s => '<div class="flag bad"><span class="fi">◆</span><div>' +
+        '<b>' + esc(s.name) + '</b> — ' + esc(s.note || s.description || "") +
+        (s.task_code ? ' <a href="#" data-step-task="' + esc(s.task_code) + '">' + esc(s.task_code) + ' →</a>' : '') +
+        '</div></div>').join("");
+  }
+  return out + '</div>';
+}
+
+function openStep(id){
+  const s = (DATA.journey || []).find(x => x.id === id);
+  if (!s) return;
+  const t = s.task_code ? DATA.tasks.find(x => x.code === s.task_code) : null;
+  const g = s.goal_key ? DATA.goals.find(x => x.key === s.goal_key) : null;
+  const st = JSTATUS[s.status] || JSTATUS.planned;
+
+  const close = modal(
+    head(s.name, "step " + s.step_no) +
+    '<div class="modal-body">' +
+      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">' +
+        '<span class="pill ' + st.tone + '">' + st.label + '</span>' +
+        (g ? '<span class="tag goal" style="--tc:' + g.color + '">' + esc(g.name) + '</span>' : '') +
+      '</div>' +
+      (s.subtitle ? '<p class="note" style="margin:0 0 8px;font-size:13px">' + esc(s.subtitle) + '</p>' : '') +
+      (s.description ? '<p style="margin:0 0 12px">' + esc(s.description) + '</p>' : '') +
+      (s.note ? '<div class="flag ' + (s.status === "problem" ? "bad" : "warn") +
+                '" style="margin:0 0 12px"><span class="fi">◆</span><div>' + esc(s.note) + '</div></div>' : '') +
+      (t
+        ? '<div class="note"><b>The work on this step</b></div>' +
+          '<div class="pl-rows" style="margin-top:6px"><div class="pl-row" data-open="task:' + t.id + '" ' +
+          'style="--pc:' + (PRIO_HEX[t.priority]||"transparent") + '">' +
+            '<span class="pill ' + (t.status==="Done"?"ok":"mute") + '">' + esc(t.status) + '</span>' +
+            '<span class="t">' + esc(t.title) + '<small>' + esc(t.code) + '</small></span>' +
+            '<div class="spacer"></div>' +
+            (t.owners||[]).map(o => avatar(o)).join("") +
+          '</div></div>'
+        : '<div class="note">No task points at this step yet.</div>') +
+    '</div>' +
+    '<div class="modal-foot"><div class="spacer"></div>' +
+      '<button class="btn btn-ghost" id="mCancel">Close</button>' +
+      '<button class="btn btn-primary" id="sMakeTask">' +
+        (t ? "Add another task here" : "Create a task for this step") + '</button></div>');
+
+  $("#sMakeTask").onclick = () => {
+    close();
+    openTask(null, { goal: g ? g.id : "", title: "Improve: " + s.name,
+                     description: (s.description || "") + (s.note ? "\n\n" + s.note : "") });
+  };
+}
+
+/* ============================================================
    MODALS
    ============================================================ */
 function modal(html, opts){
@@ -2132,7 +2403,7 @@ function openTask(id, seed){
     head(t ? "Edit task" : "New task", t && t.code) +
     '<div class="modal-body">' +
       '<div class="field"><label for="mTitle">Task</label>' +
-        '<input class="input" id="mTitle" value="' + esc(v("title")) + '" placeholder="What needs to happen?"></div>' +
+        '<input class="input" id="mTitle" value="' + esc(v("title", seed && seed.title)) + '" placeholder="What needs to happen?"></div>' +
       '<div class="grid3">' +
         '<div class="field"><label for="mStatus">Status</label><select class="input" id="mStatus">' +
           selOpts(STATUSES, v("status","Not Started")) + '</select></div>' +
@@ -2168,7 +2439,7 @@ function openTask(id, seed){
             esc(p.name) + '</label>').join("") +
       '</div></div>' +
       '<div class="field"><label for="mDesc">Description / acceptance</label>' +
-        '<textarea class="input" id="mDesc" placeholder="What does done look like?">' + esc(v("description")) + '</textarea></div>' +
+        '<textarea class="input" id="mDesc" placeholder="What does done look like?">' + esc(v("description", seed && seed.description)) + '</textarea></div>' +
       '<div class="field"><label for="mNotes">Comments</label>' +
         '<textarea class="input" id="mNotes" style="min-height:60px">' + esc(v("notes")) + '</textarea></div>' +
       (t ? '<div class="note">Added by ' + esc(t.created_by || "—") + ' · updated ' + ago(t.updated_at) + '</div>' : '') +
@@ -2624,6 +2895,7 @@ const RENDERERS = {
   goal:     renderGoalDetail,
   tasks:    renderTasks,
   timeline: renderTimeline,
+  journey:  renderJourney,
   "mkt-strategy": renderMktDoc,
   "mkt-q1":       renderMktDoc,
   "mkt-audience": renderMktDoc,
@@ -2778,6 +3050,25 @@ function wireMain(){
     UI.doc = el.dataset.doc; goView("handbook"); UI.doc = el.dataset.doc; render();
   });
 
+  /* files: browse, preview, save */
+  seg("#fFolder", "ff", "fileFolder", "gp_ffolder");
+  seg("#jMode",   "j",  "journey",    "gp_journey");
+  $$("[data-file]").forEach(el => el.onclick = e => {
+    if (e.target.closest("a,[data-dl]")) return;
+    openFile(el.dataset.file);
+  });
+  $$("[data-dl]").forEach(el => el.onclick = e => {
+    e.stopPropagation();
+    const f = (DATA.files||[]).find(x => x.id === el.dataset.dl);
+    if (f) downloadFile(f);
+  });
+  $$("[data-step]").forEach(el => el.onclick = () => openStep(el.dataset.step));
+  $$("[data-step-task]").forEach(el => el.onclick = e => {
+    e.preventDefault();
+    const t = DATA.tasks.find(x => x.code === el.dataset.stepTask);
+    if (t) openTask(t.id);
+  });
+
   $$("[data-editasset]").forEach(el => el.onclick = () => openAsset(el.dataset.editasset));
   const na = $("#newAsset"); if (na) na.onclick = () => openAsset(null);
 
@@ -2829,6 +3120,7 @@ async function refresh(quiet){
       people:x.people||[], phases:x.phases||[], tasks:x.tasks||[],
       goals:x.goals||[], milestones:x.milestones||[], docs:x.docs||[],
       providers:x.providers||[], assets:x.assets||[],
+      files:x.files||[], journey:x.journey||[],
       metrics:x.metrics||[], activity:x.activity||[]
     };
     buildFilters();

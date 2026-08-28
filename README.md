@@ -13,7 +13,7 @@ and **six destinations**, every one a concrete noun a newcomer can guess the con
 |---|---|
 | **My week** | What you personally owe. The landing page. Week/month/quarter, Just me / Everyone. Carries a one-line company strip and a "Handy" shelf of shortcuts. |
 | **Where we are** | The company on one page: north star, health checks, every goal as a card. Click a goal to open it — its metric, milestones and tasks. |
-| **Timeline** | The same work against a calendar. *By goal* is the plan-vs-actual Gantt; *by phase* is the roadmap, with verdicts and a rescue for work stranded in a closed window. |
+| **Timeline** | *Roadmap* — the same work against a calendar: by goal (plan-vs-actual Gantt) or by phase (windows, verdicts, and a rescue for work stranded in a closed one). *Journeys* — the user journey and the value-creation ladder as node graphs; every step is clickable and points at the task that would improve it. |
 | **Marketing** | Strategy · Q1 plan · Audience · Competitors · Files (logos, creatives, templates, source workbooks). |
 | **Subscriptions** | Every provider, cost, owner and access route. See *Credentials*. |
 | **Company** | Start here · Handbook · Team · Activity. |
@@ -47,6 +47,17 @@ not enough, which is a distinction Azure does not make obvious:
 az storage blob upload-batch --account-name goprepassets --auth-mode login \
   --destination brand --source ./your-folder --overwrite
 ```
+
+Blob CORS allows GET from any origin, which is what lets the Files view fetch the bytes and hand the browser a real save instead of opening an image in a tab. The blobs are public anyway, so CORS grants nothing new.
+
+After uploading, re-index so the board sees them:
+
+```bash
+az storage blob list --account-name goprepassets --container-name brand \
+  --auth-mode login --query "[].{n:name,s:properties.contentLength}" -o json
+```
+
+then upsert those rows into `pm_files`.
 
 ## Deploying to GitHub Pages
 
@@ -129,6 +140,8 @@ Pick a colour that isn't already taken; the current ones are listed in `pm_peopl
 | `pm_docs` | Handbook pages, stored as markdown. |
 | `pm_providers` | Subscriptions and accounts. See *Credentials*. |
 | `pm_assets` | Registry of logos, creatives, templates and source files. |
+| `pm_files` | Flat index of the Azure `brand` container — 97 files, browsable and downloadable. |
+| `pm_journey_steps` | Steps in the user journey and the value ladder, each optionally bound to a task. |
 
 Goals carry a `horizon`: `north-star` (the one number), `quarter` and `year` (live work),
 and `someday` — a destination with nothing scheduled against it. `someday` goals are kept
