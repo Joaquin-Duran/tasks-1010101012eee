@@ -524,30 +524,44 @@ const GOAL_STATUS = ["Not started","On track","At risk","Off track","Achieved"];
 const GOAL_STATUS_TONE = { "Not started":"mute","On track":"ok","At risk":"warn","Off track":"bad","Achieved":"ok" };
 const MS_STATUS = ["Not Started","In Progress","Blocked","Done"];
 
-/* Three destinations, and a path between them.
-   Everything else is a section or a toggle inside one of these. */
+/* Six destinations, every one a concrete noun. A first-time visitor should be
+   able to guess what is behind each label without being told. */
 const NAV = [
-  { k:"my",      label:"My week",      view:"my" },
-  { k:"where",   label:"Where we are", view:"where" },
-  { k:"company", label:"Company",      view:"handbook" }
+  { k:"my",       label:"My week",       view:"my" },
+  { k:"where",    label:"Where we are",  view:"where" },
+  { k:"timeline", label:"Timeline",      view:"timeline" },
+  { k:"marketing",label:"Marketing",     view:"mkt-strategy" },
+  { k:"subs",     label:"Subscriptions", view:"stack" },
+  { k:"company",  label:"Company",       view:"start" }
 ];
-/* the reference shelf is the one place a second row earns its keep */
-const COMPANY_VIEWS = [
-  { k:"start",    label:"Start here" },
-  { k:"handbook", label:"Handbook" },
-  { k:"stack",    label:"The stack" },
-  { k:"team",     label:"Team" },
-  { k:"activity", label:"Activity" }
-];
-/* which destination lights up for a given view, including the drill-downs
-   that have no tab of their own */
+/* the two destinations deep enough to want a second row */
+const SUB_VIEWS = {
+  marketing: [
+    { k:"mkt-strategy", label:"Strategy",  doc:"strategy" },
+    { k:"mkt-q1",       label:"Q1 plan",   doc:"q1-plan" },
+    { k:"mkt-audience", label:"Audience",  doc:"audience" },
+    { k:"files",        label:"Files" }
+  ],
+  company: [
+    { k:"start",    label:"Start here" },
+    { k:"handbook", label:"Handbook" },
+    { k:"team",     label:"Team" },
+    { k:"activity", label:"Activity" }
+  ]
+};
+/* which destination lights up, including drill-downs with no tab of their own */
 const VIEW_HOME = {
   my:"my", tasks:"my",
   where:"where", goal:"where",
-  start:"company", handbook:"company", stack:"company", team:"company", activity:"company"
+  timeline:"timeline",
+  "mkt-strategy":"marketing", "mkt-q1":"marketing", "mkt-audience":"marketing", files:"marketing",
+  stack:"subs",
+  start:"company", handbook:"company", team:"company", activity:"company"
 };
+/* marketing sub-tabs that are really just a handbook page in disguise */
+const MKT_DOC = { "mkt-strategy":"strategy", "mkt-q1":"q1-plan", "mkt-audience":"audience" };
 /* views that filter tasks, and so want the filter bar */
-const TASKY = new Set(["tasks","where","goal"]);
+const TASKY = new Set(["tasks","where","goal","timeline"]);
 
 /* ---- storage that degrades gracefully in sandboxed previews ---- */
 const mem = {};
@@ -559,12 +573,12 @@ const store = {
 
 let TOKEN = store.get("gp_token") || null;
 let ME = store.get("gp_me") || "";
-let DATA = { people:[], phases:[], tasks:[], goals:[], milestones:[], docs:[], providers:[], metrics:[], activity:[] };
+let DATA = { people:[], phases:[], tasks:[], goals:[], milestones:[], docs:[],
+             providers:[], assets:[], metrics:[], activity:[] };
 let VIEW = store.get("gp_view") || "my";
 const F = { q:"", person:"", cat:"", phase:"", goal:"", pri:new Set(), mine:false, open:false };
 /* per-view local state */
 const UI = {
-  whereMode:    store.get("gp_wmode")  || "cards",    // cards | timeline
   timelineMode: store.get("gp_tlmode") || "goals",    // goals | phases
   taskGroup:    store.get("gp_tgroup") || "status",   // status | person | goal | area
   goal: null,                                          // the goal being drilled into
@@ -1624,24 +1638,22 @@ function effortSection(){
 
 /* ---- shared: the handy shelf ---- */
 const QUICK = [
-  { doc:"vision",          icon:"🧭", label:"Where we are going",   sub:"the four stages" },
-  { doc:"design",          icon:"🎨", label:"Design principles",     sub:"palette, type, tone" },
-  { doc:"strategy",        icon:"📣", label:"How we plan to win",    sub:"the marketing thesis" },
-  { doc:"audience",        icon:"🎯", label:"Who we build for",      sub:"the archetypes" },
-  { doc:"ways-of-working", icon:"⚙️", label:"How we work",           sub:"pillars, cadence, rules" },
-  { doc:"library",         icon:"📚", label:"Reference library",     sub:"the long documents" }
+  { go:"start",         icon:"👋", label:"Start here",          sub:"new? read this first" },
+  { doc:"vision",       icon:"🧭", label:"Where we are going",  sub:"the four stages" },
+  { go:"mkt-strategy",  icon:"📣", label:"Marketing strategy",  sub:"how we plan to win" },
+  { go:"files",         icon:"🎨", label:"Logos & files",       sub:"brand, creatives, templates" },
+  { go:"stack",         icon:"🔑", label:"Subscriptions",       sub:"logins, costs, access" },
+  { doc:"design",       icon:"🖌", label:"Design principles",   sub:"palette, type, tone" },
+  { doc:"ways-of-working", icon:"⚙️", label:"How we work",      sub:"pillars, cadence, rules" },
+  { doc:"library",      icon:"📚", label:"Reference library",   sub:"the long documents" }
 ];
 function quickAccess(){
-  const have = QUICK.filter(q => DATA.docs.some(d => d.key === q.doc));
+  const have = QUICK.filter(q => !q.doc || DATA.docs.some(d => d.key === q.doc));
   return '<div class="section-title">Handy</div>' +
-    '<div class="quick">' +
-      have.map(q => '<button class="qcard" data-doc="' + esc(q.doc) + '">' +
+    '<div class="quick">' + have.map(q =>
+      '<button class="qcard" ' + (q.doc ? 'data-doc="' + esc(q.doc) + '"' : 'data-goview="' + esc(q.go) + '"') + '>' +
         '<span class="qi">' + q.icon + '</span>' +
         '<span class="qt">' + esc(q.label) + '<small>' + esc(q.sub) + '</small></span></button>').join("") +
-      '<button class="qcard" data-goview="stack"><span class="qi">🔑</span>' +
-        '<span class="qt">The stack<small>subscriptions, logins, costs</small></span></button>' +
-      '<button class="qcard" data-goview="start"><span class="qi">👋</span>' +
-        '<span class="qt">Start here<small>new? read this first</small></span></button>' +
     '</div>';
 }
 
@@ -1792,35 +1804,107 @@ function renderWhere(list){
   out += '<div class="panel-head" style="border:none;padding:16px 0 10px">' +
     '<h2 style="font-size:17px">The goals</h2>' +
     '<span class="sub">click one to open it</span><div class="spacer"></div>' +
-    '<div class="seg" id="wMode">' +
-      '<button data-w="cards"' + (UI.whereMode==="cards"?' class="on"':'') + '>Cards</button>' +
-      '<button data-w="timeline"' + (UI.whereMode==="timeline"?' class="on"':'') + '>Timeline</button>' +
-    '</div>' +
+    '<button class="btn btn-ghost btn-sm" data-goview="timeline">See them on a timeline →</button>' +
     '<button class="btn btn-ghost btn-sm" id="newGoal">+ Goal</button>' +
   '</div>';
 
-  if (UI.whereMode === "timeline"){
-    out += '<div class="seg" id="tlMode" style="margin-bottom:12px">' +
-      '<button data-t="goals"' + (UI.timelineMode==="goals"?' class="on"':'') + '>By goal</button>' +
-      '<button data-t="phases"' + (UI.timelineMode==="phases"?' class="on"':'') + '>By phase</button>' +
-    '</div>';
-    out += UI.timelineMode === "phases" ? renderPhases(list) : renderGantt(list);
-  } else {
-    const byArea = {};
-    goals.forEach(g => { (byArea[g.area || "Other"] = byArea[g.area || "Other"] || []).push(g); });
-    Object.keys(byArea).sort().forEach(area => {
-      out += '<div class="section-title">' + esc(area) + '</div><div class="grid-auto">' +
-        byArea[area].map(goalCard).join("") + '</div>';
-    });
-    if (later.length){
-      out += '<div class="section-title">Someday — where this is all going</div>' +
-        '<p class="note" style="margin:-4px 0 10px;max-width:640px">Nothing is scheduled against these. ' +
-        'They sit here so the plan has a visible destination.</p>' +
-        '<div class="grid-auto">' + later.map(goalCard).join("") + '</div>';
-    }
-    out += effortSection();
+  const byArea = {};
+  goals.forEach(g => { (byArea[g.area || "Other"] = byArea[g.area || "Other"] || []).push(g); });
+  Object.keys(byArea).sort().forEach(area => {
+    out += '<div class="section-title">' + esc(area) + '</div><div class="grid-auto">' +
+      byArea[area].map(goalCard).join("") + '</div>';
+  });
+  if (later.length){
+    out += '<div class="section-title">Someday — where this is all going</div>' +
+      '<p class="note" style="margin:-4px 0 10px;max-width:640px">Nothing is scheduled against these. ' +
+      'They sit here so the plan has a visible destination.</p>' +
+      '<div class="grid-auto">' + later.map(goalCard).join("") + '</div>';
   }
+  out += effortSection();
   return out + '</div>';
+}
+
+/* ============================================================
+   TIMELINE  — the same work against a calendar, two ways
+   ============================================================ */
+function renderTimeline(list){
+  return '<div class="wrap" style="max-width:none">' +
+    '<div class="panel-head" style="border:none;padding:0 0 12px">' +
+      '<h2 style="font-size:17px">Timeline</h2>' +
+      '<span class="sub">' + (UI.timelineMode === "phases"
+        ? "the roadmap windows, and whether we hit them"
+        : "planned against actual, by goal") + '</span>' +
+      '<div class="spacer"></div>' +
+      '<div class="seg" id="tlMode">' +
+        '<button data-t="goals"' + (UI.timelineMode==="goals"?' class="on"':'') + '>By goal</button>' +
+        '<button data-t="phases"' + (UI.timelineMode==="phases"?' class="on"':'') + '>By phase</button>' +
+      '</div>' +
+    '</div>' +
+    (UI.timelineMode === "phases" ? renderPhases(list) : renderGantt(list)) +
+  '</div>';
+}
+
+/* ============================================================
+   MARKETING · FILES  — logos, creatives, templates, plans
+   ============================================================ */
+function renderFiles(){
+  const all = DATA.assets || [];
+  const cats = {};
+  all.forEach(a => { (cats[a.category || "Other"] = cats[a.category || "Other"] || []).push(a); });
+  const KIND = { logo:"🅖", image:"🖼", document:"📄", video:"🎬",
+                 template:"🧩", folder:"📁", link:"🔗", file:"📎" };
+  const linked = all.filter(a => a.url).length;
+
+  let out = '<div class="wrap">' +
+    '<div class="panel-head" style="border:none;padding:0 0 12px">' +
+      '<h2 style="font-size:17px">Files</h2>' +
+      '<span class="sub">logos, creatives, templates and the source workbooks</span>' +
+      '<div class="spacer"></div>' +
+      '<button class="btn btn-ghost btn-sm" id="newAsset">+ File</button>' +
+    '</div>';
+
+  if (all.length && linked < all.length){
+    out += '<div class="flag warn"><span class="fi">◆</span><div>' +
+      '<b>' + (all.length - linked) + ' of ' + all.length + ' entries have no link yet.</b> ' +
+      'This page is a registry, not storage — a static site cannot host files. ' +
+      'Put them somewhere the team can reach (Drive is already paid for, 30 GB, under ' +
+      'joaquin@goprep.pro) and paste the link in. Until then the location tells you where to ask.' +
+      '</div></div>';
+  }
+
+  Object.keys(cats).sort().forEach(cat => {
+    out += '<div class="section-title">' + esc(cat) + '</div><div class="grid-auto">' +
+      cats[cat].map(a =>
+        '<div class="pv" style="--sc:' + (a.url ? "var(--s-done)" : "var(--line)") + '">' +
+          '<div class="pv-top"><span style="font-size:15px">' + (KIND[a.kind]||"📎") + '</span>' +
+            '<h3>' + esc(a.name) + '</h3>' +
+            '<div class="spacer"></div>' +
+            (a.url ? '<a href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer" class="note">open ↗</a>'
+                   : '<span class="pill mute">no link</span>') +
+          '</div>' +
+          (a.description ? '<p class="purpose">' + esc(a.description) + '</p>' : '') +
+          (a.location ? '<div class="vault"><b>Where it is:</b> ' + esc(a.location) + '</div>' : '') +
+          '<div class="pv-foot">' + (a.owner ? avatar(a.owner) + '<span class="note">' + esc(a.owner) + '</span>' : '') +
+            '<div class="spacer"></div>' +
+            '<button class="btn btn-ghost btn-sm" data-editasset="' + a.id + '">Edit</button>' +
+          '</div>' +
+        '</div>').join("") + '</div>';
+  });
+  if (!all.length) out += '<div class="empty">Nothing here yet. Add the logos and creatives so everyone can find them.</div>';
+  return out + '</div>';
+}
+
+/* a marketing sub-tab that is really a handbook page */
+function renderMktDoc(){
+  const key = MKT_DOC[VIEW];
+  const doc = DATA.docs.find(d => d.key === key);
+  if (!doc) return '<div class="empty">That page has not been written yet.</div>';
+  return '<div class="wrap"><div class="panel"><div class="panel-head">' +
+      '<span style="font-size:19px">' + esc(doc.icon || "📄") + '</span>' +
+      '<h3>' + esc(doc.title) + '</h3><div class="spacer"></div>' +
+      '<span class="sub">' + (doc.updated_by ? esc(doc.updated_by) + " · " : "") + ago(doc.updated_at) + '</span>' +
+      '<button class="btn btn-ghost btn-sm" data-editdoc="' + esc(doc.key) + '">Edit</button>' +
+    '</div><div class="panel-body"><div class="prose">' + md(doc.body) + '</div></div></div></div>';
 }
 
 function goalCard(g){
@@ -2458,6 +2542,62 @@ function openPhase(key){
   };
 }
 
+/* ---------------- file / asset ---------------- */
+function openAsset(id){
+  const a = id ? (DATA.assets||[]).find(x => x.id === id) : null;
+  const v = (k, dflt) => (a && a[k] != null ? a[k] : (dflt ?? ""));
+  const KINDS = ["logo","image","document","video","template","folder","link","file"];
+  const cats = uniq((DATA.assets||[]).map(x => x.category).filter(Boolean));
+
+  const close = modal(
+    head(a ? "Edit file" : "Add a file") +
+    '<div class="modal-body">' +
+      '<div class="grid2">' +
+        '<div class="field"><label for="aName">Name</label>' +
+          '<input class="input" id="aName" value="' + esc(v("name")) + '" placeholder="Instagram post templates"></div>' +
+        '<div class="field"><label for="aCat">Category</label>' +
+          '<input class="input" id="aCat" value="' + esc(v("category")) + '" list="aCats" placeholder="Social">' +
+          '<datalist id="aCats">' + cats.map(x => '<option value="' + esc(x) + '">').join("") + '</datalist></div>' +
+      '</div>' +
+      '<div class="grid2">' +
+        '<div class="field"><label for="aKind">Kind</label><select class="input" id="aKind">' +
+          selOpts(KINDS, v("kind","file")) + '</select></div>' +
+        '<div class="field"><label for="aOwner">Owner</label><select class="input" id="aOwner">' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "—") + '</select></div>' +
+      '</div>' +
+      '<div class="field"><label for="aUrl">Link</label>' +
+        '<input class="input" id="aUrl" value="' + esc(v("url")) + '" placeholder="https://drive.google.com/…">' +
+        '<span class="hint">This page is a registry, not storage. Upload the file somewhere the ' +
+        'team can reach — Drive is already paid for — and paste the link here.</span></div>' +
+      '<div class="field"><label for="aLoc">Where it is, if there is no link yet</label>' +
+        '<input class="input" id="aLoc" value="' + esc(v("location")) + '" placeholder="Todo Branding › LOGOS"></div>' +
+      '<div class="field"><label for="aDesc">What it is</label>' +
+        '<textarea class="input" id="aDesc" style="min-height:56px">' + esc(v("description")) + '</textarea></div>' +
+    '</div>' +
+    foot(a ? "Save" : "Add file",
+         a ? '<button class="btn btn-danger" id="aDel">Remove</button>' : ""));
+
+  $("#aName").focus();
+  $("#mSave").onclick = async () => {
+    const name = $("#aName").value.trim();
+    if (!name) return toast("Give it a name", true);
+    const payload = { name, category:$("#aCat").value.trim(), kind:$("#aKind").value,
+                      url:$("#aUrl").value.trim(), location:$("#aLoc").value.trim(),
+                      description:$("#aDesc").value.trim(), owner:$("#aOwner").value };
+    if (a) payload.id = a.id;
+    $("#mSave").disabled = true;
+    try { await rpc("pm_save_asset", { p_token:TOKEN, p_a:payload, p_actor:ME });
+          close(); await refresh(true); toast("Saved"); }
+    catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
+  };
+  if (a) $("#aDel").onclick = async () => {
+    if (!confirm("Remove “" + a.name + "” from the list? The file itself is untouched.")) return;
+    try { await rpc("pm_delete_asset", { p_token:TOKEN, p_id:a.id, p_actor:ME });
+          close(); await refresh(true); toast("Removed"); }
+    catch(err){ fail(err, "Could not remove"); }
+  };
+}
+
 /* ============================================================
    RENDER
    ============================================================ */
@@ -2466,9 +2606,14 @@ const RENDERERS = {
   where:    renderWhere,
   goal:     renderGoalDetail,
   tasks:    renderTasks,
-  handbook: renderHandbook,
-  start:    renderStart,
+  timeline: renderTimeline,
+  "mkt-strategy": renderMktDoc,
+  "mkt-q1":       renderMktDoc,
+  "mkt-audience": renderMktDoc,
+  files:    renderFiles,
   stack:    renderStack,
+  start:    renderStart,
+  handbook: renderHandbook,
   team:     renderTeam,
   activity: renderActivity
 };
@@ -2491,8 +2636,7 @@ function renderNav(){
   $("#groups").innerHTML = NAV.map(n =>
     '<button class="tab' + (n.k === home ? " on" : "") + '" data-dest="' + n.k + '">' +
     esc(n.label) + '</button>').join("");
-  /* only the reference shelf gets a second row */
-  const subs = home === "company" ? COMPANY_VIEWS : [];
+  const subs = SUB_VIEWS[home] || [];
   $("#views").innerHTML = subs.map(v =>
     '<button class="subtab' + (v.k === VIEW ? " on" : "") + '" data-view="' + v.k + '">' +
     esc(v.label) + '</button>').join("");
@@ -2616,6 +2760,9 @@ function wireMain(){
     UI.doc = el.dataset.doc; goView("handbook"); UI.doc = el.dataset.doc; render();
   });
 
+  $$("[data-editasset]").forEach(el => el.onclick = () => openAsset(el.dataset.editasset));
+  const na = $("#newAsset"); if (na) na.onclick = () => openAsset(null);
+
   const nth = $("#newTaskHere");
   if (nth) nth.onclick = () => openTask(null, { goal: UI.goal });
 
@@ -2637,7 +2784,7 @@ function wireMain(){
     } catch(err){ el.disabled = false; fail(err, "Could not move those"); }
   });
 
-  if (VIEW === "where" && UI.whereMode === "timeline" && UI.timelineMode === "goals") wireGantt();
+  if (VIEW === "timeline" && UI.timelineMode === "goals") wireGantt();
   $$("[data-open]").forEach(el => el.onclick = () => {
     const [kind, id] = el.dataset.open.split(":");
     if (kind === "task") openTask(id);
@@ -2663,7 +2810,8 @@ async function refresh(quiet){
     DATA = {
       people:x.people||[], phases:x.phases||[], tasks:x.tasks||[],
       goals:x.goals||[], milestones:x.milestones||[], docs:x.docs||[],
-      providers:x.providers||[], metrics:x.metrics||[], activity:x.activity||[]
+      providers:x.providers||[], assets:x.assets||[],
+      metrics:x.metrics||[], activity:x.activity||[]
     };
     buildFilters();
     populateWho();
@@ -2785,9 +2933,10 @@ $("#whoSel").addEventListener("change", e => {
 $("#refreshBtn").addEventListener("click", () => refresh());
 /* "+ New" makes whatever the current view is about */
 $("#newBtn").addEventListener("click", () => {
-  if (VIEW === "where" && UI.whereMode === "cards") openGoal(null);
+  if (VIEW === "where") openGoal(null);
   else if (VIEW === "handbook") openDoc(null);
   else if (VIEW === "stack") openProvider(null);
+  else if (VIEW === "files") openAsset(null);
   else openTask(null);
 });
 

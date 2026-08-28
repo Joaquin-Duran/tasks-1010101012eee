@@ -7,26 +7,22 @@ The board has four levels of altitude:
 
     north star  ->  goal  ->  milestone  ->  task
 
-and **three destinations**, arranged as a path rather than a menu.
+and **six destinations**, every one a concrete noun a newcomer can guess the contents of.
 
-**My week** — the landing page. What you personally owe, this week / month / quarter,
-with a Just me ⇄ Everyone toggle. Above it, one line carrying the north star and every
-goal's health, so the big picture is never more than a glance away. Below it, a **Handy**
-shelf linking straight to the handbook pages people actually reach for, plus the stack.
-
-**Where we are** — the company on one page. North star, health checks (the first one
-always visible, the rest folded), and every goal as a card. Click a goal to open it:
-its metric, its milestones, its tasks, all in one place. A `Cards ⇄ Timeline` toggle
-swaps the cards for a Gantt (by goal) or the roadmap phases (by phase).
-
-**Company** — the reference shelf, and the one place with a second row of tabs:
-Start here · Handbook · The stack · Team · Activity.
+| Tab | What is behind it |
+|---|---|
+| **My week** | What you personally owe. The landing page. Week/month/quarter, Just me / Everyone. Carries a one-line company strip and a "Handy" shelf of shortcuts. |
+| **Where we are** | The company on one page: north star, health checks, every goal as a card. Click a goal to open it — its metric, milestones and tasks. |
+| **Timeline** | The same work against a calendar. *By goal* is the plan-vs-actual Gantt; *by phase* is the roadmap, with verdicts and a rescue for work stranded in a closed window. |
+| **Marketing** | Strategy · Q1 plan · Audience · Files (logos, creatives, templates, source workbooks). |
+| **Subscriptions** | Every provider, cost, owner and access route. See *Credentials*. |
+| **Company** | Start here · Handbook · Team · Activity. |
 
 Two pages have no tab and are reached by drilling: **a goal** (from Where we are) and
-**every task** (from My week, grouped by status, person, goal or area).
+**every task** (from My week; group by status, person, goal or area).
 
-Nothing was removed in the reorganisation — the old top-down and bottom-up views became
-the drill path itself and the "Where the effort goes" section.
+`pm_assets` is a registry, not storage — a static page cannot host files. Each entry
+carries a link where one exists and an honest location where it does not.
 
 ## Deploying to GitHub Pages
 
@@ -108,6 +104,7 @@ Pick a colour that isn't already taken; the current ones are listed in `pm_peopl
 | `pm_metric_points` | One reading per goal per date. Drives the sparklines. |
 | `pm_docs` | Handbook pages, stored as markdown. |
 | `pm_providers` | Subscriptions and accounts. See *Credentials*. |
+| `pm_assets` | Registry of logos, creatives, templates and source files. |
 
 Goals carry a `horizon`: `north-star` (the one number), `quarter` and `year` (live work),
 and `someday` — a destination with nothing scheduled against it. `someday` goals are kept
