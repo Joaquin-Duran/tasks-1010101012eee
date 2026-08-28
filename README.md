@@ -13,8 +13,8 @@ and **six destinations**, every one a concrete noun a newcomer can guess the con
 |---|---|
 | **My week** | What you personally owe. The landing page. Week/month/quarter, Just me / Everyone. Carries a one-line company strip and a "Handy" shelf of shortcuts. |
 | **Where we are** | The company on one page: north star, health checks, every goal as a card. Click a goal to open it — its metric, milestones and tasks. |
-| **Timeline** | *Roadmap* — the same work against a calendar: by goal (plan-vs-actual Gantt) or by phase (windows, verdicts, and a rescue for work stranded in a closed one). *Journeys* — the user journey and the value-creation ladder as node graphs; every step is clickable and points at the task that would improve it. |
-| **Marketing** | Strategy · Q1 plan · Audience · Competitors · Files (logos, creatives, templates, source workbooks). |
+| **Timeline** | The roadmap: the same work against a calendar, by goal (plan-vs-actual Gantt) or by phase (windows, verdicts, and a rescue for work stranded in a closed one). |
+| **Marketing** | Strategy · Q1 plan · Buyer persona · Competitors · Journeys · Files. *Journeys* draws the user journey and the value-creation ladder as vertical node flows; every step is clickable and opens (or seeds) the task that would improve it. |
 | **Subscriptions** | Every provider, cost, owner and access route. See *Credentials*. |
 | **Company** | Start here · Handbook · Team · Activity. |
 

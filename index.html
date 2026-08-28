@@ -262,6 +262,17 @@ main{flex:1;overflow:auto;padding:20px}
 .glegend i{display:inline-block;width:20px;height:8px;border-radius:3px;vertical-align:middle;margin-right:5px}
 
 /* ---------- planner ---------- */
+.pl-bucket.wk{background:var(--white);border:1px solid var(--line-2);border-radius:11px;
+              margin-bottom:9px;overflow:hidden}
+.pl-bucket.wk>summary{display:flex;align-items:center;gap:10px;padding:12px 15px;cursor:pointer;
+  list-style:none;flex-wrap:wrap}
+.pl-bucket.wk>summary::-webkit-details-marker{display:none}
+.pl-bucket.wk>summary::after{content:"▾";margin-left:auto;color:var(--ink-3);font-size:11px;
+  transition:transform .15s}
+.pl-bucket.wk:not([open])>summary::after{transform:rotate(-90deg)}
+.pl-bucket.wk>summary:hover{background:var(--paper)}
+.pl-bucket.wk>summary h3{font-size:13.5px}
+.pl-bucket.wk>.pl-rows{padding:0 12px 12px}
 .pl-bucket{margin-bottom:16px}
 .pl-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;flex-wrap:wrap}
 .pl-head h3{font-size:13.5px}
@@ -390,34 +401,35 @@ main{flex:1;overflow:auto;padding:20px}
 .lightbox img{max-width:100%;max-height:52vh;object-fit:contain}
 .lightbox.glyph{font-size:56px}
 
-/* ---------- journey graph ---------- */
-.jscroll{overflow-x:auto;padding:4px 2px 14px}
-.jflow{display:flex;align-items:stretch;gap:0;min-width:min-content}
-.jcol{display:flex;flex-direction:column;gap:10px;min-width:212px;max-width:212px;position:relative;
-      padding-right:30px}
-.jcol:last-child{padding-right:0}
-/* the connector between columns */
-.jcol:not(:last-child)::after{content:"";position:absolute;right:8px;top:38px;width:14px;height:2px;
-  background:var(--line);}
-.jcol:not(:last-child)::before{content:"";position:absolute;right:6px;top:34px;border:5px solid transparent;
-  border-left-color:var(--line);z-index:1}
-.jstep-no{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--ink-3);
-          text-transform:uppercase;padding-left:2px}
-.jnode{background:var(--white);border:1px solid var(--line);border-radius:11px;padding:11px 12px;
-       cursor:pointer;transition:.15s;position:relative;overflow:hidden}
+/* ---------- journey graph: vertical, with room ---------- */
+.jflow{display:flex;flex-direction:column;align-items:center;max-width:760px;margin:0 auto;padding:4px 0 20px}
+.jband{display:flex;align-items:flex-start;gap:16px;width:100%}
+.jband-no{flex:none;width:34px;display:grid;place-items:center;padding-top:14px}
+.jband-no span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  background:var(--white);border:1px solid var(--line);font-size:12px;font-weight:700;color:var(--ink-3)}
+.jband-nodes{flex:1;display:flex;gap:12px;flex-wrap:wrap;min-width:0}
+/* the long connector between bands */
+.jlink{width:2px;height:44px;background:var(--line);position:relative;margin-left:-1px;
+       align-self:flex-start;margin-left:16px}
+.jlink::after{content:"";position:absolute;bottom:-1px;left:-5px;border:6px solid transparent;
+  border-top-color:var(--line)}
+.jnode{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+       cursor:pointer;transition:.15s;position:relative;overflow:hidden;flex:1 1 300px;min-width:260px}
 .jnode::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gc,var(--line))}
 .jnode:hover{border-color:rgba(43,44,44,.28);box-shadow:var(--shadow);transform:translateY(-1px)}
 .jnode.s-problem{border-color:rgba(199,56,59,.4);background:rgba(199,56,59,.035)}
-.jnode.s-idea,.jnode.s-planned{background:repeating-linear-gradient(135deg,var(--white),var(--white) 8px,var(--paper) 8px,var(--paper) 16px)}
-.jnode-head{display:flex;align-items:flex-start;gap:7px;margin-bottom:3px}
-.jname{font-size:13px;font-weight:600;line-height:1.3;flex:1;min-width:0}
+.jnode.s-idea,.jnode.s-planned{background:repeating-linear-gradient(135deg,var(--white),var(--white) 9px,var(--paper) 9px,var(--paper) 18px)}
+.jnode-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:3px}
+.jname{font-size:14px;font-weight:600;line-height:1.3;flex:1;min-width:0}
 .jnode-head .pill{flex:none;font-size:9.5px;padding:1.5px 6px}
-.jsub{font-size:11px;color:var(--ink-3);margin-bottom:6px}
-.jdesc{font-size:11.5px;color:var(--ink-2);line-height:1.5}
-.jfoot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:9px;
-       padding-top:8px;border-top:1px solid var(--line-2)}
+.jsub{font-size:11.5px;color:var(--ink-3);margin-bottom:7px}
+.jdesc{font-size:12.3px;color:var(--ink-2);line-height:1.55}
+.jnote{font-size:11.8px;color:#8E2A2C;background:rgba(199,56,59,.06);border-radius:7px;
+       padding:7px 10px;margin-top:9px;line-height:1.5}
+.jfoot{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:11px;
+       padding-top:9px;border-top:1px solid var(--line-2)}
 .jfoot .tag{font-size:10px;padding:1.5px 6px}
-.jtask{font-size:10.5px;font-weight:700;color:var(--orange);letter-spacing:.03em;margin-left:auto}
+.jtask{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:.02em;margin-left:auto}
 .jtask.none{color:var(--ink-3);font-weight:500}
 
 /* ---------- brand marks in prose ---------- */
@@ -426,6 +438,9 @@ main{flex:1;overflow:auto;padding:20px}
     border-radius:10px;padding:6px 12px 6px 6px;font-size:12.5px;font-weight:600;color:var(--ink)}
 .cm i{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;flex:none;
       background:var(--c,#8A8A8A);color:#fff;font-style:normal;font-weight:700;font-size:10.5px;letter-spacing:-.02em}
+.cm img{width:28px;height:28px;border-radius:7px;object-fit:contain;flex:none;background:var(--paper);
+        border:1px solid var(--line-2)}
+.cm.has-img{padding-left:5px}
 
 /* ---------- modal ---------- */
 .scrim{position:fixed;inset:0;background:rgba(43,44,44,.45);backdrop-filter:blur(3px);z-index:60;display:grid;place-items:center;padding:20px;overflow:auto}
@@ -610,13 +625,10 @@ const SUB_VIEWS = {
   marketing: [
     { k:"mkt-strategy",    label:"Strategy" },
     { k:"mkt-q1",          label:"Q1 plan" },
-    { k:"mkt-audience",    label:"Audience" },
+    { k:"mkt-persona",     label:"Buyer persona" },
     { k:"mkt-competitors", label:"Competitors" },
+    { k:"journey",         label:"Journeys" },
     { k:"files",           label:"Files" }
-  ],
-  timeline: [
-    { k:"timeline", label:"Roadmap" },
-    { k:"journey",  label:"Journeys" }
   ],
   company: [
     { k:"start",    label:"Start here" },
@@ -629,15 +641,15 @@ const SUB_VIEWS = {
 const VIEW_HOME = {
   my:"my", tasks:"my",
   where:"where", goal:"where",
-  timeline:"timeline", journey:"timeline",
-  "mkt-strategy":"marketing", "mkt-q1":"marketing", "mkt-audience":"marketing",
+  timeline:"timeline", journey:"marketing",
+  "mkt-strategy":"marketing", "mkt-q1":"marketing", "mkt-persona":"marketing",
   "mkt-competitors":"marketing", files:"marketing",
   stack:"subs",
   start:"company", handbook:"company", team:"company", activity:"company"
 };
 /* marketing sub-tabs that are really just a handbook page in disguise */
 const MKT_DOC = { "mkt-strategy":"strategy", "mkt-q1":"q1-plan",
-                  "mkt-audience":"audience", "mkt-competitors":"competitors" };
+                  "mkt-persona":"audience", "mkt-competitors":"competitors" };
 /* views that filter tasks, and so want the filter bar */
 const TASKY = new Set(["tasks","where","goal","timeline"]);
 
@@ -662,6 +674,7 @@ const UI = {
   taskGroup:    store.get("gp_tgroup") || "status",   // status | person | goal | area
   journey:      store.get("gp_journey") || "user",    // user | value
   fileFolder:   store.get("gp_ffolder") || null,
+  weekOpen:     new Set(JSON.parse(store.get("gp_weekopen") || "[]")),
   goal: null,                                          // the goal being drilled into
   ganttScale: store.get("gp_gscale") || "week",   // week | month
   ganttLevel: store.get("gp_glevel") || "ms",     // goal | ms | task
@@ -831,14 +844,17 @@ function md(src){
   s = s.replace(/```([\w-]*)\n([\s\S]*?)```/g, (m, lang, code) => {
     if (lang === "marks"){
       const chips = code.trim().split("\n").map(line => {
-        const [label, colour] = line.split("|").map(x => (x||"").trim());
+        const [label, colour, img] = line.split("|").map(x => (x||"").trim());
         if (!label) return "";
         /* MyFitnessPal -> MFP, Eat This Much -> ETM, Yazio -> YAZ */
         const caps = (label.match(/[A-Z]/g) || []);
         const initials = (caps.length >= 2 ? caps.join("") : label.replace(/[^A-Za-z]/g,"").slice(0,3))
           .slice(0,3).toUpperCase();
-        return '<span class="cm" style="--c:' + esc(colour || "#8A8A8A") + '">' +
-          '<i>' + esc(initials) + '</i><b>' + esc(label) + '</b></span>';
+        const badge = img
+          ? '<img src="' + esc(img) + '" alt="" loading="lazy">'
+          : '<i>' + esc(initials) + '</i>';
+        return '<span class="cm' + (img ? ' has-img' : '') + '" style="--c:' +
+          esc(colour || "#8A8A8A") + '">' + badge + '<b>' + esc(label) + '</b></span>';
       }).join("");
       blocks.push('<div class="cmarks">' + chips + '</div>');
     } else {
@@ -1793,9 +1809,9 @@ function renderMyWeek(){
   const undated = mine.filter(t => !t.target_date);
 
   const buckets = [
-    { label:"Overdue", sub:"should already have happened", tone:"bad", test:o => o.due < today },
-    { label:w.label, sub:w.sub, tone:"warn", test:o => o.due >= today && o.due <= w.e },
-    { label:w.nextLabel, sub:fmtDate(w.nextS) + " – " + fmtDateY(w.nextE), tone:"mute",
+    { key:"over", label:"Overdue", sub:"should already have happened", tone:"bad", test:o => o.due < today },
+    { key:"now",  label:w.label, sub:w.sub, tone:"warn", test:o => o.due >= today && o.due <= w.e },
+    { key:"next", label:w.nextLabel, sub:fmtDate(w.nextS) + " – " + fmtDateY(w.nextE), tone:"mute",
       test:o => o.due >= w.nextS && o.due <= w.nextE }
   ];
 
@@ -1823,13 +1839,17 @@ function renderMyWeek(){
     '<div class="tile"><div class="n">' + mine.length + '</div><div class="l">open in total</div></div>' +
   '</div>';
 
+  /* collapsed by default: the point of this page is to see the shape of the week
+     at a glance, then open the pile you actually want to work through */
+  const openSet = UI.weekOpen;
   const body = buckets.map(b => {
     const got = items.filter(b.test);
     if (!got.length) return "";
-    return '<div class="pl-bucket">' +
-      '<div class="pl-head"><span class="pill ' + b.tone + '">' + got.length + '</span>' +
-        '<h3>' + esc(b.label) + '</h3><span class="when">' + esc(b.sub) + '</span></div>' +
-      '<div class="pl-rows">' + got.map(plannerItem).join("") + '</div></div>';
+    const isOpen = openSet.has(b.key);
+    return '<details class="pl-bucket wk"' + (isOpen ? " open" : "") + ' data-wk="' + b.key + '">' +
+      '<summary><span class="pill ' + b.tone + '">' + got.length + '</span>' +
+        '<h3>' + esc(b.label) + '</h3><span class="when">' + esc(b.sub) + '</span></summary>' +
+      '<div class="pl-rows">' + got.map(plannerItem).join("") + '</div></details>';
   }).join("");
 
   out += '<div class="panel"><div class="panel-body">' +
@@ -1930,9 +1950,9 @@ function renderWhere(list){
 function renderTimeline(list){
   return '<div class="wrap" style="max-width:none">' +
     '<div class="panel-head" style="border:none;padding:0 0 12px">' +
-      '<h2 style="font-size:17px">Timeline</h2>' +
+      '<h2 style="font-size:17px">Roadmap</h2>' +
       '<span class="sub">' + (UI.timelineMode === "phases"
-        ? "the roadmap windows, and whether we hit them"
+        ? "the windows we set, and whether we hit them"
         : "planned against actual, by goal") + '</span>' +
       '<div class="spacer"></div>' +
       '<div class="seg" id="tlMode">' +
@@ -2270,12 +2290,15 @@ function renderJourney(){
     'open the task that would improve it — or to create that task if it does not exist yet. ' +
     'A red box is a step we know is weak.</p>';
 
-  out += '<div class="jscroll"><div class="jflow">';
+  /* Vertical flow: one step per band, branches side by side, a long connector
+     between bands. Reads top to bottom with room to breathe, rather than a row
+     of squashed columns. */
+  out += '<div class="jflow">';
   cols.forEach((group, i) => {
     if (!group) return;
-    out += '<div class="jcol">' +
-      '<div class="jstep-no">' + i + '</div>' +
-      group.map(s => {
+    out += '<div class="jband">' +
+      '<div class="jband-no"><span>' + i + '</span></div>' +
+      '<div class="jband-nodes">' + group.map(s => {
         const st = JSTATUS[s.status] || JSTATUS.planned;
         const t = s.task_code ? DATA.tasks.find(x => x.code === s.task_code) : null;
         const g = s.goal_key ? DATA.goals.find(x => x.key === s.goal_key) : null;
@@ -2287,16 +2310,18 @@ function renderJourney(){
           '</div>' +
           (s.subtitle ? '<div class="jsub">' + esc(s.subtitle) + '</div>' : '') +
           (s.description ? '<div class="jdesc">' + esc(s.description) + '</div>' : '') +
+          (s.note ? '<div class="jnote">' + esc(s.note) + '</div>' : '') +
           '<div class="jfoot">' +
             (g ? '<span class="tag goal" style="--tc:' + g.color + '">' + esc(g.name) + '</span>' : '') +
-            (t ? '<span class="jtask">' + esc(t.code) + '</span>'
-               : '<span class="jtask none">+ task</span>') +
+            (t ? '<span class="jtask">' + esc(t.code) + ' →</span>'
+               : '<span class="jtask none">+ add a task</span>') +
           '</div>' +
         '</div>';
-      }).join("") +
+      }).join("") + '</div>' +
     '</div>';
+    if (i < cols.length - 1 && cols.slice(i+1).some(Boolean)) out += '<div class="jlink"></div>';
   });
-  out += '</div></div>';
+  out += '</div>';
 
   const problems = steps.filter(s => s.status === "problem");
   if (problems.length){
@@ -2898,7 +2923,7 @@ const RENDERERS = {
   journey:  renderJourney,
   "mkt-strategy": renderMktDoc,
   "mkt-q1":       renderMktDoc,
-  "mkt-audience": renderMktDoc,
+  "mkt-persona": renderMktDoc,
   "mkt-competitors": renderMktDoc,
   files:    renderFiles,
   stack:    renderStack,
@@ -3062,6 +3087,10 @@ function wireMain(){
     const f = (DATA.files||[]).find(x => x.id === el.dataset.dl);
     if (f) downloadFile(f);
   });
+  $$("details.wk").forEach(d => d.addEventListener("toggle", () => {
+    d.open ? UI.weekOpen.add(d.dataset.wk) : UI.weekOpen.delete(d.dataset.wk);
+    store.set("gp_weekopen", JSON.stringify(Array.from(UI.weekOpen)));
+  }));
   $$("[data-step]").forEach(el => el.onclick = () => openStep(el.dataset.step));
   $$("[data-step-task]").forEach(el => el.onclick = e => {
     e.preventDefault();
