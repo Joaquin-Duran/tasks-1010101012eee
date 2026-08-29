@@ -1,0 +1,315 @@
+<body>
+
+<div id="login">
+  <form class="login-card" id="loginForm">
+    <div class="logo">GP</div>
+    <h1>GoPrep Team Board</h1>
+    <p>Enter the team passcode to continue.</p>
+    <div class="field">
+      <label for="pass">Team passcode</label>
+      <input class="input" type="password" id="pass" autocomplete="current-password" required>
+    </div>
+    <button class="btn btn-primary btn-block" type="submit" id="loginBtn">Open the board</button>
+    <div class="err" id="loginErr"></div>
+  </form>
+</div>
+
+<div id="app" class="hidden">
+  <header>
+    <div class="bar">
+      <div class="brand">
+        <div class="logo">GP</div>
+        <div>GoPrep<small>Team Board</small></div>
+      </div>
+      <nav class="tabs" id="groups"></nav>
+      <div class="spacer"></div>
+      <div class="who">
+        <span class="av" id="whoAv" title="Actions are logged under this name"></span>
+        <select class="input" id="whoSel" style="padding:6px 9px;font-size:12.5px;width:auto" title="Who are you?"></select>
+        <button class="btn btn-ghost" id="refreshBtn" title="Reload from the database" style="padding:7px 12px">Refresh</button>
+        <button class="btn btn-primary" id="newBtn" style="padding:8px 14px">+ New</button>
+      </div>
+    </div>
+    <nav class="subtabs" id="views"></nav>
+    <div class="filters" id="filters">
+      <input class="input" id="q" type="search" placeholder="Search tasks…">
+      <select class="input" id="fPerson"><option value="">All people</option></select>
+      <select class="input" id="fGoal"><option value="">All goals</option></select>
+      <select class="input" id="fCat"><option value="">All areas</option></select>
+      <select class="input" id="fPhase"><option value="">All phases</option></select>
+      <div class="chip-row" id="fPri"></div>
+      <button class="chip" id="fMine">Only mine</button>
+      <button class="chip" id="fOpen">Hide done</button>
+      <div class="stats" id="stats"></div>
+    </div>
+  </header>
+  <main id="main"></main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   GoPrep Team Board
+   Static page. All data lives in Supabase behind passcode-gated
+   SECURITY DEFINER functions -- the key below can only call those.
+
+   Four levels of altitude, and every view is one way of reading them:
+     north star  ->  goal  ->  milestone  ->  task
+   ============================================================ */
+const CFG = {
+  url: "https://dpkfwiabwsvrzrihydcc.supabase.co",
+  key: "sb_publishable_t52Owu1vWSlxdR6yTEytag_mvC61Ave"
+};
+
+const STATUSES = [
+  { k:"Not Started", c:"var(--s-not)"   },
+  { k:"In Progress", c:"var(--s-prog)"  },
+  { k:"Blocked",     c:"var(--s-block)" },
+  { k:"Done",        c:"var(--s-done)"  }
+];
+const STATUS_HEX = { "Not Started":"#8A8A8A", "In Progress":"#EF6E45", "Blocked":"#C7625B", "Done":"#4C9A8F" };
+const CATS = ["Bug","Content","Feature","Infra","Marketing","Mobile","Ops","UX"];
+const AREAS = ["Company","Product","Content","Marketing","Mobile","Business","Infra","Ops"];
+const PRIOS = [
+  { k:"P0", c:"var(--p0)", t:"Blocks launch" },
+  { k:"P1", c:"var(--p1)", t:"Ship within 4 weeks" },
+  { k:"P2", c:"var(--p2)", t:"Next quarter" },
+  { k:"P3", c:"var(--p3)", t:"Backlog / icebox" }
+];
+const PRIO_HEX = { P0:"#C7383B", P1:"#EF6E45", P2:"#D69A22", P3:"#8A8A8A" };
+const EFFORTS = [
+  { k:"S",  t:"S · under a day" },
+  { k:"M",  t:"M · 1-3 days" },
+  { k:"L",  t:"L · 4-10 days" },
+  { k:"XL", t:"XL · over 2 weeks" }
+];
+/* rough calendar days an effort size occupies, used to give a task a start
+   date when nobody set one -- a Gantt needs a beginning, not just a deadline */
+const EFFORT_DAYS = { S:1, M:3, L:10, XL:21 };
+const GOAL_STATUS = ["Not started","On track","At risk","Off track","Achieved"];
+const GOAL_STATUS_TONE = { "Not started":"mute","On track":"ok","At risk":"warn","Off track":"bad","Achieved":"ok" };
+const MS_STATUS = ["Not Started","In Progress","Blocked","Done"];
+
+/* Six destinations, every one a concrete noun. A first-time visitor should be
+   able to guess what is behind each label without being told. */
+const NAV = [
+  { k:"my",       label:"My week",       view:"my" },
+  { k:"where",    label:"Where we are",  view:"where" },
+  { k:"timeline", label:"Timeline",      view:"timeline" },
+  { k:"marketing",label:"Marketing",     view:"mkt-strategy" },
+  { k:"subs",     label:"Subscriptions", view:"stack" },
+  { k:"company",  label:"Company",       view:"start" },
+  { k:"ideas",    label:"Ideas",         view:"ideas" }
+];
+/* the two destinations deep enough to want a second row */
+const SUB_VIEWS = {
+  marketing: [
+    { k:"mkt-strategy",    label:"Strategy" },
+    { k:"mkt-q1",          label:"Q1 plan" },
+    { k:"mkt-persona",     label:"Buyer persona" },
+    { k:"mkt-competitors", label:"Competitors" },
+    { k:"journey-user",    label:"User journey" },
+    { k:"journey-value",   label:"Value creation" },
+    { k:"files",           label:"Files" }
+  ],
+  company: [
+    { k:"start",    label:"Start here" },
+    { k:"handbook", label:"Handbook" },
+    { k:"team",     label:"Team" },
+    { k:"activity", label:"Activity" }
+  ]
+};
+/* which destination lights up, including drill-downs with no tab of their own */
+const VIEW_HOME = {
+  my:"my", tasks:"my",
+  where:"where", goal:"where",
+  timeline:"timeline",
+  "journey-user":"marketing", "journey-value":"marketing",
+  ideas:"ideas",
+  "mkt-strategy":"marketing", "mkt-q1":"marketing", "mkt-persona":"marketing",
+  "mkt-competitors":"marketing", files:"marketing",
+  stack:"subs",
+  start:"company", handbook:"company", team:"company", activity:"company"
+};
+/* marketing sub-tabs that are really just a handbook page in disguise */
+const MKT_DOC = { "mkt-strategy":"strategy", "mkt-q1":"q1-plan",
+                  "mkt-persona":"audience", "mkt-competitors":"competitors" };
+/* views that filter tasks, and so want the filter bar */
+const TASKY = new Set(["tasks","where","goal","timeline"]);
+
+/* ---- storage that degrades gracefully in sandboxed previews ---- */
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] ?? null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } },
+  del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } }
+};
+
+let TOKEN = store.get("gp_token") || null;
+let ME = store.get("gp_me") || "";
+let DATA = { people:[], phases:[], tasks:[], goals:[], milestones:[], docs:[],
+             providers:[], assets:[], files:[], journey:[], ideas:[], areas:[],
+             metrics:[], activity:[] };
+let VIEW = store.get("gp_view") || "my";
+const F = { q:"", person:"", cat:"", phase:"", goal:"", pri:new Set(), mine:false, open:false };
+/* per-view local state */
+const UI = {
+  timelineMode: store.get("gp_tlmode") || "goals",    // goals | phases
+  taskGroup:    store.get("gp_tgroup") || "status",   // status | person | goal | area
+  fileFolder:   store.get("gp_ffolder") || null,
+  weekOpen:     new Set(JSON.parse(store.get("gp_weekopen") || "[]")),
+  openTile:     store.get("gp_tile") || null,
+  openGoals:    new Set(JSON.parse(store.get("gp_opengoals") || "[]")),
+  goal: null,                                          // the goal being drilled into
+  ganttScale: store.get("gp_gscale") || "week",   // week | month
+  ganttLevel: store.get("gp_glevel") || "ms",     // goal | ms | task
+  collapsed: new Set(JSON.parse(store.get("gp_collapsed") || "[]")),
+  plannerRange: store.get("gp_prange") || "week", // week | month | quarter
+  plannerScope: store.get("gp_pscope") || "me",   // me | team
+  plannerBy: store.get("gp_pby") || "date",       // date | person
+  doc: null,
+  revealed: {}
+};
+
+/* ---- tiny helpers ---- */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const byId = (arr) => Object.fromEntries((arr||[]).map(o => [o.id, o]));
+const byKey = (arr,k) => Object.fromEntries((arr||[]).map(o => [o[k], o]));
+const uniq = a => Array.from(new Set(a));
+
+function toast(msg, bad){
+  const t = $("#toast");
+  t.textContent = msg;
+  t.className = "toast show" + (bad ? " bad" : "");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { t.className = "toast"; }, 3000);
+}
+
+async function rpc(fn, body){
+  const r = await fetch(CFG.url + "/rest/v1/rpc/" + fn, {
+    method:"POST",
+    headers:{ "apikey":CFG.key, "Authorization":"Bearer "+CFG.key, "Content-Type":"application/json" },
+    body: JSON.stringify(body || {})
+  });
+  const txt = await r.text();
+  let out = null;
+  try { out = txt ? JSON.parse(txt) : null; } catch(e){ out = txt; }
+  if (!r.ok){
+    const code = (out && (out.message || out.hint)) || ("HTTP " + r.status);
+    const err = new Error(code);
+    err.raw = out;
+    throw err;
+  }
+  return out;
+}
+
+function fail(err, msg){
+  if (String(err.message).includes("unauthorized")) return logout("Session expired · sign in again.");
+  toast(msg + ": " + err.message, true);
+}
+
+/* ---- dates. Everything is a plain yyyy-mm-dd string until it has to be maths ---- */
+const DAY = 86400000;
+const todayISO = () => new Date().toISOString().slice(0,10);
+function d(iso){ return iso ? new Date(iso + "T00:00:00") : null; }
+function iso(dt){
+  return dt.getFullYear() + "-" + String(dt.getMonth()+1).padStart(2,"0") + "-" + String(dt.getDate()).padStart(2,"0");
+}
+function addDays(isoStr, n){ const x = d(isoStr); x.setDate(x.getDate()+n); return iso(x); }
+function daysBetween(a, b){ return Math.round((d(b) - d(a)) / DAY); }
+function fmtDate(x){
+  if (!x) return "";
+  return d(x).toLocaleDateString(undefined, { day:"numeric", month:"short" });
+}
+function fmtDateY(x){
+  if (!x) return "";
+  return d(x).toLocaleDateString(undefined, { day:"numeric", month:"short", year:"numeric" });
+}
+function startOfWeek(isoStr){            // Monday
+  const x = d(isoStr); const wd = (x.getDay() + 6) % 7;
+  x.setDate(x.getDate() - wd); return iso(x);
+}
+function startOfMonth(isoStr){ const x = d(isoStr); x.setDate(1); return iso(x); }
+function startOfQuarter(isoStr){ const x = d(isoStr); x.setMonth(Math.floor(x.getMonth()/3)*3, 1); return iso(x); }
+function ago(isoTs){
+  const s = (Date.now() - new Date(isoTs).getTime())/1000;
+  if (s < 60) return "just now";
+  if (s < 3600) return Math.floor(s/60) + "m ago";
+  if (s < 86400) return Math.floor(s/3600) + "h ago";
+  if (s < 604800) return Math.floor(s/86400) + "d ago";
+  return new Date(isoTs).toLocaleDateString(undefined,{ day:"numeric", month:"short" });
+}
+function relDue(x){
+  if (!x) return "";
+  const n = daysBetween(todayISO(), x);
+  if (n === 0) return "today";
+  if (n === 1) return "tomorrow";
+  if (n === -1) return "yesterday";
+  if (n < 0) return Math.abs(n) + "d late";
+  if (n < 14) return "in " + n + "d";
+  return fmtDate(x);
+}
+
+/* ---- people ---- */
+function personColor(name){
+  const p = DATA.people.find(x => x.name === name);
+  return p ? p.color : "#8A8A8A";
+}
+function initials(name){
+  const p = DATA.people.find(x => x.name === name);
+  if (p && p.initials) return p.initials;
+  return String(name || "?").slice(0,2).toUpperCase();
+}
+function avatar(name, title){
+  return '<span class="av" title="' + esc(title || name) + '" style="background:' + personColor(name) + '">' +
+    esc(initials(name)) + '</span>';
+}
+
+/* ---- task helpers ---- */
+function isLate(t){ return t.target_date && t.status !== "Done" && t.target_date < todayISO(); }
+function isOpen(t){ return t.status !== "Done"; }
+/* a task's planned window: an explicit start, else inferred back from effort */
+function taskStart(t){
+  if (t.start_date) return t.start_date;
+  if (!t.target_date) return null;
+  return addDays(t.target_date, -(EFFORT_DAYS[t.effort] || 3));
+}
+/* Goals we hold ourselves to this year. A north star is the number above them all,
+   and a 'someday' goal is a destination with nothing scheduled against it -- neither
+   should be nagged about for having no tasks or no metric reading. */
+function liveGoals(){ return DATA.goals.filter(g => g.horizon !== "impulse" && g.horizon !== "someday"); }
+function somedayGoals(){ return DATA.goals.filter(g => g.horizon === "someday"); }
+function goalOf(t){ return t.goal_id ? byId(DATA.goals)[t.goal_id] : null; }
+function msOf(t){ return t.milestone_id ? byId(DATA.milestones)[t.milestone_id] : null; }
+function tasksOfGoal(g, list){ return (list || DATA.tasks).filter(t => t.goal_id === g.id); }
+function tasksOfMs(m, list){ return (list || DATA.tasks).filter(t => t.milestone_id === m.id); }
+function msOfGoal(g){ return DATA.milestones.filter(m => m.goal_id === g.id); }
+function progress(list){
+  if (!list.length) return { done:0, total:0, pct:0 };
+  const done = list.filter(t => t.status === "Done").length;
+  return { done, total:list.length, pct: Math.round(done/list.length*100) };
+}
+/* a milestone's window follows the work under it; fall back to its own dates */
+function msWindow(m){
+  const ts = tasksOfMs(m).filter(t => t.target_date);
+  if (ts.length){
+    const starts = ts.map(taskStart).filter(Boolean).sort();
+    const ends = ts.map(t => t.target_date).sort();
+    return { starts: starts[0] || m.starts, ends: ends[ends.length-1] || m.ends };
+  }
+  return { starts: m.starts, ends: m.ends };
+}
+function goalWindow(g){
+  const ms = msOfGoal(g).map(msWindow).filter(w => w.starts && w.ends);
+  if (ms.length){
+    const s = ms.map(w => w.starts).sort()[0];
+    const e = ms.map(w => w.ends).sort();
+    return { starts: g.starts && g.starts < s ? g.starts : s,
+             ends: g.ends && g.ends > e[e.length-1] ? g.ends : e[e.length-1] };
+  }
+  return { starts: g.starts, ends: g.ends };
+}
