@@ -5,7 +5,7 @@ Tasks are split by **person**, **area**, and **objective (roadmap phase)**.
 
 The board has four levels of altitude:
 
-    north star  ->  goal  ->  milestone  ->  task
+    impulse  ->  goal  ->  milestone  ->  task
 
 and **six destinations**, every one a concrete noun a newcomer can guess the contents of.
 
@@ -14,9 +14,10 @@ and **six destinations**, every one a concrete noun a newcomer can guess the con
 | **My week** | What you personally owe. The landing page. Week/month/quarter, Just me / Everyone. Carries a one-line company strip and a "Handy" shelf of shortcuts. |
 | **Where we are** | The company on one page: north star, health checks, every goal as a card. Click a goal to open it — its metric, milestones and tasks. |
 | **Timeline** | The roadmap: the same work against a calendar, by goal (plan-vs-actual Gantt) or by phase (windows, verdicts, and a rescue for work stranded in a closed one). |
-| **Marketing** | Strategy · Q1 plan · Buyer persona · Competitors · Journeys · Files. *Journeys* draws the user journey and the value-creation ladder as vertical node flows; every step is clickable and opens (or seeds) the task that would improve it. |
+| **Marketing** | Strategy · Q1 plan · Buyer persona · Competitors · User journey · Value creation · Files. The two journeys are vertical node flows; every step is clickable and opens (or seeds) the task that would improve it. |
 | **Subscriptions** | Every provider, cost, owner and access route. See *Credentials*. |
 | **Company** | Start here · Handbook · Team · Activity. |
+| **Ideas** | A creative board: sparks, resources, tools, inspiration and open questions. Anything can be promoted into a task. |
 
 Two pages have no tab and are reached by drilling: **a goal** (from Where we are) and
 **every task** (from My week; group by status, person, goal or area).
@@ -142,6 +143,8 @@ Pick a colour that isn't already taken; the current ones are listed in `pm_peopl
 | `pm_assets` | Registry of logos, creatives, templates and source files. |
 | `pm_files` | Flat index of the Azure `brand` container — 97 files, browsable and downloadable. |
 | `pm_journey_steps` | Steps in the user journey and the value ladder, each optionally bound to a task. |
+| `pm_ideas` | The creative board. |
+| `pm_areas` | Area labels and colours, used to band the goals view. |
 
 Goals carry a `horizon`: `north-star` (the one number), `quarter` and `year` (live work),
 and `someday` — a destination with nothing scheduled against it. `someday` goals are kept

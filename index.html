@@ -183,6 +183,17 @@ main{flex:1;overflow:auto;padding:20px}
 .crit.verdict{color:var(--ink-2);padding-top:10px}
 .crit.verdict b{color:var(--ink)}
 
+/* ---------- goals grouped by area ---------- */
+.area{margin:0 0 26px;border-left:4px solid var(--ac,#8A8A8A);padding-left:16px}
+.area-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.area-dot{width:11px;height:11px;border-radius:3px;background:var(--ac,#8A8A8A);flex:none}
+.area-head h3{font-size:19px;letter-spacing:-.02em;color:var(--ac,var(--ink));text-transform:uppercase;
+              font-weight:700;font-size:15px;letter-spacing:.08em}
+.area-n{font-size:11.5px;font-weight:600;color:#fff;background:var(--ac,#8A8A8A);
+        padding:2px 9px;border-radius:20px}
+.area-prog{font-size:11.5px;color:var(--ink-3)}
+.area-goals{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:12px}
+
 /* ---------- goals ---------- */
 .goal-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r);padding:0;overflow:hidden;position:relative;display:flex;flex-direction:column}
 .goal-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gc,var(--orange))}
@@ -442,6 +453,18 @@ main{flex:1;overflow:auto;padding:20px}
         border:1px solid var(--line-2)}
 .cm.has-img{padding-left:5px}
 
+/* ---------- ideas board ---------- */
+.idea{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+      cursor:pointer;transition:.15s;display:flex;flex-direction:column;gap:7px}
+.idea:hover{border-color:rgba(43,44,44,.26);box-shadow:var(--shadow);transform:translateY(-1px)}
+.idea-top{display:flex;align-items:center;gap:8px}
+.idea h3{font-size:14.5px;line-height:1.35}
+.idea p{margin:0;font-size:12.6px;color:var(--ink-2);line-height:1.55}
+.idea-link{font-size:11.5px;color:var(--orange);font-weight:500;overflow:hidden;
+           text-overflow:ellipsis;white-space:nowrap}
+.idea-foot{font-size:10.5px;color:var(--ink-3);margin-top:auto;padding-top:6px}
+.fsub .lang{color:#A8760F;font-weight:700}
+
 /* ---------- modal ---------- */
 .scrim{position:fixed;inset:0;background:rgba(43,44,44,.45);backdrop-filter:blur(3px);z-index:60;display:grid;place-items:center;padding:20px;overflow:auto}
 .modal{background:var(--white);border-radius:16px;width:100%;max-width:600px;box-shadow:var(--shadow-lg);max-height:calc(100vh - 40px);display:flex;flex-direction:column;margin:auto}
@@ -506,6 +529,9 @@ main{flex:1;overflow:auto;padding:20px}
   .strip{gap:10px}
   .strip-go{display:none}
   .quick{grid-template-columns:1fr 1fr;gap:7px}
+  .area{padding-left:11px}
+  .area-goals{grid-template-columns:1fr}
+  .subtab{padding:7px 12px;font-size:13px}
   .fgrid{grid-template-columns:1fr 1fr;gap:8px}
   .jcol{min-width:180px;max-width:180px}
   .qcard{padding:10px 11px;gap:8px}
@@ -618,7 +644,8 @@ const NAV = [
   { k:"timeline", label:"Timeline",      view:"timeline" },
   { k:"marketing",label:"Marketing",     view:"mkt-strategy" },
   { k:"subs",     label:"Subscriptions", view:"stack" },
-  { k:"company",  label:"Company",       view:"start" }
+  { k:"company",  label:"Company",       view:"start" },
+  { k:"ideas",    label:"Ideas",         view:"ideas" }
 ];
 /* the two destinations deep enough to want a second row */
 const SUB_VIEWS = {
@@ -627,7 +654,8 @@ const SUB_VIEWS = {
     { k:"mkt-q1",          label:"Q1 plan" },
     { k:"mkt-persona",     label:"Buyer persona" },
     { k:"mkt-competitors", label:"Competitors" },
-    { k:"journey",         label:"Journeys" },
+    { k:"journey-user",    label:"User journey" },
+    { k:"journey-value",   label:"Value creation" },
     { k:"files",           label:"Files" }
   ],
   company: [
@@ -641,7 +669,9 @@ const SUB_VIEWS = {
 const VIEW_HOME = {
   my:"my", tasks:"my",
   where:"where", goal:"where",
-  timeline:"timeline", journey:"marketing",
+  timeline:"timeline",
+  "journey-user":"marketing", "journey-value":"marketing",
+  ideas:"ideas",
   "mkt-strategy":"marketing", "mkt-q1":"marketing", "mkt-persona":"marketing",
   "mkt-competitors":"marketing", files:"marketing",
   stack:"subs",
@@ -664,7 +694,7 @@ const store = {
 let TOKEN = store.get("gp_token") || null;
 let ME = store.get("gp_me") || "";
 let DATA = { people:[], phases:[], tasks:[], goals:[], milestones:[], docs:[],
-             providers:[], assets:[], files:[], journey:[],
+             providers:[], assets:[], files:[], journey:[], ideas:[], areas:[],
              metrics:[], activity:[] };
 let VIEW = store.get("gp_view") || "my";
 const F = { q:"", person:"", cat:"", phase:"", goal:"", pri:new Set(), mine:false, open:false };
@@ -672,7 +702,6 @@ const F = { q:"", person:"", cat:"", phase:"", goal:"", pri:new Set(), mine:fals
 const UI = {
   timelineMode: store.get("gp_tlmode") || "goals",    // goals | phases
   taskGroup:    store.get("gp_tgroup") || "status",   // status | person | goal | area
-  journey:      store.get("gp_journey") || "user",    // user | value
   fileFolder:   store.get("gp_ffolder") || null,
   weekOpen:     new Set(JSON.parse(store.get("gp_weekopen") || "[]")),
   goal: null,                                          // the goal being drilled into
@@ -1568,7 +1597,13 @@ function renderStack(){
     'real credential lives and how to ask for access. Passwords for low-risk tools are stored, ' +
     'hidden until you click, and every reveal is written to Activity with your name on it.</div></div>';
 
-  Object.keys(cats).sort().forEach(cat => {
+  /* the things everything else runs on come first */
+  const CAT_ORDER = ["Infrastructure","Identity","Tools","Marketing","Research","Lapsed"];
+  const ordered = Object.keys(cats).sort((a,b) => {
+    const ia = CAT_ORDER.indexOf(a), ib = CAT_ORDER.indexOf(b);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib) || a.localeCompare(b);
+  });
+  ordered.forEach(cat => {
     out += '<div class="section-title">' + esc(cat) + '</div><div class="grid-auto">';
     cats[cat].forEach(p => {
       const critical = p.sensitivity === "critical";
@@ -1928,11 +1963,26 @@ function renderWhere(list){
     '<button class="btn btn-ghost btn-sm" id="newGoal">+ Goal</button>' +
   '</div>';
 
+  const areaMeta = byKey(DATA.areas || [], "key");
   const byArea = {};
   goals.forEach(g => { (byArea[g.area || "Other"] = byArea[g.area || "Other"] || []).push(g); });
-  Object.keys(byArea).sort().forEach(area => {
-    out += '<div class="section-title">' + esc(area) + '</div><div class="grid-auto">' +
-      byArea[area].map(goalCard).join("") + '</div>';
+  const order = Object.keys(byArea).sort((a,b) =>
+    ((areaMeta[a] || {}).sort_order || 99) - ((areaMeta[b] || {}).sort_order || 99));
+  order.forEach(area => {
+    const m = areaMeta[area] || { label:area, color:"#8A8A8A" };
+    const list = byArea[area];
+    const done = list.reduce((n,g) => n + progress(tasksOfGoal(g)).done, 0);
+    const tot  = list.reduce((n,g) => n + progress(tasksOfGoal(g)).total, 0);
+    out += '<section class="area" style="--ac:' + m.color + '">' +
+      '<header class="area-head">' +
+        '<span class="area-dot"></span>' +
+        '<h3>' + esc(m.label) + '</h3>' +
+        '<span class="area-n">' + list.length + (list.length === 1 ? ' goal' : ' goals') + '</span>' +
+        '<div class="spacer"></div>' +
+        '<span class="area-prog">' + done + '/' + tot + ' tasks done</span>' +
+      '</header>' +
+      '<div class="area-goals">' + list.map(goalCard).join("") + '</div>' +
+    '</section>';
   });
   if (later.length){
     out += '<div class="section-title">Someday — where this is all going</div>' +
@@ -1988,7 +2038,7 @@ function goalCard(g){
   return '<div class="goal-card' + (someday ? " someday" : "") + '" style="--gc:' + g.color +
       '" data-open-goal="' + g.id + '">' +
     '<div class="gh">' +
-      '<div class="ga">' + esc(g.area || "") + (someday ? " · someday" : "") + '</div>' +
+      (someday ? '<div class="ga">someday</div>' : '') +
       '<h3>' + esc(g.name) + '</h3>' +
       (g.statement ? '<p class="gs">' + esc(g.statement) + '</p>' : '') +
       metricBlock(g) +
@@ -2176,11 +2226,12 @@ function renderFiles(){
     out += '<div class="fgrid">' + shown.map(f =>
       '<div class="fcard" data-file="' + f.id + '">' +
         (f.kind === "image"
-          ? '<div class="fthumb"><img src="' + esc(f.url) + '" alt="" loading="lazy"></div>'
+          ? '<div class="fthumb"><img src="' + esc(f.thumb_url || f.url) + '" alt="" loading="lazy"></div>'
           : '<div class="fthumb glyph">' + (FILE_ICON[f.kind] || "📎") + '</div>') +
         '<div class="fmeta">' +
           '<span class="fname" title="' + esc(f.path) + '">' + esc(f.name) + '</span>' +
-          '<span class="fsub">' + esc(f.path.split(".").pop().toUpperCase()) + ' · ' + fmtBytes(f.bytes) + '</span>' +
+          '<span class="fsub">' + esc(f.path.split(".").pop().toUpperCase()) + ' · ' + fmtBytes(f.bytes) +
+            (f.lang === "es" ? ' · <b class="lang">Spanish</b>' : f.lang === "de" ? ' · <b class="lang">German</b>' : '') + '</span>' +
         '</div>' +
         '<div class="factions">' +
           '<a href="' + esc(f.url) + '" target="_blank" rel="noopener noreferrer" title="Open in a tab">Open</a>' +
@@ -2220,7 +2271,7 @@ function openFile(id){
     head(f.name, f.path.split("/")[0]) +
     '<div class="modal-body" style="text-align:center">' +
       (f.kind === "image"
-        ? '<div class="lightbox"><img src="' + esc(f.url) + '" alt=""></div>'
+        ? '<div class="lightbox"><img src="' + esc(f.thumb_url || f.url) + '" alt=""></div>'
         : '<div class="lightbox glyph">' + (FILE_ICON[f.kind] || "📎") + '</div>') +
       '<div class="note" style="margin-top:12px;text-align:left">' +
         '<b>Path</b> <code>' + esc(f.path) + '</code><br>' +
@@ -2265,7 +2316,7 @@ const JSTATUS = {
 };
 
 function renderJourney(){
-  const which = UI.journey;
+  const which = VIEW === "journey-value" ? "value" : "user";
   const steps = (DATA.journey || []).filter(s => s.journey === which);
   const cols = [];
   steps.forEach(s => {
@@ -2280,11 +2331,6 @@ function renderJourney(){
     '<div class="panel-head" style="border:none;padding:0 0 12px">' +
       '<h2 style="font-size:17px">' + esc(head2.h) + '</h2>' +
       '<span class="sub">' + esc(head2.s) + '</span>' +
-      '<div class="spacer"></div>' +
-      '<div class="seg" id="jMode">' +
-        '<button data-j="user"' + (which==="user"?' class="on"':'') + '>User journey</button>' +
-        '<button data-j="value"' + (which==="value"?' class="on"':'') + '>Value creation</button>' +
-      '</div>' +
     '</div>' +
     '<p class="note" style="margin:-4px 0 14px;max-width:720px">Every box is a step. Click one to ' +
     'open the task that would improve it — or to create that task if it does not exist yet. ' +
@@ -2373,6 +2419,130 @@ function openStep(id){
     openTask(null, { goal: g ? g.id : "", title: "Improve: " + s.name,
                      description: (s.description || "") + (s.note ? "\n\n" + s.note : "") });
   };
+}
+
+/* ============================================================
+   IDEAS  —  the creative board
+   Somewhere to put a thought before it is a task, and a place for
+   the tools and references that keep turning out to be useful.
+   ============================================================ */
+const IDEA_KIND = {
+  idea:        { label:"Idea",        icon:"💡" },
+  resource:    { label:"Resource",    icon:"📎" },
+  tool:        { label:"Tool",        icon:"🛠" },
+  inspiration: { label:"Inspiration", icon:"✨" },
+  question:    { label:"Question",    icon:"❓" }
+};
+const IDEA_STATUS = {
+  spark:     { label:"Spark",     tone:"mute" },
+  exploring: { label:"Exploring", tone:"warn" },
+  parked:    { label:"Parked",    tone:"mute" },
+  building:  { label:"Building",  tone:"ok"   },
+  shipped:   { label:"Shipped",   tone:"ok"   }
+};
+
+function renderIdeas(){
+  const all = (DATA.ideas || []).slice()
+    .sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
+  const kinds = Object.keys(IDEA_KIND);
+
+  let out = '<div class="wrap">' +
+    '<div class="panel-head" style="border:none;padding:0 0 6px">' +
+      '<h2 style="font-size:17px">Ideas</h2>' +
+      '<span class="sub">a place for thoughts that are not tasks yet</span>' +
+      '<div class="spacer"></div>' +
+      '<button class="btn btn-primary btn-sm" id="newIdea">+ Post something</button>' +
+    '</div>' +
+    '<p class="note" style="margin:0 0 16px;max-width:680px">Nothing here has to be finished, ' +
+    'assigned or justified. Put the half-thought down so somebody can build on it. ' +
+    'When one turns into real work, open it and send it to the board as a task.</p>';
+
+  if (!all.length) return out + '<div class="empty">Nothing on the board yet. Be the first.</div></div>';
+
+  kinds.forEach(k => {
+    const got = all.filter(i => i.kind === k);
+    if (!got.length) return;
+    const meta = IDEA_KIND[k];
+    out += '<div class="section-title">' + meta.icon + ' ' + esc(meta.label) +
+           ' <span style="color:var(--ink-3);font-weight:600">' + got.length + '</span></div>' +
+      '<div class="grid-auto">' + got.map(ideaCard).join("") + '</div>';
+  });
+  return out + '</div>';
+}
+
+function ideaCard(i){
+  const st = IDEA_STATUS[i.status] || IDEA_STATUS.spark;
+  return '<div class="idea" data-editidea="' + i.id + '">' +
+    '<div class="idea-top">' +
+      '<span class="pill ' + st.tone + '">' + st.label + '</span>' +
+      '<div class="spacer"></div>' +
+      (i.author ? avatar(i.author) : "") +
+    '</div>' +
+    '<h3>' + esc(i.title) + '</h3>' +
+    (i.body ? '<p>' + esc(i.body) + '</p>' : '') +
+    (i.url ? '<div class="idea-link">' + esc(i.url.replace(/^https?:\/\//,"").slice(0,52)) + '</div>' : '') +
+    '<div class="idea-foot">' + ago(i.updated_at) + '</div>' +
+  '</div>';
+}
+
+function openIdea(id){
+  const i = id ? (DATA.ideas || []).find(x => x.id === id) : null;
+  const v = (k, d) => (i && i[k] != null ? i[k] : (d ?? ""));
+  const kinds  = Object.keys(IDEA_KIND).map(k => ({ k, t: IDEA_KIND[k].label }));
+  const stats  = Object.keys(IDEA_STATUS).map(k => ({ k, t: IDEA_STATUS[k].label }));
+
+  const close = modal(
+    head(i ? "Edit" : "Post something to the board") +
+    '<div class="modal-body">' +
+      '<div class="field"><label for="iTitle">The thought</label>' +
+        '<input class="input" id="iTitle" value="' + esc(v("title")) + '" ' +
+        'placeholder="What if the plan arrived as a message?"></div>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="iKind">Kind</label><select class="input" id="iKind">' +
+          selOpts(kinds, v("kind","idea")) + '</select></div>' +
+        '<div class="field"><label for="iStatus">Where it is</label><select class="input" id="iStatus">' +
+          selOpts(stats, v("status","spark")) + '</select></div>' +
+        '<div class="field"><label for="iAuthor">Who</label><select class="input" id="iAuthor">' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("author", ME), "—") + '</select></div>' +
+      '</div>' +
+      '<div class="field"><label for="iBody">More, if there is more</label>' +
+        '<textarea class="input" id="iBody" style="min-height:110px">' + esc(v("body")) + '</textarea></div>' +
+      '<div class="field"><label for="iUrl">Link</label>' +
+        '<input class="input" id="iUrl" value="' + esc(v("url")) + '" placeholder="https://…"></div>' +
+    '</div>' +
+    '<div class="modal-foot">' +
+      (i ? '<button class="btn btn-danger" id="iDel">Remove</button>' : '') +
+      (i ? '<button class="btn btn-ghost" id="iPromote">Make it a task</button>' : '') +
+      '<div class="spacer"></div>' +
+      '<button class="btn btn-ghost" id="mCancel">Cancel</button>' +
+      '<button class="btn btn-primary" id="mSave">' + (i ? "Save" : "Post it") + '</button>' +
+    '</div>');
+
+  $("#iTitle").focus();
+  $("#mSave").onclick = async () => {
+    const title = $("#iTitle").value.trim();
+    if (!title) return toast("Needs a title", true);
+    const payload = { title, body:$("#iBody").value.trim(), kind:$("#iKind").value,
+                      status:$("#iStatus").value, url:$("#iUrl").value.trim(),
+                      author:$("#iAuthor").value };
+    if (i) payload.id = i.id;
+    $("#mSave").disabled = true;
+    try { await rpc("pm_save_idea", { p_token:TOKEN, p_i:payload, p_actor:ME });
+          close(); await refresh(true); toast(i ? "Saved" : "Posted"); }
+    catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
+  };
+  if (i){
+    $("#iDel").onclick = async () => {
+      if (!confirm("Take “" + i.title + "” off the board?")) return;
+      try { await rpc("pm_delete_idea", { p_token:TOKEN, p_id:i.id, p_actor:ME });
+            close(); await refresh(true); toast("Removed"); }
+      catch(err){ fail(err, "Could not remove"); }
+    };
+    $("#iPromote").onclick = () => {
+      close();
+      openTask(null, { title: i.title, description: (i.body || "") + (i.url ? "\n\n" + i.url : "") });
+    };
+  }
 }
 
 /* ============================================================
@@ -2920,7 +3090,9 @@ const RENDERERS = {
   goal:     renderGoalDetail,
   tasks:    renderTasks,
   timeline: renderTimeline,
-  journey:  renderJourney,
+  "journey-user":  renderJourney,
+  "journey-value": renderJourney,
+  ideas:    renderIdeas,
   "mkt-strategy": renderMktDoc,
   "mkt-q1":       renderMktDoc,
   "mkt-persona": renderMktDoc,
@@ -3077,7 +3249,6 @@ function wireMain(){
 
   /* files: browse, preview, save */
   seg("#fFolder", "ff", "fileFolder", "gp_ffolder");
-  seg("#jMode",   "j",  "journey",    "gp_journey");
   $$("[data-file]").forEach(el => el.onclick = e => {
     if (e.target.closest("a,[data-dl]")) return;
     openFile(el.dataset.file);
@@ -3100,6 +3271,9 @@ function wireMain(){
 
   $$("[data-editasset]").forEach(el => el.onclick = () => openAsset(el.dataset.editasset));
   const na = $("#newAsset"); if (na) na.onclick = () => openAsset(null);
+
+  $$("[data-editidea]").forEach(el => el.onclick = () => openIdea(el.dataset.editidea));
+  const ni = $("#newIdea"); if (ni) ni.onclick = () => openIdea(null);
 
   const nth = $("#newTaskHere");
   if (nth) nth.onclick = () => openTask(null, { goal: UI.goal });
@@ -3150,6 +3324,7 @@ async function refresh(quiet){
       goals:x.goals||[], milestones:x.milestones||[], docs:x.docs||[],
       providers:x.providers||[], assets:x.assets||[],
       files:x.files||[], journey:x.journey||[],
+      ideas:x.ideas||[], areas:x.areas||[],
       metrics:x.metrics||[], activity:x.activity||[]
     };
     buildFilters();
@@ -3276,6 +3451,7 @@ $("#newBtn").addEventListener("click", () => {
   else if (VIEW === "handbook") openDoc(null);
   else if (VIEW === "stack") openProvider(null);
   else if (VIEW === "files") openAsset(null);
+  else if (VIEW === "ideas") openIdea(null);
   else openTask(null);
 });
 
