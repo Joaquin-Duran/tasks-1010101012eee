@@ -1083,13 +1083,26 @@ function metricBlock(g){
   const pts = DATA.metrics.filter(m => m.goal_id === g.id).sort((a,b) => a.on_date < b.on_date ? -1 : 1);
   const cur = g.metric_current, tgt = g.metric_target;
   const has = cur != null;
-  const pct = (has && tgt) ? Math.max(0, Math.min(100, Math.round(cur / tgt * 100))) : 0;
+  /* some metrics are wins when they fall: cost per user, steps before a plan.
+     Progress there is how far the gap has closed, not the raw ratio. */
+  const base = g.metric_baseline;
+  let pct = 0;
+  if (has && tgt != null){
+    if (g.lower_is_better){
+      const from = (base != null && base > tgt) ? base : Math.max(cur, tgt);
+      pct = from === tgt ? 100 : Math.round((from - cur) / (from - tgt) * 100);
+    } else {
+      pct = Math.round(cur / tgt * 100);
+    }
+    pct = Math.max(0, Math.min(100, pct));
+  }
   const max = Math.max.apply(null, pts.map(p => Number(p.value) || 0).concat([1]));
   return '<div class="metric">' +
     '<div class="mrow">' +
       '<span class="mv">' + fmtN(cur) + '</span>' +
       '<span>' + esc(g.metric_unit || "") + '</span>' +
-      '<span class="mt">' + (tgt != null ? "target " + fmtN(tgt) : "no target") + '</span>' +
+      '<span class="mt">' + (tgt != null
+        ? (g.lower_is_better ? "down to " : "target ") + fmtN(tgt) : "no target") + '</span>' +
     '</div>' +
     '<div class="mbar' + (has ? "" : " none") + '"><span style="width:' + pct + '%"></span></div>' +
     '<div class="note" style="margin-top:5px;font-size:11px">' + esc(g.metric_name) +
