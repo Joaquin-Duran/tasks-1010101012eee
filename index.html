@@ -624,10 +624,10 @@ const PRIOS = [
 ];
 const PRIO_HEX = { P0:"#C7383B", P1:"#EF6E45", P2:"#D69A22", P3:"#8A8A8A" };
 const EFFORTS = [
-  { k:"S",  t:"S — under a day" },
-  { k:"M",  t:"M — 1-3 days" },
-  { k:"L",  t:"L — 4-10 days" },
-  { k:"XL", t:"XL — over 2 weeks" }
+  { k:"S",  t:"S · under a day" },
+  { k:"M",  t:"M · 1-3 days" },
+  { k:"L",  t:"L · 4-10 days" },
+  { k:"XL", t:"XL · over 2 weeks" }
 ];
 /* rough calendar days an effort size occupies, used to give a task a start
    date when nobody set one -- a Gantt needs a beginning, not just a deadline */
@@ -750,7 +750,7 @@ async function rpc(fn, body){
 }
 
 function fail(err, msg){
-  if (String(err.message).includes("unauthorized")) return logout("Session expired — sign in again.");
+  if (String(err.message).includes("unauthorized")) return logout("Session expired · sign in again.");
   toast(msg + ": " + err.message, true);
 }
 
@@ -823,7 +823,7 @@ function taskStart(t){
 /* Goals we hold ourselves to this year. A north star is the number above them all,
    and a 'someday' goal is a destination with nothing scheduled against it -- neither
    should be nagged about for having no tasks or no metric reading. */
-function liveGoals(){ return DATA.goals.filter(g => g.horizon !== "north-star" && g.horizon !== "someday"); }
+function liveGoals(){ return DATA.goals.filter(g => g.horizon !== "impulse" && g.horizon !== "someday"); }
 function somedayGoals(){ return DATA.goals.filter(g => g.horizon === "someday"); }
 function goalOf(t){ return t.goal_id ? byId(DATA.goals)[t.goal_id] : null; }
 function msOf(t){ return t.milestone_id ? byId(DATA.milestones)[t.milestone_id] : null; }
@@ -1039,7 +1039,7 @@ function column(title, colour, tasks, dropStatus){
     '</div></section>';
 }
 
-function fmtN(n){ return n == null ? "—" : (Math.round(Number(n)*10)/10).toLocaleString(); }
+function fmtN(n){ return n == null ? "Not set" : (Math.round(Number(n)*10)/10).toLocaleString(); }
 
 function metricBlock(g){
   if (!g.metric_name) return '';
@@ -1497,7 +1497,7 @@ function renderHandbook(){
 
 function renderStart(){
   const doc = DATA.docs.find(x => x.key === "start-here");
-  if (!doc) return '<div class="empty">No onboarding document yet — add one in the Handbook.</div>';
+  if (!doc) return '<div class="empty">No onboarding document yet · add one in the Handbook.</div>';
   const open = DATA.tasks.filter(isOpen);
   const quick = open.filter(t => isLate(t) && (t.effort === "S" || t.effort === "M")).slice(0,5);
   return '<div class="wrap">' +
@@ -1506,7 +1506,7 @@ function renderStart(){
       '<div class="spacer"></div>' +
       '<button class="btn btn-ghost btn-sm" data-editdoc="start-here">Edit</button>' +
     '</div><div class="panel-body"><div class="prose">' + md(doc.body) + '</div></div></div>' +
-    (quick.length ? '<div class="section-title">Small overdue tasks — good first pickups</div>' +
+    (quick.length ? '<div class="section-title">Small overdue tasks · good first pickups</div>' +
       '<div class="panel"><div class="panel-body"><div class="pl-rows">' +
       quick.map(t => plannerItem({ kind:"task", id:t.id, title:t.title, sub:t.code + " · " + (t.effort||""),
         due:t.target_date, owners:t.owners||[], badge:t.priority||"task",
@@ -1544,7 +1544,7 @@ function renderTeam(){
 }
 
 /* ============================================================
-   THE STACK  —  providers, subscriptions, who owns what.
+   THE STACK  ·  providers, subscriptions, who owns what.
    Passwords for low-risk tools are stored and revealed on request,
    and every reveal lands in Activity. Anything that can spend money
    or delete production stores no password at all, by database
@@ -1591,7 +1591,7 @@ function renderStack(){
   '</div>';
 
   out += '<div class="flag warn"><span class="fi">◆</span><div>' +
-    '<b>Anything marked critical stores no password here — on purpose.</b> ' +
+    '<b>Anything marked critical stores no password here · on purpose.</b> ' +
     'One shared team passcode protects this page, and it cannot be revoked for one person. ' +
     'So accounts that can spend money or delete production hold only a pointer to where the ' +
     'real credential lives and how to ask for access. Passwords for low-risk tools are stored, ' +
@@ -1778,7 +1778,7 @@ function effortSection(){
     '<div class="panel-body">' +
       '<div class="effort-bar">' + shares.map(s =>
         '<div style="width:' + s.pct + '%;background:' + s.colour + '" title="' +
-        esc(s.name + " — " + s.pct + "%") + '">' + (s.pct >= 8 ? s.pct + "%" : "") + '</div>').join("") + '</div>' +
+        esc(s.name + " · " + s.pct + "%") + '">' + (s.pct >= 8 ? s.pct + "%" : "") + '</div>').join("") + '</div>' +
       '<div class="legend-row">' + shares.map(s =>
         '<span' + (s.id ? ' data-open-goal="' + s.id + '" style="cursor:pointer"' : '') + '>' +
         '<i style="background:' + s.colour + '"></i>' + esc(s.name) + ' · ' + s.pct + '%</span>').join("") + '</div>' +
@@ -1810,16 +1810,16 @@ function quickAccess(){
 
 /* ---- the compact company strip: the big picture without leaving My week ---- */
 function companyStrip(){
-  const ns = DATA.goals.find(g => g.horizon === "north-star");
+  const ns = DATA.goals.find(g => g.horizon === "impulse");
   const goals = liveGoals();
   return '<button class="strip" data-goview="where">' +
     '<div class="strip-ns">' +
-      '<span class="ga">North star</span>' +
+      '<span class="ga">Impulse</span>' +
       '<span class="strip-name">' + esc(ns ? ns.name : "No north star set") + '</span>' +
     '</div>' +
     '<div class="strip-goals">' + goals.map(g => {
       const pr = progress(tasksOfGoal(g));
-      return '<span class="sg" title="' + esc(g.name + " — " + g.status + " · " + pr.done + "/" + pr.total) + '">' +
+      return '<span class="sg" title="' + esc(g.name + " · " + g.status + " · " + pr.done + "/" + pr.total) + '">' +
         '<i style="background:' + g.color + '"></i>' +
         '<b class="' + (GOAL_STATUS_TONE[g.status]||"mute") + '"></b></span>';
     }).join("") + '</div>' +
@@ -1828,7 +1828,7 @@ function companyStrip(){
 }
 
 /* ============================================================
-   1 · MY WEEK  — the landing page
+   1 · MY WEEK  · the landing page
    ============================================================ */
 function renderMyWeek(){
   const today = todayISO();
@@ -1894,7 +1894,7 @@ function renderMyWeek(){
 
   if (undated.length){
     out += '<details class="fold"><summary>' + undated.length +
-      ' of your tasks have no date <span class="note">— they appear in no plan</span></summary>' +
+      ' of your tasks have no date <span class="note">· they appear in no plan</span></summary>' +
       '<div class="pl-rows" style="margin-top:8px">' + undated.map(t => plannerItem({
         kind:"task", id:t.id, title:t.title, sub:t.code, owners:t.owners||[],
         badge:t.priority||"task", tone:"mute", colour:PRIO_HEX[t.priority]||"" })).join("") +
@@ -1919,10 +1919,10 @@ function renderMyWeek(){
 }
 
 /* ============================================================
-   2 · WHERE WE ARE  — the company on one page, drillable
+   2 · WHERE WE ARE  · the company on one page, drillable
    ============================================================ */
 function renderWhere(list){
-  const ns = DATA.goals.find(g => g.horizon === "north-star");
+  const ns = DATA.goals.find(g => g.horizon === "impulse");
   const goals = liveGoals();
   const later = somedayGoals();
   const checks = attentionList();
@@ -1933,7 +1933,7 @@ function renderWhere(list){
     out += '<div class="panel" style="border-left:4px solid ' + ns.color + '">' +
       '<div class="panel-body" style="display:flex;gap:22px;flex-wrap:wrap;align-items:center">' +
         '<div style="flex:1;min-width:250px">' +
-          '<div class="ga" style="color:' + ns.color + '">North star</div>' +
+          '<div class="ga" style="color:' + ns.color + '">Impulse</div>' +
           '<h2 style="font-size:19px;margin:5px 0 6px;letter-spacing:-.02em">' + esc(ns.name) + '</h2>' +
           (ns.statement ? '<p class="note" style="font-size:13px;margin:0">' + esc(ns.statement) + '</p>' : '') +
         '</div>' +
@@ -1985,7 +1985,7 @@ function renderWhere(list){
     '</section>';
   });
   if (later.length){
-    out += '<div class="section-title">Someday — where this is all going</div>' +
+    out += '<div class="section-title">Someday · where this is all going</div>' +
       '<p class="note" style="margin:-4px 0 10px;max-width:640px">Nothing is scheduled against these. ' +
       'They sit here so the plan has a visible destination.</p>' +
       '<div class="grid-auto">' + later.map(goalCard).join("") + '</div>';
@@ -1995,7 +1995,7 @@ function renderWhere(list){
 }
 
 /* ============================================================
-   TIMELINE  — the same work against a calendar, two ways
+   TIMELINE  · the same work against a calendar, two ways
    ============================================================ */
 function renderTimeline(list){
   return '<div class="wrap" style="max-width:none">' +
@@ -2055,7 +2055,7 @@ function goalCard(g){
 }
 
 /* ============================================================
-   3 · ONE GOAL  — everything about it, and nothing else
+   3 · ONE GOAL  · everything about it, and nothing else
    ============================================================ */
 function renderGoalDetail(list){
   const g = DATA.goals.find(x => x.id === UI.goal);
@@ -2124,7 +2124,7 @@ function renderGoalDetail(list){
     '</div></div>';
   }).join("")
   : '<div class="flag warn"><span class="fi">◆</span><div>No milestones. A goal with no dated ' +
-    'deliverables is a wish — add one so it can appear on a timeline.</div></div>';
+    'deliverables is a wish · add one so it can appear on a timeline.</div></div>';
 
   if (loose.length){
     out += '<div class="section-title">On the goal, but under no milestone</div>' +
@@ -2146,7 +2146,7 @@ function taskRow(t){
 }
 
 /* ============================================================
-   EVERY TASK  — one page, grouped however you like
+   EVERY TASK  · one page, grouped however you like
    ============================================================ */
 function renderTasks(list){
   const by = UI.taskGroup;
@@ -2185,7 +2185,7 @@ function renderTasks(list){
 }
 
 /* ============================================================
-   FILES  —  a real browser over the Azure container
+   FILES  ·  a real browser over the Azure container
    ============================================================ */
 function fmtBytes(n){
   n = Number(n) || 0;
@@ -2248,7 +2248,7 @@ function renderFiles(){
 
   const elsewhere = assets.filter(a => !a.url || a.url.indexOf("/brand/") === -1);
   if (elsewhere.length){
-    out += '<div class="section-title">Elsewhere — not in the container</div><div class="grid-auto">' +
+    out += '<div class="section-title">Elsewhere · not in the container</div><div class="grid-auto">' +
       elsewhere.map(a =>
         '<div class="pv" style="--sc:' + (a.url ? "var(--s-done)" : "var(--line)") + '">' +
           '<div class="pv-top"><h3>' + esc(a.name) + '</h3><div class="spacer"></div>' +
@@ -2300,12 +2300,12 @@ async function downloadFile(f){
     toast("Saved " + a.download);
   } catch(err){
     window.open(f.url, "_blank", "noopener");
-    toast("Opened in a tab — save it from there", true);
+    toast("Opened in a tab · save it from there", true);
   }
 }
 
 /* ============================================================
-   JOURNEY  —  the flow as a node graph
+   JOURNEY  ·  the flow as a node graph
    ============================================================ */
 const JSTATUS = {
   live:     { label:"live",     tone:"ok"   },
@@ -2333,7 +2333,7 @@ function renderJourney(){
       '<span class="sub">' + esc(head2.s) + '</span>' +
     '</div>' +
     '<p class="note" style="margin:-4px 0 14px;max-width:720px">Every box is a step. Click one to ' +
-    'open the task that would improve it — or to create that task if it does not exist yet. ' +
+    'open the task that would improve it · or to create that task if it does not exist yet. ' +
     'A red box is a step we know is weak.</p>';
 
   /* Vertical flow: one step per band, branches side by side, a long connector
@@ -2373,7 +2373,7 @@ function renderJourney(){
   if (problems.length){
     out += '<div class="section-title">Known weak steps</div>' +
       problems.map(s => '<div class="flag bad"><span class="fi">◆</span><div>' +
-        '<b>' + esc(s.name) + '</b> — ' + esc(s.note || s.description || "") +
+        '<b>' + esc(s.name) + '</b> · ' + esc(s.note || s.description || "") +
         (s.task_code ? ' <a href="#" data-step-task="' + esc(s.task_code) + '">' + esc(s.task_code) + ' →</a>' : '') +
         '</div></div>').join("");
   }
@@ -2422,7 +2422,7 @@ function openStep(id){
 }
 
 /* ============================================================
-   IDEAS  —  the creative board
+   IDEAS  ·  the creative board
    Somewhere to put a thought before it is a task, and a place for
    the tools and references that keep turning out to be useful.
    ============================================================ */
@@ -2503,7 +2503,7 @@ function openIdea(id){
         '<div class="field"><label for="iStatus">Where it is</label><select class="input" id="iStatus">' +
           selOpts(stats, v("status","spark")) + '</select></div>' +
         '<div class="field"><label for="iAuthor">Who</label><select class="input" id="iAuthor">' +
-          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("author", ME), "—") + '</select></div>' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("author", ME), "Not set") + '</select></div>' +
       '</div>' +
       '<div class="field"><label for="iBody">More, if there is more</label>' +
         '<textarea class="input" id="iBody" style="min-height:110px">' + esc(v("body")) + '</textarea></div>' +
@@ -2603,21 +2603,21 @@ function openTask(id, seed){
         '<div class="field"><label for="mStatus">Status</label><select class="input" id="mStatus">' +
           selOpts(STATUSES, v("status","Not Started")) + '</select></div>' +
         '<div class="field"><label for="mPri">Priority</label><select class="input" id="mPri">' +
-          selOpts(PRIOS, v("priority"), "—") + '</select></div>' +
+          selOpts(PRIOS, v("priority"), "Not set") + '</select></div>' +
         '<div class="field"><label for="mEff">Effort</label><select class="input" id="mEff">' +
-          selOpts(EFFORTS, v("effort"), "—") + '</select></div>' +
+          selOpts(EFFORTS, v("effort"), "Not set") + '</select></div>' +
       '</div>' +
       '<div class="grid2">' +
         '<div class="field"><label for="mMs">Milestone</label><select class="input" id="mMs">' +
-          selOpts(msList, v("milestone_id"), "— not attached —") +
+          selOpts(msList, v("milestone_id"), "Not attached") +
           '</select><span class="hint">Sets the goal automatically.</span></div>' +
         '<div class="field"><label for="mGoal">Goal</label><select class="input" id="mGoal">' +
-          selOpts(liveGoals(), v("goal_id", seed && seed.goal), "— none —") +
+          selOpts(liveGoals(), v("goal_id", seed && seed.goal), "No goal") +
           '</select><span class="hint">Only needed without a milestone.</span></div>' +
       '</div>' +
       '<div class="grid3">' +
         '<div class="field"><label for="mCat">Area</label><select class="input" id="mCat">' +
-          selOpts(CATS, v("category"), "—") + '</select></div>' +
+          selOpts(CATS, v("category"), "Not set") + '</select></div>' +
         '<div class="field"><label for="mStart">Starts</label>' +
           '<input class="input" id="mStart" type="date" value="' + esc(v("start_date")) + '">' +
           '<span class="hint">Blank = inferred from effort.</span></div>' +
@@ -2625,7 +2625,7 @@ function openTask(id, seed){
           '<input class="input" id="mDate" type="date" value="' + esc(v("target_date")) + '"></div>' +
       '</div>' +
       '<div class="field"><label for="mPhase">Phase</label><select class="input" id="mPhase">' +
-        selOpts(DATA.phases, v("phase_key"), "—") + '</select></div>' +
+        selOpts(DATA.phases, v("phase_key"), "Not set") + '</select></div>' +
       '<div class="field"><label>Owners</label><div class="owner-pick" id="mOwners">' +
         DATA.people.filter(p => p.active).map(p =>
           '<label class="opt' + (owners.has(p.name) ? " on" : "") + '">' +
@@ -2637,7 +2637,7 @@ function openTask(id, seed){
         '<textarea class="input" id="mDesc" placeholder="What does done look like?">' + esc(v("description", seed && seed.description)) + '</textarea></div>' +
       '<div class="field"><label for="mNotes">Comments</label>' +
         '<textarea class="input" id="mNotes" style="min-height:60px">' + esc(v("notes")) + '</textarea></div>' +
-      (t ? '<div class="note">Added by ' + esc(t.created_by || "—") + ' · updated ' + ago(t.updated_at) + '</div>' : '') +
+      (t ? '<div class="note">Added by ' + esc(t.created_by || "Not set") + ' · updated ' + ago(t.updated_at) + '</div>' : '') +
     '</div>' +
     foot(t ? "Save changes" : "Create task",
          t ? '<button class="btn btn-danger" id="mDel">Archive</button>' : ""));
@@ -2694,15 +2694,15 @@ function openGoal(id){
         '<textarea class="input" id="gWhy" style="min-height:56px">' + esc(v("why")) + '</textarea></div>' +
       '<div class="grid3">' +
         '<div class="field"><label for="gArea">Area</label><select class="input" id="gArea">' +
-          selOpts(AREAS, v("area"), "—") + '</select></div>' +
+          selOpts(AREAS, v("area"), "Not set") + '</select></div>' +
         '<div class="field"><label for="gHorizon">Horizon</label><select class="input" id="gHorizon">' +
-          selOpts(["quarter","year","north-star"], v("horizon","quarter")) + '</select></div>' +
+          selOpts(["quarter","year","impulse"], v("horizon","quarter")) + '</select></div>' +
         '<div class="field"><label for="gStatus">Health</label><select class="input" id="gStatus">' +
           selOpts(GOAL_STATUS, v("status","Not started")) + '</select></div>' +
       '</div>' +
       '<div class="grid3">' +
         '<div class="field"><label for="gOwner">Owner</label><select class="input" id="gOwner">' +
-          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "—") + '</select></div>' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "Not set") + '</select></div>' +
         '<div class="field"><label for="gStarts">Starts</label>' +
           '<input class="input" id="gStarts" type="date" value="' + esc(v("starts")) + '"></div>' +
         '<div class="field"><label for="gEnds">Ends</label>' +
@@ -2788,9 +2788,9 @@ function openMilestone(id){
         '<textarea class="input" id="sDesc" style="min-height:56px">' + esc(v("description")) + '</textarea></div>' +
       '<div class="grid2">' +
         '<div class="field"><label for="sGoal">Goal</label><select class="input" id="sGoal">' +
-          selOpts(DATA.goals.filter(g => g.horizon !== "north-star"), v("goal_id"), "— none —") + '</select></div>' +
+          selOpts(DATA.goals.filter(g => g.horizon !== "impulse"), v("goal_id"), "No goal") + '</select></div>' +
         '<div class="field"><label for="sOwner">Owner</label><select class="input" id="sOwner">' +
-          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "—") + '</select></div>' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "Not set") + '</select></div>' +
       '</div>' +
       '<div class="grid3">' +
         '<div class="field"><label for="sStatus">Status</label><select class="input" id="sStatus">' +
@@ -2887,15 +2887,15 @@ function openProvider(id){
         '<input class="input" id="vPurpose" value="' + esc(v("purpose")) + '"></div>' +
       '<div class="field"><label for="vSens">Risk level</label>' +
         '<select class="input" id="vSens">' +
-          '<option value="low"' + (v("sensitivity","low")==="low"?" selected":"") + '>Low risk — password may be stored here</option>' +
-          '<option value="critical"' + (v("sensitivity")==="critical"?" selected":"") + '>Critical — can spend money or delete production</option>' +
+          '<option value="low"' + (v("sensitivity","low")==="low"?" selected":"") + '>Low risk · password may be stored here</option>' +
+          '<option value="critical"' + (v("sensitivity")==="critical"?" selected":"") + '>Critical · can spend money or delete production</option>' +
         '</select>' +
         '<span class="hint">Critical accounts store no password, by database rule. They record where the credential lives instead.</span></div>' +
       '<div class="grid2">' +
         '<div class="field"><label for="vUrl">URL</label>' +
           '<input class="input" id="vUrl" value="' + esc(v("url")) + '" placeholder="https://…"></div>' +
         '<div class="field"><label for="vOwner">Owner</label><select class="input" id="vOwner">' +
-          selOpts(DATA.people.filter(x => x.active).map(x => x.name), v("owner"), "—") + '</select></div>' +
+          selOpts(DATA.people.filter(x => x.active).map(x => x.name), v("owner"), "Not set") + '</select></div>' +
       '</div>' +
       '<div class="grid3">' +
         '<div class="field"><label for="vPlan">Plan</label>' +
@@ -2917,7 +2917,7 @@ function openProvider(id){
             '<input class="input" id="vUser" value="' + esc(v("username")) + '" autocomplete="off"></div>' +
           '<div class="field"><label for="vSecret">Password</label>' +
             '<input class="input" id="vSecret" type="text" autocomplete="off" placeholder="' +
-              (p && p.has_secret ? "unchanged — type to replace" : "") + '">' +
+              (p && p.has_secret ? "unchanged · type to replace" : "") + '">' +
             '<span class="hint">Stored in the database, hidden until someone clicks Show. Every reveal is logged.</span></div>' +
         '</div>' +
       '</div>' +
@@ -3000,7 +3000,7 @@ function openPhase(key){
       '<div class="field"><label for="fCrit">Success criteria</label>' +
         '<textarea class="input" id="fCrit" style="min-height:60px">' + esc(v("success_criteria")) + '</textarea></div>' +
       '<div class="field"><label for="fVerdict">Verdict' +
-        (closed ? '' : ' <span class="hint" style="display:inline">— write this when the window closes</span>') +
+        (closed ? '' : ' <span class="hint" style="display:inline">· write this when the window closes</span>') +
         '</label><textarea class="input" id="fVerdict" style="min-height:60px" placeholder="Did we hit it? Say so plainly.">' +
         esc(v("verdict")) + '</textarea></div>' +
       (closed && open
@@ -3046,12 +3046,12 @@ function openAsset(id){
         '<div class="field"><label for="aKind">Kind</label><select class="input" id="aKind">' +
           selOpts(KINDS, v("kind","file")) + '</select></div>' +
         '<div class="field"><label for="aOwner">Owner</label><select class="input" id="aOwner">' +
-          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "—") + '</select></div>' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "Not set") + '</select></div>' +
       '</div>' +
       '<div class="field"><label for="aUrl">Link</label>' +
         '<input class="input" id="aUrl" value="' + esc(v("url")) + '" placeholder="https://drive.google.com/…">' +
         '<span class="hint">This page is a registry, not storage. Upload the file somewhere the ' +
-        'team can reach — Drive is already paid for — and paste the link here.</span></div>' +
+        'team can reach · Drive is already paid for · and paste the link here.</span></div>' +
       '<div class="field"><label for="aLoc">Where it is, if there is no link yet</label>' +
         '<input class="input" id="aLoc" value="' + esc(v("location")) + '" placeholder="Todo Branding › LOGOS"></div>' +
       '<div class="field"><label for="aDesc">What it is</label>' +
@@ -3214,7 +3214,7 @@ function wireMain(){
       const r = await rpc("pm_reveal_secret", { p_token:TOKEN, p_id:id, p_actor:ME });
       if (!r || r.ok !== true){
         toast(r && r.reason === "critical_no_secret"
-          ? "No password is stored for a critical account — see where it lives."
+          ? "No password is stored for a critical account · see where it lives."
           : "No password recorded for that one.", true);
         el.disabled = false; el.textContent = "Show password";
         return;
@@ -3285,7 +3285,7 @@ function wireMain(){
     const to   = byKey(DATA.phases,"key")[el.dataset.moveTo];
     const n = DATA.tasks.filter(t => t.phase_key === from.key && isOpen(t)).length;
     if (!confirm("Move " + n + " open task" + (n===1?"":"s") + " from “" + from.name +
-                 "” into “" + to.name + "”?\n\nTheir dates are left alone — change those " +
+                 "” into “" + to.name + "”?\n\nTheir dates are left alone · change those " +
                  "individually, so the new plan is a decision rather than a shuffle.")) return;
     el.disabled = true;
     try {
@@ -3332,7 +3332,7 @@ async function refresh(quiet){
     render();
     if (!quiet) toast("Up to date");
   } catch(err){
-    if (String(err.message).includes("unauthorized")) return logout("Session expired — sign in again.");
+    if (String(err.message).includes("unauthorized")) return logout("Session expired · sign in again.");
     toast("Could not load: " + err.message, true);
   }
 }
@@ -3346,7 +3346,7 @@ function buildFilters(){
   $("#fPhase").innerHTML = '<option value="">All phases</option>' +
     DATA.phases.map(p => '<option value="' + esc(p.key) + '">' + esc(p.name) + '</option>').join("");
   $("#fGoal").innerHTML = '<option value="">All goals</option>' +
-    DATA.goals.filter(g => g.horizon !== "north-star")
+    DATA.goals.filter(g => g.horizon !== "impulse")
       .map(g => '<option value="' + esc(g.id) + '">' + esc(g.name) + '</option>').join("");
   keep("#fPerson", F.person); keep("#fCat", F.cat); keep("#fPhase", F.phase); keep("#fGoal", F.goal);
   if (!$("#fPri").children.length){
