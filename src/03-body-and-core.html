@@ -2,9 +2,7 @@
 
 <div id="login">
   <form class="login-card" id="loginForm">
-    <div class="brandmark" aria-label="GoPrep">
-      <span class="bm-dot"></span><span class="bm-word">GoPrep</span>
-    </div>
+    <img class="brand-logo" src="assets/goprep-logo.png" alt="GoPrep" width="900" height="203">
     <h1 class="welcome">Welcome to GoPrep, the meal planner of healthy busy professionals</h1>
     <p>Enter the team passcode to continue.</p>
     <div class="field">
@@ -21,8 +19,42 @@
   <div class="sb-meta"><b id="sbTitle"></b><small id="sbSub"></small></div>
   <div class="sb-time" id="sbTime">25:00</div>
   <button class="btn btn-ghost" id="sbPause" style="padding:6px 11px;font-size:12.5px">Pause</button>
-  <button class="btn btn-ghost" id="sbOpen" style="padding:6px 11px;font-size:12.5px">Open</button>
+  <button class="btn btn-ghost" id="sbOpen" style="padding:6px 11px;font-size:12.5px">Expand</button>
   <button class="btn btn-ghost" id="sbStop" style="padding:6px 11px;font-size:12.5px">End</button>
+</div>
+
+<div id="sprintFull" class="sprintfull hidden" role="dialog" aria-label="Focus sprint">
+  <div class="fs-bar">
+    <button class="btn btn-ghost" id="fsMin" style="padding:7px 12px">Minimise</button>
+    <div class="spacer"></div>
+    <button class="btn btn-ghost" id="fsEnd" style="padding:7px 12px">End sprint</button>
+  </div>
+  <div class="fs-mid">
+    <div class="fs-task"><span class="code" id="fsCode"></span><h2 id="fsTitle"></h2></div>
+    <div class="fs-dial">
+      <div class="fs-adjcol">
+        <button class="fs-adj" id="fsM1" title="A minute less">&lsaquo;</button>
+        <button class="fs-adj" id="fsM5" title="Five minutes less">&laquo;</button>
+      </div>
+      <div class="fs-ringwrap">
+        <svg class="fs-ring" viewBox="0 0 220 220" aria-hidden="true">
+          <circle class="fs-track" cx="110" cy="110" r="100"></circle>
+          <circle class="fs-prog"  cx="110" cy="110" r="100" id="fsProg"></circle>
+        </svg>
+        <div class="fs-readout">
+          <span class="fs-state" id="fsState">Active</span>
+          <span class="fs-time" id="fsTime">25:00</span>
+          <span class="fs-of" id="fsOf">of 25:00</span>
+        </div>
+      </div>
+      <div class="fs-adjcol">
+        <button class="fs-adj" id="fsP1" title="A minute more">&rsaquo;</button>
+        <button class="fs-adj" id="fsP5" title="Five minutes more">&raquo;</button>
+      </div>
+    </div>
+    <button class="fs-pause" id="fsPause">Pause</button>
+    <button class="fs-open" id="fsOpen">Open the task</button>
+  </div>
 </div>
 
 <div id="app" class="hidden">
@@ -127,7 +159,7 @@ const SUB_VIEWS = {
     { k:"files",           label:"Files" }
   ],
   company: [
-    { k:"start",    label:"Start here" },
+    { k:"start",    label:"Welcome" },
     { k:"handbook", label:"Handbook" },
     { k:"team",     label:"Team" },
     { k:"activity", label:"Activity" }

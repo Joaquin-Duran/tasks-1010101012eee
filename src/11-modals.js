@@ -557,7 +557,7 @@ function openPerson(name){
     String(a.target_date || "9999").localeCompare(String(b.target_date || "9999")));
 
   const close = modal(
-    head(p.name) +
+    head("") +
     '<div class="modal-body">' +
       '<div class="person-hero">' +
         (pic
@@ -565,14 +565,15 @@ function openPerson(name){
           : '<span class="av" style="background:' + (p.color || "var(--ink-3)") + '">' +
               esc(p.initials || initials(p.name)) + '</span>') +
         '<div>' +
-          '<h3 style="margin:0 0 2px">' + esc(p.role || "Role not set") + '</h3>' +
-          (p.bio ? '<p class="note" style="margin:0 0 8px;font-size:12.5px">' + esc(p.bio) + '</p>' : '') +
-          '<div class="person-stats">' +
-            '<span><b>' + open.length + '</b>open</span>' +
-            '<span><b' + (late.length ? ' style="color:var(--p0)"' : '') + '>' + late.length + '</b>overdue</span>' +
-            '<span><b>' + done.length + '</b>done</span>' +
-            '<span><b>' + goals.length + '</b>goal' + (goals.length === 1 ? "" : "s") + ' owned</span>' +
-          '</div>' +
+          '<h2 class="person-name">' + esc(p.name) + '</h2>' +
+          '<p class="person-role">' + esc(p.role || "Role not set") + '</p>' +
+        '</div>' +
+        (p.bio ? '<p class="note" style="margin:0;font-size:12.5px;max-width:44ch">' + esc(p.bio) + '</p>' : '') +
+        '<div class="person-stats">' +
+          '<span><b>' + open.length + '</b>open</span>' +
+          '<span><b' + (late.length ? ' style="color:var(--p0)"' : '') + '>' + late.length + '</b>overdue</span>' +
+          '<span><b>' + done.length + '</b>done</span>' +
+          '<span><b>' + goals.length + '</b>goal' + (goals.length === 1 ? "" : "s") + ' owned</span>' +
         '</div>' +
       '</div>' +
       (goals.length ? '<div class="field"><label>Owns</label>' +

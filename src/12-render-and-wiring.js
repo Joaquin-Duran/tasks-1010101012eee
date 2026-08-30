@@ -383,7 +383,15 @@ $("#whoSel").addEventListener("change", e => {
 $("#refreshBtn").addEventListener("click", () => refresh());
 $("#focusBtn").addEventListener("click", () => SP ? spPaint() : openSprint(null));
 $("#sbPause").addEventListener("click", () => SP && SP.paused ? spResume() : spPause());
-$("#sbOpen").addEventListener("click", () => { if (SP) openTask(SP.taskId); });
+$("#sbOpen").addEventListener("click", () => spMinimise(false));
+$("#fsMin").addEventListener("click", () => spMinimise(true));
+$("#fsEnd").addEventListener("click", () => spStop());
+$("#fsPause").addEventListener("click", () => SP && SP.paused ? spResume() : spPause());
+$("#fsOpen").addEventListener("click", () => { if (SP) openTask(SP.taskId); });
+$("#fsM1").addEventListener("click", () => spAdjust(-1));
+$("#fsM5").addEventListener("click", () => spAdjust(-5));
+$("#fsP1").addEventListener("click", () => spAdjust(1));
+$("#fsP5").addEventListener("click", () => spAdjust(5));
 $("#sbStop").addEventListener("click", () => spStop());
 /* "+ New" makes whatever the current view is about */
 $("#newBtn").addEventListener("click", () => {

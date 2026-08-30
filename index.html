@@ -576,14 +576,11 @@ main{flex:1;overflow:auto;padding:20px}
   .grow.lvl-task .gname{padding-left:34px}
 }
 
-/* ---------- brand mark: orange logo for the welcome screen ----------
-   Placeholder wordmark. Swap .bm-dot for the real brand SVG when the
-   asset is confirmed; the colour is already the brand orange. */
-.brandmark{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 auto 18px}
-.bm-dot{width:36px;height:36px;border-radius:12px;background:var(--orange);flex:none;
-        display:grid;place-items:center;box-shadow:0 2px 12px rgba(239,110,69,.34)}
-.bm-dot::after{content:"";width:14px;height:14px;border-radius:4px;border:2.5px solid var(--cream)}
-.bm-word{font-size:26px;font-weight:700;letter-spacing:-.03em;color:var(--orange);line-height:1}
+/* ---------- brand mark ----------
+   The real horizontal logo, from the brand identity folder. Sized by width
+   so the intrinsic 900x203 never forces a reflow. */
+.brand-logo{display:block;width:196px;max-width:72%;height:auto;margin:0 auto 20px}
+.start-logo{display:block;width:232px;max-width:60%;height:auto;margin:2px 0 20px}
 .welcome{font-size:16px;line-height:1.4;margin:0 0 8px;font-weight:600}
 
 /* ---------- focus sprint ---------- */
@@ -598,6 +595,39 @@ main{flex:1;overflow:auto;padding:20px}
   color:var(--orange);flex:none}
 .sb-ring{flex:none;width:30px;height:30px;border-radius:50%;flex-shrink:0;
   background:conic-gradient(var(--orange) calc(var(--pct,0) * 1%), var(--orange-soft) 0)}
+/* ---------- focus sprint, full screen ----------
+   Sits under the scrim so a modal still reads above it, and over the app. */
+.sprintfull{position:fixed;inset:0;z-index:55;background:var(--cream);
+  display:flex;flex-direction:column;padding:18px 20px 30px}
+.fs-bar{display:flex;align-items:center;gap:10px}
+.fs-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:26px;width:100%;max-width:520px;margin:0 auto}
+.fs-task{text-align:center}
+.fs-task h2{font-size:22px;letter-spacing:-.02em;margin:7px 0 0;line-height:1.25}
+.fs-dial{display:flex;align-items:center;justify-content:center;gap:14px;width:100%}
+.fs-adjcol{display:flex;flex-direction:column;gap:12px}
+.fs-adj{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);
+  background:var(--white);color:var(--ink-3);font-size:17px;line-height:1;transition:.15s}
+.fs-adj:hover{border-color:var(--orange);color:var(--orange)}
+.fs-ringwrap{position:relative;width:min(268px,54vw);aspect-ratio:1;flex:none}
+.fs-ring{width:100%;height:100%;transform:rotate(-90deg)}
+.fs-track{fill:none;stroke:var(--orange-soft);stroke-width:12}
+.fs-prog{fill:none;stroke:var(--orange);stroke-width:12;stroke-linecap:round;
+  stroke-dasharray:628.32;stroke-dashoffset:0;transition:stroke-dashoffset .95s linear}
+.fs-readout{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px}
+.fs-state{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.fs-time{font-size:clamp(38px,9vw,54px);font-weight:700;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;line-height:1.05}
+.fs-of{font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.fs-pause{width:100%;padding:16px;border:1px solid var(--line);border-radius:14px;
+  background:var(--white);font-size:16px;transition:.15s}
+.fs-pause:hover{border-color:var(--orange);color:var(--orange)}
+.fs-open{font-size:13px;color:var(--ink-3);text-decoration:underline}
+.sprintfull.paused .fs-prog{stroke:var(--ink-3)}
+.sprintfull.paused .fs-time{color:var(--ink-3)}
+@media (max-width:560px){ .fs-adj{width:38px;height:38px} .fs-dial{gap:8px} }
+
 .btn-sprint{background:var(--orange);color:var(--white)}
 .btn-sprint:hover{filter:brightness(.95)}
 .dur-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
@@ -606,11 +636,14 @@ main{flex:1;overflow:auto;padding:20px}
 @media (max-width:560px){ .sb-meta b{max-width:120px} .sb-time{font-size:17px} }
 
 /* ---------- person detail ---------- */
-.person-hero{display:flex;gap:16px;align-items:center;margin-bottom:16px}
-.person-photo{width:88px;height:88px;border-radius:16px;object-fit:cover;flex:none;
-  border:1px solid var(--line);background:var(--paper)}
-.person-hero .av{width:88px;height:88px;border-radius:16px;font-size:28px;flex:none}
-.person-stats{display:flex;gap:18px;flex-wrap:wrap;margin:2px 0 0}
+.person-hero{display:flex;flex-direction:column;align-items:center;text-align:center;
+  gap:12px;margin:2px 0 20px}
+.person-photo{width:170px;height:170px;border-radius:22px;object-fit:cover;flex:none;
+  border:1px solid var(--line);background:var(--paper);box-shadow:var(--shadow)}
+.person-hero .av{width:170px;height:170px;border-radius:22px;font-size:54px;flex:none}
+.person-name{font-size:23px;font-weight:700;letter-spacing:-.025em;margin:0}
+.person-role{font-size:13px;color:var(--ink-3);margin:3px 0 0}
+.person-stats{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin:2px 0 0}
 .person-stats span{font-size:12.5px;color:var(--ink-3)}
 .person-stats b{font-size:16px;color:var(--ink);display:block;letter-spacing:-.02em}
 .roster-card{cursor:pointer;transition:.15s}
@@ -621,9 +654,7 @@ main{flex:1;overflow:auto;padding:20px}
 
 <div id="login">
   <form class="login-card" id="loginForm">
-    <div class="brandmark" aria-label="GoPrep">
-      <span class="bm-dot"></span><span class="bm-word">GoPrep</span>
-    </div>
+    <img class="brand-logo" src="assets/goprep-logo.png" alt="GoPrep" width="900" height="203">
     <h1 class="welcome">Welcome to GoPrep, the meal planner of healthy busy professionals</h1>
     <p>Enter the team passcode to continue.</p>
     <div class="field">
@@ -640,8 +671,42 @@ main{flex:1;overflow:auto;padding:20px}
   <div class="sb-meta"><b id="sbTitle"></b><small id="sbSub"></small></div>
   <div class="sb-time" id="sbTime">25:00</div>
   <button class="btn btn-ghost" id="sbPause" style="padding:6px 11px;font-size:12.5px">Pause</button>
-  <button class="btn btn-ghost" id="sbOpen" style="padding:6px 11px;font-size:12.5px">Open</button>
+  <button class="btn btn-ghost" id="sbOpen" style="padding:6px 11px;font-size:12.5px">Expand</button>
   <button class="btn btn-ghost" id="sbStop" style="padding:6px 11px;font-size:12.5px">End</button>
+</div>
+
+<div id="sprintFull" class="sprintfull hidden" role="dialog" aria-label="Focus sprint">
+  <div class="fs-bar">
+    <button class="btn btn-ghost" id="fsMin" style="padding:7px 12px">Minimise</button>
+    <div class="spacer"></div>
+    <button class="btn btn-ghost" id="fsEnd" style="padding:7px 12px">End sprint</button>
+  </div>
+  <div class="fs-mid">
+    <div class="fs-task"><span class="code" id="fsCode"></span><h2 id="fsTitle"></h2></div>
+    <div class="fs-dial">
+      <div class="fs-adjcol">
+        <button class="fs-adj" id="fsM1" title="A minute less">&lsaquo;</button>
+        <button class="fs-adj" id="fsM5" title="Five minutes less">&laquo;</button>
+      </div>
+      <div class="fs-ringwrap">
+        <svg class="fs-ring" viewBox="0 0 220 220" aria-hidden="true">
+          <circle class="fs-track" cx="110" cy="110" r="100"></circle>
+          <circle class="fs-prog"  cx="110" cy="110" r="100" id="fsProg"></circle>
+        </svg>
+        <div class="fs-readout">
+          <span class="fs-state" id="fsState">Active</span>
+          <span class="fs-time" id="fsTime">25:00</span>
+          <span class="fs-of" id="fsOf">of 25:00</span>
+        </div>
+      </div>
+      <div class="fs-adjcol">
+        <button class="fs-adj" id="fsP1" title="A minute more">&rsaquo;</button>
+        <button class="fs-adj" id="fsP5" title="Five minutes more">&raquo;</button>
+      </div>
+    </div>
+    <button class="fs-pause" id="fsPause">Pause</button>
+    <button class="fs-open" id="fsOpen">Open the task</button>
+  </div>
 </div>
 
 <div id="app" class="hidden">
@@ -746,7 +811,7 @@ const SUB_VIEWS = {
     { k:"files",           label:"Files" }
   ],
   company: [
-    { k:"start",    label:"Start here" },
+    { k:"start",    label:"Welcome" },
     { k:"handbook", label:"Handbook" },
     { k:"team",     label:"Team" },
     { k:"activity", label:"Activity" }
@@ -1603,7 +1668,8 @@ async function spStart(taskId, minutes){
   const t = DATA.tasks.find(x => x.id === taskId);
   if (!t) return toast("That task is not on the board any more", true);
   const total = Math.max(1, Math.round(minutes)) * 60000;
-  SP = { taskId, title:t.title, code:t.code || "", endsAt: Date.now() + total, total, paused:false, left:0 };
+  SP = { taskId, title:t.title, code:t.code || "", endsAt: Date.now() + total, total,
+         paused:false, left:0, min:false };
   spSave(); spPaint(); spSchedule();
   toast("Sprint started · " + Math.round(minutes) + " min on " + (t.code || t.title));
   /* a sprint means someone is working on it, so say so on the board */
@@ -1625,12 +1691,20 @@ function spResume(){
   SP.endsAt = Date.now() + (SP.left || 0); SP.paused = false;
   spSave(); spPaint(); spSchedule();
 }
-function spExtend(mins){
+/* the four arrows. Never takes the clock below a second, and keeps the
+   "of" total in step so the ring still reads as a fraction of the whole. */
+function spAdjust(mins){
   if (!SP) return;
-  const add = mins * 60000;
-  SP.total += add;
-  if (SP.paused) SP.left = (SP.left || 0) + add; else SP.endsAt = Date.now() + spLeft() + add;
-  spSave(); spPaint(); spSchedule();
+  const cur = spLeft();
+  const delta = Math.max(1000 - cur, Math.round(mins * 60000));
+  SP.total = Math.max(60000, SP.total + delta);
+  if (SP.paused) SP.left = cur + delta; else SP.endsAt = Date.now() + cur + delta;
+  spSave(); spPaint();
+}
+/* full screen by default, the bar when you want the board back */
+function spMinimise(on){
+  if (!SP) return;
+  SP.min = !!on; spSave(); spPaint();
 }
 function spStop(quiet){
   SP = null; spSave(); spPaint(); spSchedule();
@@ -1642,19 +1716,34 @@ function spTick(){
   if (spLeft() <= 0) return spFinish();
   spPaint();
 }
+const FS_CIRC = 628.32;          /* 2 pi r, with r = 100 in the ring viewBox */
+
 function spPaint(){
-  const bar = $("#sprintBar"); if (!bar) return;
-  if (!SP || !TOKEN){ bar.classList.add("hidden"); return; }
-  bar.classList.remove("hidden");
-  bar.classList.toggle("paused", !!SP.paused);
+  const bar = $("#sprintBar"), full = $("#sprintFull");
+  if (!bar || !full) return;
+  if (!SP || !TOKEN){ bar.classList.add("hidden"); full.classList.add("hidden"); return; }
   const left = spLeft();
-  const pct = SP.total ? Math.max(0, Math.min(100, (1 - left / SP.total) * 100)) : 0;
-  $("#sbRing").style.setProperty("--pct", pct.toFixed(1));
+  const frac = SP.total ? Math.max(0, Math.min(1, left / SP.total)) : 0;
+  const mini = !!SP.min;
+  bar.classList.toggle("hidden", !mini);
+  full.classList.toggle("hidden", mini);
+
+  bar.classList.toggle("paused", !!SP.paused);
+  $("#sbRing").style.setProperty("--pct", ((1 - frac) * 100).toFixed(1));
   $("#sbTitle").textContent = SP.title || "Focus";
   $("#sbSub").textContent = (SP.code ? SP.code + " · " : "") +
     (SP.paused ? "paused" : Math.round(SP.total / 60000) + " min sprint");
   $("#sbTime").textContent = mmss(left);
   $("#sbPause").textContent = SP.paused ? "Resume" : "Pause";
+
+  full.classList.toggle("paused", !!SP.paused);
+  $("#fsCode").textContent = SP.code || "";
+  $("#fsTitle").textContent = SP.title || "Focus";
+  $("#fsProg").style.strokeDashoffset = (FS_CIRC * (1 - frac)).toFixed(1);
+  $("#fsState").textContent = SP.paused ? "Paused" : "Active";
+  $("#fsTime").textContent = mmss(left);
+  $("#fsOf").textContent = "of " + mmss(SP.total);
+  $("#fsPause").textContent = SP.paused ? "Resume" : "Pause";
 }
 
 /* Time is up. Offer the three things anyone actually wants next. */
@@ -1803,11 +1892,15 @@ function renderStart(){
   const open = DATA.tasks.filter(isOpen);
   const quick = open.filter(t => isLate(t) && (t.effort === "S" || t.effort === "M")).slice(0,5);
   return '<div class="wrap">' +
+    /* The heading is fixed rather than read from doc.title: this is the landing
+       page, so it greets you. The doc is still the one keyed start-here. */
     '<div class="panel"><div class="panel-head">' +
-      '<span style="font-size:19px">' + esc(doc.icon||"👋") + '</span><h3>' + esc(doc.title) + '</h3>' +
+      '<span style="font-size:19px">👋</span><h3>Welcome</h3>' +
       '<div class="spacer"></div>' +
       '<button class="btn btn-ghost btn-sm" data-editdoc="start-here">Edit</button>' +
-    '</div><div class="panel-body"><div class="prose">' + md(doc.body) + '</div></div></div>' +
+    '</div><div class="panel-body">' +
+      '<img class="start-logo" src="assets/goprep-logo.png" alt="GoPrep">' +
+      '<div class="prose">' + md(doc.body) + '</div></div></div>' +
     (quick.length ? '<div class="section-title">Small overdue tasks · good first pickups</div>' +
       '<div class="panel"><div class="panel-body"><div class="pl-rows">' +
       quick.map(t => plannerItem({ kind:"task", id:t.id, title:t.title, sub:t.code + " · " + (t.effort||""),
@@ -3416,7 +3509,7 @@ function openPerson(name){
     String(a.target_date || "9999").localeCompare(String(b.target_date || "9999")));
 
   const close = modal(
-    head(p.name) +
+    head("") +
     '<div class="modal-body">' +
       '<div class="person-hero">' +
         (pic
@@ -3424,14 +3517,15 @@ function openPerson(name){
           : '<span class="av" style="background:' + (p.color || "var(--ink-3)") + '">' +
               esc(p.initials || initials(p.name)) + '</span>') +
         '<div>' +
-          '<h3 style="margin:0 0 2px">' + esc(p.role || "Role not set") + '</h3>' +
-          (p.bio ? '<p class="note" style="margin:0 0 8px;font-size:12.5px">' + esc(p.bio) + '</p>' : '') +
-          '<div class="person-stats">' +
-            '<span><b>' + open.length + '</b>open</span>' +
-            '<span><b' + (late.length ? ' style="color:var(--p0)"' : '') + '>' + late.length + '</b>overdue</span>' +
-            '<span><b>' + done.length + '</b>done</span>' +
-            '<span><b>' + goals.length + '</b>goal' + (goals.length === 1 ? "" : "s") + ' owned</span>' +
-          '</div>' +
+          '<h2 class="person-name">' + esc(p.name) + '</h2>' +
+          '<p class="person-role">' + esc(p.role || "Role not set") + '</p>' +
+        '</div>' +
+        (p.bio ? '<p class="note" style="margin:0;font-size:12.5px;max-width:44ch">' + esc(p.bio) + '</p>' : '') +
+        '<div class="person-stats">' +
+          '<span><b>' + open.length + '</b>open</span>' +
+          '<span><b' + (late.length ? ' style="color:var(--p0)"' : '') + '>' + late.length + '</b>overdue</span>' +
+          '<span><b>' + done.length + '</b>done</span>' +
+          '<span><b>' + goals.length + '</b>goal' + (goals.length === 1 ? "" : "s") + ' owned</span>' +
         '</div>' +
       '</div>' +
       (goals.length ? '<div class="field"><label>Owns</label>' +
@@ -3846,7 +3940,15 @@ $("#whoSel").addEventListener("change", e => {
 $("#refreshBtn").addEventListener("click", () => refresh());
 $("#focusBtn").addEventListener("click", () => SP ? spPaint() : openSprint(null));
 $("#sbPause").addEventListener("click", () => SP && SP.paused ? spResume() : spPause());
-$("#sbOpen").addEventListener("click", () => { if (SP) openTask(SP.taskId); });
+$("#sbOpen").addEventListener("click", () => spMinimise(false));
+$("#fsMin").addEventListener("click", () => spMinimise(true));
+$("#fsEnd").addEventListener("click", () => spStop());
+$("#fsPause").addEventListener("click", () => SP && SP.paused ? spResume() : spPause());
+$("#fsOpen").addEventListener("click", () => { if (SP) openTask(SP.taskId); });
+$("#fsM1").addEventListener("click", () => spAdjust(-1));
+$("#fsM5").addEventListener("click", () => spAdjust(-5));
+$("#fsP1").addEventListener("click", () => spAdjust(1));
+$("#fsP5").addEventListener("click", () => spAdjust(5));
 $("#sbStop").addEventListener("click", () => spStop());
 /* "+ New" makes whatever the current view is about */
 $("#newBtn").addEventListener("click", () => {
