@@ -2,8 +2,10 @@
 
 <div id="login">
   <form class="login-card" id="loginForm">
-    <div class="logo">GP</div>
-    <h1>GoPrep Team Board</h1>
+    <div class="brandmark" aria-label="GoPrep">
+      <span class="bm-dot"></span><span class="bm-word">GoPrep</span>
+    </div>
+    <h1 class="welcome">Welcome to GoPrep, the meal planner of healthy busy professionals</h1>
     <p>Enter the team passcode to continue.</p>
     <div class="field">
       <label for="pass">Team passcode</label>
@@ -12,6 +14,15 @@
     <button class="btn btn-primary btn-block" type="submit" id="loginBtn">Open the board</button>
     <div class="err" id="loginErr"></div>
   </form>
+</div>
+
+<div id="sprintBar" class="sprintbar hidden" role="status" aria-live="polite">
+  <span class="sb-ring" id="sbRing"></span>
+  <div class="sb-meta"><b id="sbTitle"></b><small id="sbSub"></small></div>
+  <div class="sb-time" id="sbTime">25:00</div>
+  <button class="btn btn-ghost" id="sbPause" style="padding:6px 11px;font-size:12.5px">Pause</button>
+  <button class="btn btn-ghost" id="sbOpen" style="padding:6px 11px;font-size:12.5px">Open</button>
+  <button class="btn btn-ghost" id="sbStop" style="padding:6px 11px;font-size:12.5px">End</button>
 </div>
 
 <div id="app" class="hidden">
@@ -26,6 +37,7 @@
       <div class="who">
         <span class="av" id="whoAv" title="Actions are logged under this name"></span>
         <select class="input" id="whoSel" style="padding:6px 9px;font-size:12.5px;width:auto" title="Who are you?"></select>
+        <button class="btn btn-ghost" id="focusBtn" title="Start a focus sprint" style="padding:7px 12px">Focus</button>
         <button class="btn btn-ghost" id="refreshBtn" title="Reload from the database" style="padding:7px 12px">Refresh</button>
         <button class="btn btn-primary" id="newBtn" style="padding:8px 14px">+ New</button>
       </div>
@@ -56,7 +68,7 @@
    SECURITY DEFINER functions -- the key below can only call those.
 
    Four levels of altitude, and every view is one way of reading them:
-     north star  ->  goal  ->  milestone  ->  task
+     mission  ->  goal  ->  milestone  ->  task
    ============================================================ */
 const CFG = {
   url: "https://dpkfwiabwsvrzrihydcc.supabase.co",
@@ -95,12 +107,12 @@ const MS_STATUS = ["Not Started","In Progress","Blocked","Done"];
 /* Six destinations, every one a concrete noun. A first-time visitor should be
    able to guess what is behind each label without being told. */
 const NAV = [
+  { k:"company",  label:"Company",       view:"start" },
   { k:"my",       label:"My week",       view:"my" },
   { k:"where",    label:"Where we are",  view:"where" },
   { k:"timeline", label:"Timeline",      view:"timeline" },
   { k:"marketing",label:"Marketing",     view:"mkt-strategy" },
   { k:"subs",     label:"Subscriptions", view:"stack" },
-  { k:"company",  label:"Company",       view:"start" },
   { k:"ideas",    label:"Ideas",         view:"ideas" }
 ];
 /* the two destinations deep enough to want a second row */
@@ -152,7 +164,8 @@ let ME = store.get("gp_me") || "";
 let DATA = { people:[], phases:[], tasks:[], goals:[], milestones:[], docs:[],
              providers:[], assets:[], files:[], journey:[], ideas:[], areas:[],
              metrics:[], activity:[] };
-let VIEW = store.get("gp_view") || "my";
+/* the board always opens on Company · Start here, whatever was open last */
+let VIEW = "start";
 const F = { q:"", person:"", cat:"", phase:"", goal:"", pri:new Set(), mine:false, open:false };
 /* per-view local state */
 const UI = {
@@ -278,7 +291,7 @@ function taskStart(t){
   if (!t.target_date) return null;
   return addDays(t.target_date, -(EFFORT_DAYS[t.effort] || 3));
 }
-/* Goals we hold ourselves to this year. A north star is the number above them all,
+/* Goals we hold ourselves to this year. A mission is the one above them all,
    and a 'someday' goal is a destination with nothing scheduled against it -- neither
    should be nagged about for having no tasks or no metric reading. */
 function liveGoals(){ return DATA.goals.filter(g => g.horizon !== "impulse" && g.horizon !== "someday"); }

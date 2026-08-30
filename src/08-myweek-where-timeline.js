@@ -73,6 +73,7 @@ function companyStrip(){
   const goals = liveGoals();
   return '<button class="strip" data-goview="where">' +
     '<div class="strip-ns">' +
+      '<span class="sub" style="display:block;text-transform:uppercase;letter-spacing:.08em;font-size:10px">Mission</span>' +
       '<span class="strip-name">' + esc(ns ? ns.name : "Nothing set yet") + '</span>' +
     '</div>' +
     '<div class="strip-goals">' + goals.map(g => {
@@ -210,6 +211,7 @@ function renderWhere(list){
     out += '<div class="panel" style="border-left:4px solid ' + ns.color + '">' +
       '<div class="panel-body" style="display:flex;gap:22px;flex-wrap:wrap;align-items:center">' +
         '<div style="flex:1;min-width:250px">' +
+          '<div class="sub" style="text-transform:uppercase;letter-spacing:.08em;font-size:10.5px;margin-bottom:5px">Mission</div>' +
           '<h2 style="font-size:20px;margin:0 0 6px;letter-spacing:-.02em">' + esc(ns.name) + '</h2>' +
           (ns.statement ? '<p class="note" style="font-size:13px;margin:0">' + esc(ns.statement) + '</p>' : '') +
         '</div>' +

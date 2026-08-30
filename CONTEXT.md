@@ -56,6 +56,12 @@ The page is public. The data is not.
 **Adding a table means:** RLS on, zero policies, revoke from `anon`, and reach it only
 through a new `SECURITY DEFINER` function that requires the token.
 
+**Known hole:** `p_actor` is supplied by the caller on every write, `pm_reveal_secret`
+included, and the page sends `localStorage.gp_me`. The name written to `pm_activity` is
+therefore whatever the caller claims. Since that reveal log is the control that makes
+storing a `low` password acceptable, `p_actor` should be derived from the session inside
+the function rather than trusted as an argument. Open.
+
 ### Credentials rule
 
 `pm_providers.sensitivity` is `low` or `critical`.
@@ -75,23 +81,40 @@ not include ad spend or production.
 ## 4. Testing without the passcode
 
 The passcode is not in the repo and nobody should be asked for it. To test, mint a
-session directly:
+session directly.
+
+**Never write a fixed token into this file.** The repo is public, and the page source
+already carries the project URL and the publishable key. A token printed here is a
+credential published on GitHub: for as long as that row exists, anyone who has read this
+page can call `pm_bootstrap` and every `pm_save_*` and `pm_delete_*` function. A token
+that was hardcoded in this section has been removed for exactly that reason.
+
+Generate a fresh one each time and read it back:
 
 ```sql
 insert into pm_sessions (token, expires_at)
-values ('11111111-2222-3333-4444-555555555555', now() + interval '30 minutes');
+values (gen_random_uuid(), now() + interval '30 minutes')
+returning token;
 ```
 
-Then in the browser console on the board:
+Then in the browser console, using that value:
 
 ```js
-localStorage.setItem('gp_token','11111111-2222-3333-4444-555555555555');
+localStorage.setItem('gp_token','<the token returned above>');
 localStorage.setItem('gp_me','Joaquin');
 location.reload();
 ```
 
-**Delete the row when finished.** Every temporary session so far has been cleaned up;
-keep it that way.
+**Delete the row when finished**, and use the local server rather than the live URL so
+the token never lands in localStorage on a public origin:
+
+```sql
+delete from pm_sessions where token = '<the token>' or expires_at < now();
+```
+
+There is no test environment. This mints a real credential against the live database,
+and anything saved during a test is saved for real. Until a branch exists, treat every
+test as production.
 
 Serve locally with `python3 -m http.server 8777 --directory ~/Downloads/goprep-board_2`.
 
@@ -196,21 +219,29 @@ or behind someone's login. Add one from the Files view with **+ Elsewhere**.
 
 ## 7. Navigation
 
-Seven destinations. Two have a second row.
+Seven destinations. Two have a second row. **Company is first, and the board always
+opens there**: every load lands on Start here, whatever was open last.
 
 ```
-My week        landing. tiles expand, buckets fold
-Where we are   impulse + health checks + goals by area, cards expand in place
+Company        Start here · Handbook · Team · Activity. The landing destination
+My week        tiles expand, buckets fold
+Where we are   mission + health checks + goals by area, cards expand in place
 Timeline       the roadmap: by goal (Gantt) or by phase
 Marketing      Strategy · Q1 plan · Buyer persona · Competitors ·
                User journey · Value creation · Files
 Subscriptions  providers, infrastructure first
-Company        Start here · Handbook · Team · Activity
 Ideas          the creative board
 ```
 
 Two pages have no tab and are reached by drilling: **a goal** (from Where we are) and
-**every task** (from My week).
+**every task** (from My week). Clicking a roster card on Team opens **a person**.
+
+A **focus sprint** runs on top of any destination: a countdown against one task, started
+from the task modal, from your own roster card, or from Focus in the header. Opened with
+no task it offers a random open task or a pick from the list. The deadline is an absolute
+timestamp in `localStorage` under `gp_sprint`, so it survives a reload and a re-render.
+Starting one sets the task to In Progress. Nothing else is written, so sprint *history*
+does not exist yet: that needs a table.
 
 ---
 
@@ -222,8 +253,10 @@ These were explicit requests. Keep them.
   or a middot as a separator. `build.sh` warns.
 - **No AI attribution.** `pm_docs.updated_by` is null for anything not written by a
   person. Never write "Claude" into content.
-- **"Impulse"** is the term for the top-level goal, but the *word* only appears in the
-  How we work page where it is defined. Elsewhere the goal text stands alone.
+- **"Mission"** is the term for the top-level goal. It replaced "impulse", which had
+  replaced "north star". The *data* value of `pm_goals.horizon` is still `impulse`:
+  only the label moved, deliberately, so no string literal in the page had to. Read the
+  rename gotcha below before changing the data.
 - Prose is plain and direct. Say the number, name the risk, avoid throat-clearing.
 
 ---

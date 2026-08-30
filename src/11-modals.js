@@ -94,7 +94,8 @@ function openTask(id, seed){
       (t ? '<div class="note">Added by ' + esc(t.created_by || "Not set") + ' · updated ' + ago(t.updated_at) + '</div>' : '') +
     '</div>' +
     foot(t ? "Save changes" : "Create task",
-         t ? '<button class="btn btn-danger" id="mDel">Archive</button>' : ""));
+         t ? '<button class="btn btn-sprint" id="mSprint">Start sprint</button>' +
+             '<button class="btn btn-danger" id="mDel">Archive</button>' : ""));
 
   $$("#mOwners .opt").forEach(l => l.querySelector("input").addEventListener("change",
     e => l.classList.toggle("on", e.target.checked)));
@@ -104,6 +105,9 @@ function openTask(id, seed){
     if (m && m.goal_id) $("#mGoal").value = m.goal_id;
   });
   $("#mTitle").focus();
+  /* a sprint is about doing the task, not editing it, so it closes the form */
+  const mSp = $("#mSprint");
+  if (mSp) mSp.onclick = () => { close(); openSprint(t.id); };
 
   $("#mSave").onclick = async () => {
     const title = $("#mTitle").value.trim();
@@ -150,7 +154,7 @@ function openGoal(id){
         '<div class="field"><label for="gArea">Area</label><select class="input" id="gArea">' +
           selOpts(AREAS, v("area"), "Not set") + '</select></div>' +
         '<div class="field"><label for="gHorizon">Horizon</label><select class="input" id="gHorizon">' +
-          selOpts(["quarter","year","impulse"], v("horizon","quarter")) + '</select></div>' +
+          selOpts([{k:"quarter",t:"Quarter"},{k:"year",t:"Year"},{k:"impulse",t:"Mission"}], v("horizon","quarter")) + '</select></div>' +
         '<div class="field"><label for="gStatus">Health</label><select class="input" id="gStatus">' +
           selOpts(GOAL_STATUS, v("status","Not started")) + '</select></div>' +
       '</div>' +
@@ -533,4 +537,68 @@ function openAsset(id){
           close(); await refresh(true); toast("Removed"); }
     catch(err){ fail(err, "Could not remove"); }
   };
+}
+
+/* ---------------- person ----------------
+   The roster card opens this. Photo comes from pm_people.photo_url when
+   the column is there, otherwise from the local PHOTOS map, otherwise
+   the initials avatar that was already on the card. */
+function openPerson(name){
+  const p = DATA.people.find(x => x.name === name);
+  if (!p) return;
+  const open  = DATA.tasks.filter(t => isOpen(t) && (t.owners||[]).includes(p.name));
+  const done  = DATA.tasks.filter(t => t.status === "Done" && (t.owners||[]).includes(p.name));
+  const late  = open.filter(isLate);
+  const goals = DATA.goals.filter(g => g.owner === p.name);
+  const pic   = p.photo_url || PHOTOS[p.name] || "";
+  const rank  = { P0:0, P1:1, P2:2, P3:3 };
+  const sorted = open.slice().sort((a,b) =>
+    (rank[a.priority] ?? 9) - (rank[b.priority] ?? 9) ||
+    String(a.target_date || "9999").localeCompare(String(b.target_date || "9999")));
+
+  const close = modal(
+    head(p.name) +
+    '<div class="modal-body">' +
+      '<div class="person-hero">' +
+        (pic
+          ? '<img class="person-photo" src="' + esc(pic) + '" alt="' + esc(p.name) + '">'
+          : '<span class="av" style="background:' + (p.color || "var(--ink-3)") + '">' +
+              esc(p.initials || initials(p.name)) + '</span>') +
+        '<div>' +
+          '<h3 style="margin:0 0 2px">' + esc(p.role || "Role not set") + '</h3>' +
+          (p.bio ? '<p class="note" style="margin:0 0 8px;font-size:12.5px">' + esc(p.bio) + '</p>' : '') +
+          '<div class="person-stats">' +
+            '<span><b>' + open.length + '</b>open</span>' +
+            '<span><b' + (late.length ? ' style="color:var(--p0)"' : '') + '>' + late.length + '</b>overdue</span>' +
+            '<span><b>' + done.length + '</b>done</span>' +
+            '<span><b>' + goals.length + '</b>goal' + (goals.length === 1 ? "" : "s") + ' owned</span>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      (goals.length ? '<div class="field"><label>Owns</label>' +
+        '<div style="display:flex;gap:5px;flex-wrap:wrap">' + goals.map(g =>
+          '<span class="tag goal" style="--tc:' + g.color + '">' + esc(g.name) + '</span>').join("") +
+        '</div></div>' : '') +
+      '<div class="field"><label>Open tasks</label>' +
+        (sorted.length
+          ? '<div class="pl-rows">' + sorted.slice(0,12).map(t =>
+              '<button class="pl-row" data-ptask="' + esc(t.id) + '" style="width:100%;text-align:left">' +
+                '<span class="code">' + esc(t.code || "") + '</span> ' + esc(t.title) +
+                (t.target_date ? ' <span class="note">· due ' + esc(t.target_date) + '</span>' : '') +
+              '</button>').join("") +
+            (sorted.length > 12 ? '<div class="note">and ' + (sorted.length - 12) + ' more</div>' : '') +
+            '</div>'
+          : '<div class="note">Nothing open.</div>') +
+      '</div>' +
+    '</div>' +
+    '<div class="modal-foot">' +
+      (sorted.length && p.name === ME
+        ? '<button class="btn btn-sprint" id="pSprint">Start sprint</button>' : '') +
+      '<div class="spacer"></div>' +
+      '<button class="btn btn-primary" id="mCancel">Close</button>' +
+    '</div>');
+
+  $$("[data-ptask]").forEach(el => el.onclick = () => { close(); openTask(el.dataset.ptask); });
+  const ps = $("#pSprint");
+  if (ps) ps.onclick = () => { close(); openSprint(null); };
 }
