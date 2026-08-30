@@ -41,8 +41,11 @@ PY
 node --check /tmp/gp_check.js || { echo "FAIL: JS syntax error"; exit 1; }
 rm -f /tmp/gp_check.js
 
-if grep -q '—' index.html; then
-  echo "WARN: em dashes present ($(grep -o '—' index.html | wc -l | tr -d ' ')). House style says none."
+# The pattern is written as an escape so a text sweep over this file cannot
+# rewrite the very character the check looks for. That has happened once.
+EMDASH=$(printf '\xe2\x80\x94')   # bash 3.2 on macOS has no \u
+if grep -q "$EMDASH" index.html; then
+  echo "WARN: em dashes present ($(grep -o "$EMDASH" index.html | wc -l | tr -d ' ')). House style says none."
 fi
 
 echo "OK  $(wc -c < index.html | tr -d ' ') bytes  ->  index.html"

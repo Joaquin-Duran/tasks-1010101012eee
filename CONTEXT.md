@@ -1,4 +1,4 @@
-# GoPrep Team Board — working context
+# GoPrep Team Board, working context
 
 Everything a new session needs to pick this up. Read this first; the README covers
 what the board *is*, this covers how to *work on it*.
@@ -24,7 +24,7 @@ off limits. Only touch `pm_*`.
 
 ## 2. Build
 
-`index.html` is generated. **Do not edit it directly** — edit `src/` and run:
+`index.html` is generated. **Do not edit it directly**: edit `src/` and run:
 
 ```bash
 ./build.sh
@@ -42,7 +42,7 @@ parts and shipped a file with no `<head>`.
 
 ---
 
-## 3. Security model — do not break this
+## 3. Security model, do not break this
 
 The page is public. The data is not.
 
@@ -66,7 +66,7 @@ the function rather than trusted as an argument. Open.
 
 `pm_providers.sensitivity` is `low` or `critical`.
 
-- `low` may store a password. It never leaves the database in `pm_bootstrap` — the page
+- `low` may store a password. It never leaves the database in `pm_bootstrap`, the page
   only learns `has_secret`. Reading it is a separate `pm_reveal_secret` call that writes
   the reader's name to `pm_activity`.
 - `critical` stores **no** password, enforced by
@@ -136,10 +136,12 @@ Serve locally with `python3 -m http.server 8777 --directory ~/Downloads/goprep-b
 | `pm_journey_steps` | 16 steps across two journeys, each optionally bound to a task |
 | `pm_ideas` | The creative board |
 | `pm_areas` | Area labels and colours |
+
+Full column list in `docs/schema.md`, regenerated from the database.
 | `pm_people`, `pm_activity`, `pm_config`, `pm_sessions`, `pm_login_attempts` | As before |
 
 `pm_bootstrap(p_token)` returns all of it in one call. **Adding a table means adding it
-there too** — the page reads nothing else.
+there too**: the page reads nothing else.
 
 ---
 
@@ -165,7 +167,7 @@ database, so an upload can never half-apply. The statement is idempotent: it
 upserts every row, derives English display names from the path, and sets the
 language flag for anything under `/espanol/` or `/ingles/`.
 
-Then hard-refresh the board. **Nothing needs deploying** — the page reads the
+Then hard-refresh the board. **Nothing needs deploying**: the page reads the
 database at runtime.
 
 If you uploaded through the Azure portal instead, catch the index up with:
@@ -185,7 +187,7 @@ to "Brand" until you add a case to that function.
 ### Permissions
 
 Uploading needs **Storage Blob Data Contributor** on the storage account.
-Subscription Contributor is *not* enough — it lets you create a container but
+Subscription Contributor is *not* enough, it lets you create a container but
 not write blobs, and the error does not make that obvious. Grant it with:
 
 ```bash
@@ -249,7 +251,7 @@ does not exist yet: that needs a table.
 
 These were explicit requests. Keep them.
 
-- **No em dashes.** Anywhere — content or UI strings. Use a colon, a full stop, a comma,
+- **No em dashes.** Anywhere, content or UI strings. Use a colon, a full stop, a comma,
   or a middot as a separator. `build.sh` warns.
 - **No AI attribution.** `pm_docs.updated_by` is null for anything not written by a
   person. Never write "Claude" into content.
@@ -261,7 +263,34 @@ These were explicit requests. Keep them.
 
 ---
 
-## 9. Where the project actually stands
+## 9. Verified state, 30 Aug 2026
+
+Checked against the live database and the deployed page, not from memory.
+
+- `pm_sessions` holds 6 rows, all 30-day logins from 20 to 26 Aug. No test tokens
+  survive. Cleanup after temporary sessions has held.
+- The page ships **0 em dashes**. The rule in section 8 is about what users read;
+  the markdown in this repo had drifted from it and has now been brought in line.
+- Orange: the board uses `#EF6E45` in 6 places and `#E8693A` in none. There is no
+  conflict inside the board. The unresolved conflict is between two source
+  documents, the marketing workbook and the UI brief, and it concerns the product
+  rather than this page.
+- `p_actor` is supplied by the caller on every write, so `pm_activity` records a
+  claimed identity, not a verified one. This is a consequence of the single shared
+  passcode, not a patchable bug: there is no server-side identity to check against
+  until per-person accounts exist. Treat the activity log as an honest record among
+  colleagues, not an audit trail.
+
+### One thing not to delete
+
+`Start here` contains the line "Ask Joaquin for the team passcode. Do not paste it
+in a group chat." That line holds no secret, is only readable by somebody who is
+already inside, and tells a new joiner the right procedure while naming the wrong
+one. Removing it makes onboarding worse, not safer.
+
+---
+
+## 10. Where the project actually stands
 
 **Healthy:** zero overdue tasks, every open task attached to a goal, 7 live goals,
 214 brand files browsable and downloadable, 15 handbook pages with no dead links.
@@ -284,7 +313,7 @@ treated as the highest-leverage open task.
    Wide Dark and Poppins Italic.)
 6. **Roster vs pillars:** the pitch describes five people in three pillars; the board has
    eight. Simon, Seba and Benja are in neither.
-7. **Onboarding deck and five screenshots** are deliberately not uploaded — the container
+7. **Onboarding deck and five screenshots** are deliberately not uploaded, the container
    is world-readable and nobody has confirmed what is in them.
 
 **Known distribution problem:** Joaquin owns most open tasks. The board surfaces it on
@@ -292,7 +321,7 @@ Where we are rather than hiding it.
 
 ---
 
-## 10. Gotchas that have already bitten
+## 11. Gotchas that have already bitten
 
 - **zsh does not word-split unquoted variables.** `for f in $PARTS` silently iterates
   once over the whole string. Use arrays.
@@ -311,7 +340,7 @@ Where we are rather than hiding it.
 
 ---
 
-## 11. Deploying
+## 12. Deploying
 
 ```bash
 ./build.sh
@@ -330,7 +359,7 @@ to `pm_*` is live immediately.
 
 ---
 
-## 12. Source documents
+## 13. Source documents
 
 In `~/Downloads` unless noted. Current: `GoPrep_Marketing.xlsx` (the strategy),
 `GoPrep_Q1_Marketing_Plan.xlsx` (12-week plan, all 74 posts still unpublished),
