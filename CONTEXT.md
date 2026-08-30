@@ -120,7 +120,81 @@ there too** — the page reads nothing else.
 
 ---
 
-## 6. Navigation
+## 6. Adding files and images
+
+Files live in Azure Blob and are *indexed* into `pm_files`. Both halves are
+needed: uploading without indexing means the board cannot see the file, and
+indexing without uploading gives a dead link.
+
+One command does all of it:
+
+```bash
+./tools/add-files.py ~/Desktop/new-logos --folder logos/rgb
+./tools/add-files.py ~/Desktop/deck.pdf  --folder decks
+```
+
+It stages the input with web-safe names (accents and spaces stripped, Spanish
+folder names translated at index time), makes a 420px JPEG thumbnail for every
+image, uploads originals and thumbnails, then writes `reindex.sql`.
+
+**Run that SQL against Supabase.** The script deliberately does not touch the
+database, so an upload can never half-apply. The statement is idempotent: it
+upserts every row, derives English display names from the path, and sets the
+language flag for anything under `/espanol/` or `/ingles/`.
+
+Then hard-refresh the board. **Nothing needs deploying** — the page reads the
+database at runtime.
+
+If you uploaded through the Azure portal instead, catch the index up with:
+
+```bash
+./tools/add-files.py --reindex-only
+```
+
+### Folder names
+
+The target `--folder` becomes the path prefix, and `pm__file_folder()` maps that
+prefix to the label shown in the Files view. Existing prefixes: `logos/byn`,
+`logos/cmyk`, `logos/rgb`, `patterns`, `fonts`, `competitors`, `brandboard`,
+`social`, `stickers`, `merch`, `ads`, `plans`, `decks`. A new prefix falls back
+to "Brand" until you add a case to that function.
+
+### Permissions
+
+Uploading needs **Storage Blob Data Contributor** on the storage account.
+Subscription Contributor is *not* enough — it lets you create a container but
+not write blobs, and the error does not make that obvious. Grant it with:
+
+```bash
+az role assignment create --role "Storage Blob Data Contributor" \
+  --assignee-object-id $(az ad signed-in-user show --query id -o tsv) \
+  --assignee-principal-type User \
+  --scope $(az storage account show -n goprepassets -g gp_mvp --query id -o tsv)
+```
+
+RBAC takes about a minute to propagate; the script retries are not automatic, so
+just run it again.
+
+### Before you upload
+
+The container is **world-readable**. Anything in it can be fetched by anyone with
+the URL. That is correct for logos, patterns and creatives, whose purpose is to
+be distributed. It is not correct for screenshots nobody has checked, contracts,
+or anything with customer data in it. Two files are deliberately *not* uploaded
+for this reason and are recorded in `pm_assets` with their local location
+instead: the onboarding deck and five unchecked screenshots.
+
+For things that should not be public, add a row to `pm_assets` with a
+`location` and no `url`. The Files view lists those under "Elsewhere".
+
+### A file that is not in the container
+
+`pm_assets` is the curated pointer list: things that live in Drive, on a laptop,
+or behind someone's login. Add one from the Files view with **+ Elsewhere**.
+
+---
+
+## 7. Navigation
 
 Seven destinations. Two have a second row.
 
@@ -140,7 +214,7 @@ Two pages have no tab and are reached by drilling: **a goal** (from Where we are
 
 ---
 
-## 7. House style
+## 8. House style
 
 These were explicit requests. Keep them.
 
@@ -154,7 +228,7 @@ These were explicit requests. Keep them.
 
 ---
 
-## 8. Where the project actually stands
+## 9. Where the project actually stands
 
 **Healthy:** zero overdue tasks, every open task attached to a goal, 7 live goals,
 214 brand files browsable and downloadable, 15 handbook pages with no dead links.
@@ -185,7 +259,7 @@ Where we are rather than hiding it.
 
 ---
 
-## 9. Gotchas that have already bitten
+## 10. Gotchas that have already bitten
 
 - **zsh does not word-split unquoted variables.** `for f in $PARTS` silently iterates
   once over the whole string. Use arrays.
@@ -204,7 +278,7 @@ Where we are rather than hiding it.
 
 ---
 
-## 10. Deploying
+## 11. Deploying
 
 ```bash
 ./build.sh
@@ -223,7 +297,7 @@ to `pm_*` is live immediately.
 
 ---
 
-## 11. Source documents
+## 12. Source documents
 
 In `~/Downloads` unless noted. Current: `GoPrep_Marketing.xlsx` (the strategy),
 `GoPrep_Q1_Marketing_Plan.xlsx` (12-week plan, all 74 posts still unpublished),
