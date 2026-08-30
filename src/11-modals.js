@@ -539,6 +539,38 @@ function openAsset(id){
   };
 }
 
+/* Centre-crop to a square, shrink, and encode as a JPEG data URI. Kept small
+   on purpose: every photo travels inside pm_bootstrap on every page load. */
+function squareImageDataUrl(file, size){
+  return new Promise((resolve, reject) => {
+    if (!/^image\//.test(file.type || "")) return reject(new Error("Pick a JPEG, PNG or WebP"));
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error("Could not read that file"));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("The browser cannot open that image. HEIC has to be a JPEG first."));
+      img.onload = () => {
+        const s = Math.min(img.width, img.height);
+        const c = document.createElement("canvas");
+        c.width = c.height = size;
+        c.getContext("2d").drawImage(img, (img.width-s)/2, (img.height-s)/2, s, s, 0, 0, size, size);
+        resolve(c.toDataURL("image/jpeg", 0.82));
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+/* An empty string clears it. The row comes back so the page and the database
+   never disagree about what is stored. */
+async function savePhoto(name, dataUrl){
+  const r = await rpc("pm_set_photo", { p_token:TOKEN, p_name:name, p_photo:dataUrl, p_actor:ME });
+  const person = DATA.people.find(x => x.name === name);
+  if (person) person.photo_url = (r && r.photo_url) || null;
+  render();
+  toast(dataUrl ? "Photo updated" : "Photo removed");
+}
+
 /* ---------------- person ----------------
    The roster card opens this. Photo comes from pm_people.photo_url when
    the column is there, otherwise from the local PHOTOS map, otherwise
@@ -576,6 +608,14 @@ function openPerson(name){
           '<span><b>' + goals.length + '</b>goal' + (goals.length === 1 ? "" : "s") + ' owned</span>' +
         '</div>' +
       '</div>' +
+      (p.name === ME
+        ? '<div class="photo-actions">' +
+            '<input type="file" id="pPhotoFile" accept="image/jpeg,image/png,image/webp" hidden>' +
+            '<button class="btn btn-ghost btn-sm" id="pPhotoBtn">' +
+              (pic ? "Change photo" : "Add a photo") + '</button>' +
+            (pic ? '<button class="btn btn-ghost btn-sm" id="pPhotoDel">Remove</button>' : '') +
+          '</div>'
+        : '') +
       (goals.length ? '<div class="field"><label>Owns</label>' +
         '<div style="display:flex;gap:5px;flex-wrap:wrap">' + goals.map(g =>
           '<span class="tag goal" style="--tc:' + g.color + '">' + esc(g.name) + '</span>').join("") +
@@ -599,6 +639,25 @@ function openPerson(name){
       '<button class="btn btn-primary" id="mCancel">Close</button>' +
     '</div>');
 
+  const fileEl = $("#pPhotoFile"), pBtn = $("#pPhotoBtn"), pDel = $("#pPhotoDel");
+  if (pBtn) pBtn.onclick = () => fileEl.click();
+  if (fileEl) fileEl.onchange = async () => {
+    const f = fileEl.files && fileEl.files[0];
+    if (!f) return;
+    pBtn.disabled = true; pBtn.textContent = "Working…";
+    try {
+      await savePhoto(p.name, await squareImageDataUrl(f, 256));
+      close(); openPerson(p.name);
+    } catch(err){
+      pBtn.disabled = false; pBtn.textContent = pic ? "Change photo" : "Add a photo";
+      toast(err.message, true);
+    }
+  };
+  if (pDel) pDel.onclick = async () => {
+    pDel.disabled = true;
+    try { await savePhoto(p.name, ""); close(); openPerson(p.name); }
+    catch(err){ pDel.disabled = false; fail(err, "Could not remove it"); }
+  };
   $$("[data-ptask]").forEach(el => el.onclick = () => { close(); openTask(el.dataset.ptask); });
   const ps = $("#pSprint");
   if (ps) ps.onclick = () => { close(); openSprint(null); };

@@ -144,7 +144,8 @@ Serve locally with `python3 -m http.server 8777 --directory ~/Downloads/goprep-b
 | `pm_areas` | Area labels and colours |
 
 Full column list in `docs/schema.md`, regenerated from the database.
-| `pm_people`, `pm_activity`, `pm_config`, `pm_sessions`, `pm_login_attempts` | As before |
+| `pm_people` | The roster. `photo_url` holds a profile photo, usually a data URI |
+| `pm_activity`, `pm_config`, `pm_sessions`, `pm_login_attempts` | As before |
 
 `pm_bootstrap(p_token)` returns all of it in one call. **Adding a table means adding it
 there too**: the page reads nothing else.
@@ -243,6 +244,16 @@ Ideas          the creative board
 
 Two pages have no tab and are reached by drilling: **a goal** (from Where we are) and
 **every task** (from My week). Clicking a roster card on Team opens **a person**.
+
+**Profile photos.** Anyone can put a photo on their own card: pick a file, and the page
+centre-crops it to a square, shrinks it to 256px, encodes it as a JPEG data URI and
+sends it to `pm_set_photo`. It is stored in `pm_people.photo_url`, which means a photo
+sits behind the passcode rather than in the world-readable container, and no upload or
+deploy is involved. The function refuses anything over 200kB, and the browser cannot
+open HEIC, so an iPhone photo has to be a JPEG first. The controls appear only on your
+own card, which is a convention rather than a check: see the note on `p_actor` in
+section 3. Joaquin's committed `assets/joaquin.jpg` stays as the fallback when
+`photo_url` is null.
 
 A **focus sprint** takes over the whole screen: a dial, the time left, the time it
 started from, four arrows for plus or minus one and five minutes, and pause. Minimise
