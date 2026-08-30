@@ -56,11 +56,17 @@ The page is public. The data is not.
 **Adding a table means:** RLS on, zero policies, revoke from `anon`, and reach it only
 through a new `SECURITY DEFINER` function that requires the token.
 
-**Known hole:** `p_actor` is supplied by the caller on every write, `pm_reveal_secret`
-included, and the page sends `localStorage.gp_me`. The name written to `pm_activity` is
-therefore whatever the caller claims. Since that reveal log is the control that makes
-storing a `low` password acceptable, `p_actor` should be derived from the session inside
-the function rather than trusted as an argument. Open.
+**`p_actor` is a claimed identity, not a verified one.** It is supplied by the caller on
+every write, `pm_reveal_secret` included, and the page sends `localStorage.gp_me`. That
+follows from the single shared passcode: there is no server-side identity to check
+against. See section 9. It is not a bug to patch, and the reveal log is an honest record
+among colleagues rather than an audit trail.
+
+A partial hardening exists short of full accounts: give `pm_sessions` a `person` column,
+set it in an extended `pm_login`, and read the actor from the session rather than from
+the argument. That stops one caller varying the claimed name from write to write, which
+is the part a shared passcode can actually fix. It still records a claim, because
+everyone signs in with the same secret.
 
 ### Credentials rule
 
@@ -280,6 +286,12 @@ Checked against the live database and the deployed page, not from memory.
   passcode, not a patchable bug: there is no server-side identity to check against
   until per-person accounts exist. Treat the activity log as an honest record among
   colleagues, not an audit trail.
+- A Supabase branch costs `$0.01344` per hour, about `$9.70` a month left running. That
+  does not earn a standing test branch. Spin one up for a risky migration and delete it
+  afterwards. Section 4 stands as written: ordinary work goes straight to production.
+- `pm_sprints` is on hold until **13 Sep 2026**. Build it only if focus sprints are
+  being used by then. Until that date there is no sprint history by choice, not by
+  oversight.
 
 ### One thing not to delete
 
