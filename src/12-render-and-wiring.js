@@ -99,6 +99,7 @@ function wireMain(){
 
   /* everything that opens something */
   $$("[data-task]").forEach(el => el.onclick = () => openTask(el.dataset.task));
+  $$("[data-person]").forEach(el => el.onclick = () => openPerson(el.dataset.person));
   $$("[data-goal]").forEach(el => el.onclick = e => {
     if (e.target.closest("a")) return;
     openGoal(el.dataset.goal);
@@ -297,6 +298,7 @@ function buildFilters(){
 /* ---------------- session ---------------- */
 function logout(msg){
   TOKEN = null; store.del("gp_token");
+  spStop(true);
   $("#app").classList.add("hidden");
   $("#login").classList.remove("hidden");
   $("#loginErr").textContent = msg || "";
@@ -305,6 +307,7 @@ function logout(msg){
 function startApp(){
   $("#login").classList.add("hidden");
   $("#app").classList.remove("hidden");
+  spLoad();
   refresh(true);
 }
 /* The roster comes from pm_people, so adding a teammate is a database change only. */
@@ -378,6 +381,10 @@ $("#whoSel").addEventListener("change", e => {
   render();
 });
 $("#refreshBtn").addEventListener("click", () => refresh());
+$("#focusBtn").addEventListener("click", () => SP ? spPaint() : openSprint(null));
+$("#sbPause").addEventListener("click", () => SP && SP.paused ? spResume() : spPause());
+$("#sbOpen").addEventListener("click", () => { if (SP) openTask(SP.taskId); });
+$("#sbStop").addEventListener("click", () => spStop());
 /* "+ New" makes whatever the current view is about */
 $("#newBtn").addEventListener("click", () => {
   if (VIEW === "where") openGoal(null);
