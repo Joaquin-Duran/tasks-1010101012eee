@@ -429,14 +429,11 @@
   .grow.lvl-task .gname{padding-left:34px}
 }
 
-/* ---------- brand mark: orange logo for the welcome screen ----------
-   Placeholder wordmark. Swap .bm-dot for the real brand SVG when the
-   asset is confirmed; the colour is already the brand orange. */
-.brandmark{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 auto 18px}
-.bm-dot{width:36px;height:36px;border-radius:12px;background:var(--orange);flex:none;
-        display:grid;place-items:center;box-shadow:0 2px 12px rgba(239,110,69,.34)}
-.bm-dot::after{content:"";width:14px;height:14px;border-radius:4px;border:2.5px solid var(--cream)}
-.bm-word{font-size:26px;font-weight:700;letter-spacing:-.03em;color:var(--orange);line-height:1}
+/* ---------- brand mark ----------
+   The real horizontal logo, from the brand identity folder. Sized by width
+   so the intrinsic 900x203 never forces a reflow. */
+.brand-logo{display:block;width:196px;max-width:72%;height:auto;margin:0 auto 20px}
+.start-logo{display:block;width:232px;max-width:60%;height:auto;margin:2px 0 20px}
 .welcome{font-size:16px;line-height:1.4;margin:0 0 8px;font-weight:600}
 
 /* ---------- focus sprint ---------- */
@@ -451,6 +448,39 @@
   color:var(--orange);flex:none}
 .sb-ring{flex:none;width:30px;height:30px;border-radius:50%;flex-shrink:0;
   background:conic-gradient(var(--orange) calc(var(--pct,0) * 1%), var(--orange-soft) 0)}
+/* ---------- focus sprint, full screen ----------
+   Sits under the scrim so a modal still reads above it, and over the app. */
+.sprintfull{position:fixed;inset:0;z-index:55;background:var(--cream);
+  display:flex;flex-direction:column;padding:18px 20px 30px}
+.fs-bar{display:flex;align-items:center;gap:10px}
+.fs-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:26px;width:100%;max-width:520px;margin:0 auto}
+.fs-task{text-align:center}
+.fs-task h2{font-size:22px;letter-spacing:-.02em;margin:7px 0 0;line-height:1.25}
+.fs-dial{display:flex;align-items:center;justify-content:center;gap:14px;width:100%}
+.fs-adjcol{display:flex;flex-direction:column;gap:12px}
+.fs-adj{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);
+  background:var(--white);color:var(--ink-3);font-size:17px;line-height:1;transition:.15s}
+.fs-adj:hover{border-color:var(--orange);color:var(--orange)}
+.fs-ringwrap{position:relative;width:min(268px,54vw);aspect-ratio:1;flex:none}
+.fs-ring{width:100%;height:100%;transform:rotate(-90deg)}
+.fs-track{fill:none;stroke:var(--orange-soft);stroke-width:12}
+.fs-prog{fill:none;stroke:var(--orange);stroke-width:12;stroke-linecap:round;
+  stroke-dasharray:628.32;stroke-dashoffset:0;transition:stroke-dashoffset .95s linear}
+.fs-readout{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px}
+.fs-state{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.fs-time{font-size:clamp(38px,9vw,54px);font-weight:700;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;line-height:1.05}
+.fs-of{font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.fs-pause{width:100%;padding:16px;border:1px solid var(--line);border-radius:14px;
+  background:var(--white);font-size:16px;transition:.15s}
+.fs-pause:hover{border-color:var(--orange);color:var(--orange)}
+.fs-open{font-size:13px;color:var(--ink-3);text-decoration:underline}
+.sprintfull.paused .fs-prog{stroke:var(--ink-3)}
+.sprintfull.paused .fs-time{color:var(--ink-3)}
+@media (max-width:560px){ .fs-adj{width:38px;height:38px} .fs-dial{gap:8px} }
+
 .btn-sprint{background:var(--orange);color:var(--white)}
 .btn-sprint:hover{filter:brightness(.95)}
 .dur-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
@@ -459,11 +489,14 @@
 @media (max-width:560px){ .sb-meta b{max-width:120px} .sb-time{font-size:17px} }
 
 /* ---------- person detail ---------- */
-.person-hero{display:flex;gap:16px;align-items:center;margin-bottom:16px}
-.person-photo{width:88px;height:88px;border-radius:16px;object-fit:cover;flex:none;
-  border:1px solid var(--line);background:var(--paper)}
-.person-hero .av{width:88px;height:88px;border-radius:16px;font-size:28px;flex:none}
-.person-stats{display:flex;gap:18px;flex-wrap:wrap;margin:2px 0 0}
+.person-hero{display:flex;flex-direction:column;align-items:center;text-align:center;
+  gap:12px;margin:2px 0 20px}
+.person-photo{width:170px;height:170px;border-radius:22px;object-fit:cover;flex:none;
+  border:1px solid var(--line);background:var(--paper);box-shadow:var(--shadow)}
+.person-hero .av{width:170px;height:170px;border-radius:22px;font-size:54px;flex:none}
+.person-name{font-size:23px;font-weight:700;letter-spacing:-.025em;margin:0}
+.person-role{font-size:13px;color:var(--ink-3);margin:3px 0 0}
+.person-stats{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin:2px 0 0}
 .person-stats span{font-size:12.5px;color:var(--ink-3)}
 .person-stats b{font-size:16px;color:var(--ink);display:block;letter-spacing:-.02em}
 .roster-card{cursor:pointer;transition:.15s}

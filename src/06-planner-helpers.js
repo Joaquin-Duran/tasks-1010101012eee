@@ -122,7 +122,8 @@ async function spStart(taskId, minutes){
   const t = DATA.tasks.find(x => x.id === taskId);
   if (!t) return toast("That task is not on the board any more", true);
   const total = Math.max(1, Math.round(minutes)) * 60000;
-  SP = { taskId, title:t.title, code:t.code || "", endsAt: Date.now() + total, total, paused:false, left:0 };
+  SP = { taskId, title:t.title, code:t.code || "", endsAt: Date.now() + total, total,
+         paused:false, left:0, min:false };
   spSave(); spPaint(); spSchedule();
   toast("Sprint started · " + Math.round(minutes) + " min on " + (t.code || t.title));
   /* a sprint means someone is working on it, so say so on the board */
@@ -144,12 +145,20 @@ function spResume(){
   SP.endsAt = Date.now() + (SP.left || 0); SP.paused = false;
   spSave(); spPaint(); spSchedule();
 }
-function spExtend(mins){
+/* the four arrows. Never takes the clock below a second, and keeps the
+   "of" total in step so the ring still reads as a fraction of the whole. */
+function spAdjust(mins){
   if (!SP) return;
-  const add = mins * 60000;
-  SP.total += add;
-  if (SP.paused) SP.left = (SP.left || 0) + add; else SP.endsAt = Date.now() + spLeft() + add;
-  spSave(); spPaint(); spSchedule();
+  const cur = spLeft();
+  const delta = Math.max(1000 - cur, Math.round(mins * 60000));
+  SP.total = Math.max(60000, SP.total + delta);
+  if (SP.paused) SP.left = cur + delta; else SP.endsAt = Date.now() + cur + delta;
+  spSave(); spPaint();
+}
+/* full screen by default, the bar when you want the board back */
+function spMinimise(on){
+  if (!SP) return;
+  SP.min = !!on; spSave(); spPaint();
 }
 function spStop(quiet){
   SP = null; spSave(); spPaint(); spSchedule();
@@ -161,19 +170,34 @@ function spTick(){
   if (spLeft() <= 0) return spFinish();
   spPaint();
 }
+const FS_CIRC = 628.32;          /* 2 pi r, with r = 100 in the ring viewBox */
+
 function spPaint(){
-  const bar = $("#sprintBar"); if (!bar) return;
-  if (!SP || !TOKEN){ bar.classList.add("hidden"); return; }
-  bar.classList.remove("hidden");
-  bar.classList.toggle("paused", !!SP.paused);
+  const bar = $("#sprintBar"), full = $("#sprintFull");
+  if (!bar || !full) return;
+  if (!SP || !TOKEN){ bar.classList.add("hidden"); full.classList.add("hidden"); return; }
   const left = spLeft();
-  const pct = SP.total ? Math.max(0, Math.min(100, (1 - left / SP.total) * 100)) : 0;
-  $("#sbRing").style.setProperty("--pct", pct.toFixed(1));
+  const frac = SP.total ? Math.max(0, Math.min(1, left / SP.total)) : 0;
+  const mini = !!SP.min;
+  bar.classList.toggle("hidden", !mini);
+  full.classList.toggle("hidden", mini);
+
+  bar.classList.toggle("paused", !!SP.paused);
+  $("#sbRing").style.setProperty("--pct", ((1 - frac) * 100).toFixed(1));
   $("#sbTitle").textContent = SP.title || "Focus";
   $("#sbSub").textContent = (SP.code ? SP.code + " · " : "") +
     (SP.paused ? "paused" : Math.round(SP.total / 60000) + " min sprint");
   $("#sbTime").textContent = mmss(left);
   $("#sbPause").textContent = SP.paused ? "Resume" : "Pause";
+
+  full.classList.toggle("paused", !!SP.paused);
+  $("#fsCode").textContent = SP.code || "";
+  $("#fsTitle").textContent = SP.title || "Focus";
+  $("#fsProg").style.strokeDashoffset = (FS_CIRC * (1 - frac)).toFixed(1);
+  $("#fsState").textContent = SP.paused ? "Paused" : "Active";
+  $("#fsTime").textContent = mmss(left);
+  $("#fsOf").textContent = "of " + mmss(SP.total);
+  $("#fsPause").textContent = SP.paused ? "Resume" : "Pause";
 }
 
 /* Time is up. Offer the three things anyone actually wants next. */

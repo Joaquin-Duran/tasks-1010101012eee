@@ -228,10 +228,10 @@ or behind someone's login. Add one from the Files view with **+ Elsewhere**.
 ## 7. Navigation
 
 Seven destinations. Two have a second row. **Company is first, and the board always
-opens there**: every load lands on Start here, whatever was open last.
+opens there**: every load lands on Welcome, whatever was open last.
 
 ```
-Company        Start here · Handbook · Team · Activity. The landing destination
+Company        Welcome · Handbook · Team · Activity. The landing destination
 My week        tiles expand, buckets fold
 Where we are   mission + health checks + goals by area, cards expand in place
 Timeline       the roadmap: by goal (Gantt) or by phase
@@ -244,12 +244,18 @@ Ideas          the creative board
 Two pages have no tab and are reached by drilling: **a goal** (from Where we are) and
 **every task** (from My week). Clicking a roster card on Team opens **a person**.
 
-A **focus sprint** runs on top of any destination: a countdown against one task, started
-from the task modal, from your own roster card, or from Focus in the header. Opened with
-no task it offers a random open task or a pick from the list. The deadline is an absolute
-timestamp in `localStorage` under `gp_sprint`, so it survives a reload and a re-render.
-Starting one sets the task to In Progress. Nothing else is written, so sprint *history*
-does not exist yet: that needs a table.
+A **focus sprint** takes over the whole screen: a dial, the time left, the time it
+started from, four arrows for plus or minus one and five minutes, and pause. Minimise
+drops it to a bar at the foot of the board so you can keep working, and Expand puts it
+back. It starts from the task modal, from your own roster card, or from Focus in the
+header. Opened with no task it offers a random open task or a pick from the list. The
+deadline is an absolute timestamp in `localStorage` under `gp_sprint`, so it survives a
+reload and a re-render. Starting one sets the task to In Progress. Nothing else is
+written, so sprint *history* does not exist yet: see the hold in section 9.
+
+The **Welcome** page is the doc keyed `start-here`. Its heading is fixed in the page
+rather than read from `pm_docs.title`, because it greets you rather than naming a
+document. The title in the database still reads "Start here".
 
 ---
 
