@@ -75,7 +75,9 @@ function renderTeam(){
     const goalsOwned = DATA.goals.filter(g => g.owner === p.name);
     out += '<div class="panel roster-card" style="margin:0" data-person="' + esc(p.name) + '">' +
       '<div class="panel-head" style="border:none">' +
-      avatar(p.name) + '<div><h3>' + esc(p.name) + '</h3>' +
+      (p.photo_url || PHOTOS[p.name]
+        ? '<img class="roster-photo" src="' + esc(p.photo_url || PHOTOS[p.name]) + '" alt="">'
+        : avatar(p.name)) + '<div><h3>' + esc(p.name) + '</h3>' +
       '<span class="sub">' + esc(p.role || "role not set") + '</span></div></div>' +
       '<div class="panel-body" style="padding-top:0">' +
       '<div class="note">' + mine.length + ' open · ' +
