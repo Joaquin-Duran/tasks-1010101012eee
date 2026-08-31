@@ -503,6 +503,14 @@
 .roster-photo{width:38px;height:38px;border-radius:11px;object-fit:cover;flex:none;
   border:1px solid var(--line);background:var(--paper)}
 .photo-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.photo-wrap{position:relative;display:inline-block;line-height:0}
+.photo-edit{position:absolute;right:-4px;bottom:-4px;width:42px;height:42px;border-radius:50%;
+  background:var(--orange);color:var(--white);display:grid;place-items:center;
+  border:3px solid var(--white);box-shadow:var(--shadow);transition:.15s}
+.photo-edit:hover{filter:brightness(.94);transform:scale(1.05)}
+.photo-edit.busy{opacity:.5;pointer-events:none}
+.linky{font-size:12.5px;color:var(--ink-3);text-decoration:underline}
+.linky:hover{color:var(--orange)}
 .roster-card:hover{border-color:rgba(43,44,44,.24);box-shadow:var(--shadow)}
 </style>
 </head>

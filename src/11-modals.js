@@ -539,6 +539,10 @@ function openAsset(id){
   };
 }
 
+const PENCIL = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" ' +
+  'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+  '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+
 /* Centre-crop to a square, shrink, and encode as a JPEG data URI. Kept small
    on purpose: every photo travels inside pm_bootstrap on every page load. */
 function squareImageDataUrl(file, size){
@@ -592,10 +596,17 @@ function openPerson(name){
     head("") +
     '<div class="modal-body">' +
       '<div class="person-hero">' +
-        (pic
-          ? '<img class="person-photo" src="' + esc(pic) + '" alt="' + esc(p.name) + '">'
-          : '<span class="av" style="background:' + (p.color || "var(--ink-3)") + '">' +
-              esc(p.initials || initials(p.name)) + '</span>') +
+        '<div class="photo-wrap">' +
+          (pic
+            ? '<img class="person-photo" src="' + esc(pic) + '" alt="' + esc(p.name) + '">'
+            : '<span class="av" style="background:' + (p.color || "var(--ink-3)") + '">' +
+                esc(p.initials || initials(p.name)) + '</span>') +
+          (p.name === ME
+            ? '<input type="file" id="pPhotoFile" accept="image/jpeg,image/png,image/webp" hidden>' +
+              '<button class="photo-edit" id="pPhotoBtn" aria-label="Change your photo" ' +
+                'title="Change your photo">' + PENCIL + '</button>'
+            : '') +
+        '</div>' +
         '<div>' +
           '<h2 class="person-name">' + esc(p.name) + '</h2>' +
           '<p class="person-role">' + esc(p.role || "Role not set") + '</p>' +
@@ -608,13 +619,8 @@ function openPerson(name){
           '<span><b>' + goals.length + '</b>goal' + (goals.length === 1 ? "" : "s") + ' owned</span>' +
         '</div>' +
       '</div>' +
-      (p.name === ME
-        ? '<div class="photo-actions">' +
-            '<input type="file" id="pPhotoFile" accept="image/jpeg,image/png,image/webp" hidden>' +
-            '<button class="btn btn-ghost btn-sm" id="pPhotoBtn">' +
-              (pic ? "Change photo" : "Add a photo") + '</button>' +
-            (pic ? '<button class="btn btn-ghost btn-sm" id="pPhotoDel">Remove</button>' : '') +
-          '</div>'
+      (p.name === ME && pic
+        ? '<div class="photo-actions"><button class="linky" id="pPhotoDel">Remove photo</button></div>'
         : '') +
       (goals.length ? '<div class="field"><label>Owns</label>' +
         '<div style="display:flex;gap:5px;flex-wrap:wrap">' + goals.map(g =>
@@ -644,12 +650,13 @@ function openPerson(name){
   if (fileEl) fileEl.onchange = async () => {
     const f = fileEl.files && fileEl.files[0];
     if (!f) return;
-    pBtn.disabled = true; pBtn.textContent = "Working…";
+    pBtn.disabled = true; pBtn.classList.add("busy");
     try {
       await savePhoto(p.name, await squareImageDataUrl(f, 256));
       close(); openPerson(p.name);
     } catch(err){
-      pBtn.disabled = false; pBtn.textContent = pic ? "Change photo" : "Add a photo";
+      pBtn.disabled = false; pBtn.classList.remove("busy");
+      fileEl.value = "";
       toast(err.message, true);
     }
   };
