@@ -245,9 +245,9 @@ Ideas          the creative board
 Two pages have no tab and are reached by drilling: **a goal** (from Where we are) and
 **every task** (from My week). Clicking a roster card on Team opens **a person**.
 
-**Profile photos.** Anyone can put a photo on their own card: pick a file, and the page
-centre-crops it to a square, shrinks it to 256px, encodes it as a JPEG data URI and
-sends it to `pm_set_photo`. It is stored in `pm_people.photo_url`, which means a photo
+**Profile photos.** Anyone can put a photo on their own card. A pencil badge sits on the
+picture, opens the file browser, and the page centre-crops the chosen file to a square,
+shrinks it to 256px, encodes it as a JPEG data URI and sends it to `pm_set_photo`. It is stored in `pm_people.photo_url`, which means a photo
 sits behind the passcode rather than in the world-readable container, and no upload or
 deploy is involved. The function refuses anything over 200kB, and the browser cannot
 open HEIC, so an iPhone photo has to be a JPEG first. The controls appear only on your
@@ -264,9 +264,8 @@ deadline is an absolute timestamp in `localStorage` under `gp_sprint`, so it sur
 reload and a re-render. Starting one sets the task to In Progress. Nothing else is
 written, so sprint *history* does not exist yet: see the hold in section 9.
 
-The **Welcome** page is the doc keyed `start-here`. Its heading is fixed in the page
-rather than read from `pm_docs.title`, because it greets you rather than naming a
-document. The title in the database still reads "Start here".
+The **Welcome** page is the doc keyed `start-here`. Its `pm_docs.title` now reads
+"Welcome", so the heading is data driven like every other doc page.
 
 ---
 

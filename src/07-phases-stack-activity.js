@@ -46,10 +46,8 @@ function renderStart(){
   const open = DATA.tasks.filter(isOpen);
   const quick = open.filter(t => isLate(t) && (t.effort === "S" || t.effort === "M")).slice(0,5);
   return '<div class="wrap">' +
-    /* The heading is fixed rather than read from doc.title: this is the landing
-       page, so it greets you. The doc is still the one keyed start-here. */
     '<div class="panel"><div class="panel-head">' +
-      '<span style="font-size:19px">👋</span><h3>Welcome</h3>' +
+      '<span style="font-size:19px">' + esc(doc.icon||"👋") + '</span><h3>' + esc(doc.title) + '</h3>' +
       '<div class="spacer"></div>' +
       '<button class="btn btn-ghost btn-sm" data-editdoc="start-here">Edit</button>' +
     '</div><div class="panel-body">' +
