@@ -144,7 +144,7 @@ Serve locally with `python3 -m http.server 8777 --directory ~/Downloads/goprep-b
 | `pm_areas` | Area labels and colours |
 
 Full column list in `docs/schema.md`, regenerated from the database.
-| `pm_people` | The roster. `photo_url` holds a profile photo, usually a data URI |
+| `pm_people` | The roster. `photo_url` holds a profile photo, usually a data URI. `bio` is the short self description |
 | `pm_activity`, `pm_config`, `pm_sessions`, `pm_login_attempts` | As before |
 
 `pm_bootstrap(p_token)` returns all of it in one call. **Adding a table means adding it
@@ -254,6 +254,13 @@ open HEIC, so an iPhone photo has to be a JPEG first. The controls appear only o
 own card, which is a convention rather than a check: see the note on `p_actor` in
 section 3. There is no fallback image: a person with no
 `photo_url` gets the initials avatar, and no photo is committed to the repo.
+
+**Editing a profile.** Edit profile on your own card sets `role` and `bio` through
+`pm_save_profile`. The **name is deliberately not editable**: `pm_tasks.owners` is an
+array of names and `pm_goals.owner` is a name, so a rename would orphan every task and
+goal that person holds. Renaming somebody is a database job, done together with those
+two columns. `pm_save_person` also exists and does allow a rename: do not wire it to a
+text field for that reason.
 
 A **focus sprint** takes over the whole screen: a dial, the time left, the time it
 started from, four arrows for plus or minus one and five minutes, and pause. Minimise
