@@ -657,6 +657,7 @@ main{flex:1;overflow:auto;padding:20px}
 .photo-edit:hover{filter:brightness(.94);transform:scale(1.05)}
 .photo-edit.busy{opacity:.5;pointer-events:none}
 .linky{font-size:12.5px;color:var(--ink-3);text-decoration:underline}
+.person-bio{font-size:13px;color:var(--ink-2);margin:0;max-width:46ch;line-height:1.5}
 .linky:hover{color:var(--orange)}
 .roster-card:hover{border-color:rgba(43,44,44,.24);box-shadow:var(--shadow)}
 </style>
@@ -3566,7 +3567,7 @@ function openPerson(name){
           '<h2 class="person-name">' + esc(p.name) + '</h2>' +
           '<p class="person-role">' + esc(p.role || "Role not set") + '</p>' +
         '</div>' +
-        (p.bio ? '<p class="note" style="margin:0;font-size:12.5px;max-width:44ch">' + esc(p.bio) + '</p>' : '') +
+        (p.bio ? '<p class="person-bio">' + esc(p.bio) + '</p>' : '') +
         '<div class="person-stats">' +
           '<span><b>' + open.length + '</b>open</span>' +
           '<span><b' + (late.length ? ' style="color:var(--p0)"' : '') + '>' + late.length + '</b>overdue</span>' +
@@ -3574,8 +3575,11 @@ function openPerson(name){
           '<span><b>' + goals.length + '</b>goal' + (goals.length === 1 ? "" : "s") + ' owned</span>' +
         '</div>' +
       '</div>' +
-      (p.name === ME && pic
-        ? '<div class="photo-actions"><button class="linky" id="pPhotoDel">Remove photo</button></div>'
+      (p.name === ME
+        ? '<div class="photo-actions">' +
+            '<button class="linky" id="pEdit">Edit profile</button>' +
+            (pic ? '<button class="linky" id="pPhotoDel">Remove photo</button>' : '') +
+          '</div>'
         : '') +
       (goals.length ? '<div class="field"><label>Owns</label>' +
         '<div style="display:flex;gap:5px;flex-wrap:wrap">' + goals.map(g =>
@@ -3600,6 +3604,8 @@ function openPerson(name){
       '<button class="btn btn-primary" id="mCancel">Close</button>' +
     '</div>');
 
+  const pEd = $("#pEdit");
+  if (pEd) pEd.onclick = () => { close(); openProfile(p.name); };
   const fileEl = $("#pPhotoFile"), pBtn = $("#pPhotoBtn"), pDel = $("#pPhotoDel");
   if (pBtn) pBtn.onclick = () => fileEl.click();
   if (fileEl) fileEl.onchange = async () => {
@@ -3623,6 +3629,50 @@ function openPerson(name){
   $$("[data-ptask]").forEach(el => el.onclick = () => { close(); openTask(el.dataset.ptask); });
   const ps = $("#pSprint");
   if (ps) ps.onclick = () => { close(); openSprint(null); };
+}
+
+/* ---------------- profile ----------------
+   Role and description only. The name is not editable on purpose:
+   pm_tasks.owners is an array of names and pm_goals.owner is a name, so a
+   rename would orphan every task and goal that person holds. Changing one
+   is a deliberate job for somebody with database access, not a text field. */
+function openProfile(name){
+  const p = DATA.people.find(x => x.name === name);
+  if (!p) return;
+  const close = modal(
+    head("Edit profile") +
+    '<div class="modal-body">' +
+      '<div class="field"><label for="prName">Name</label>' +
+        '<input class="input" id="prName" value="' + esc(p.name) + '" disabled>' +
+        '<span class="hint">Tasks and goals are held by name, so renaming is a database job.</span></div>' +
+      '<div class="field"><label for="prRole">Role</label>' +
+        '<input class="input" id="prRole" maxlength="80" value="' + esc(p.role || "") +
+        '" placeholder="What you do here"></div>' +
+      '<div class="field"><label for="prBio">About you</label>' +
+        '<textarea class="input" id="prBio" maxlength="600" placeholder="A couple of lines. What you work on, what to come to you for.">' +
+        esc(p.bio || "") + '</textarea>' +
+        '<span class="hint"><b id="prCount">0</b> of 600 characters.</span></div>' +
+    '</div>' +
+    foot("Save profile"));
+
+  const bio = $("#prBio"), count = $("#prCount");
+  const tick = () => { count.textContent = bio.value.length; };
+  bio.addEventListener("input", tick); tick();
+  $("#prRole").focus();
+
+  $("#mSave").onclick = async () => {
+    $("#mSave").disabled = true;
+    try {
+      const r = await rpc("pm_save_profile", { p_token:TOKEN, p_name:p.name,
+        p_role:$("#prRole").value, p_bio:bio.value, p_actor:ME });
+      Object.assign(p, r || {});
+      close(); render(); openPerson(p.name);
+      toast("Profile saved");
+    } catch(err){
+      $("#mSave").disabled = false;
+      fail(err, "Could not save that");
+    }
+  };
 }
 
 /* ============================================================

@@ -39,7 +39,7 @@ pm_login_attempts      ip, failures, first_at, last_at, locked_until
 pm_metric_points       id, goal_id, on_date, value, note, entered_by, at
 pm_milestones          id, goal_id, code, name, description, owner, status, starts,
                        ends, sort_order, archived, created_at, updated_at
-pm_people              id, name, initials, color, role, active, sort_order, photo_url
+pm_people              id, name, initials, color, role, active, sort_order, photo_url, bio
 pm_phases              key, name, theme, starts, ends, success_criteria, color,
                        sort_order, verdict
 pm_providers           id, name, category, purpose, url, plan, cost_amount,
