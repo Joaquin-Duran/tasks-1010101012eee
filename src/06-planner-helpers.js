@@ -87,14 +87,6 @@ function plannerItems(list){
 const SPRINT_DURATIONS = [15, 25, 45, 60];
 const SPRINT_DEFAULT   = 25;
 
-/* Team photos. pm_people.photo_url wins when it is set; this map is the
-   local fallback. Paths are relative, so they resolve both on the Pages URL
-   and on the local server. Anything here is public: index.html is world
-   readable, so only put in a picture that is meant to be. */
-const PHOTOS = {
-  "Joaquin": "assets/joaquin.jpg"
-};
-
 let SP = null;          /* { taskId, title, code, endsAt, total, left } */
 let spTimer = null;
 

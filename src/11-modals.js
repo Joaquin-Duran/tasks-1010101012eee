@@ -576,9 +576,9 @@ async function savePhoto(name, dataUrl){
 }
 
 /* ---------------- person ----------------
-   The roster card opens this. Photo comes from pm_people.photo_url when
-   the column is there, otherwise from the local PHOTOS map, otherwise
-   the initials avatar that was already on the card. */
+   The roster card opens this. The photo comes from pm_people.photo_url,
+   which the owner sets with the pencil, and falls back to the initials
+   avatar. Nothing is served from the repo. */
 function openPerson(name){
   const p = DATA.people.find(x => x.name === name);
   if (!p) return;
@@ -586,7 +586,7 @@ function openPerson(name){
   const done  = DATA.tasks.filter(t => t.status === "Done" && (t.owners||[]).includes(p.name));
   const late  = open.filter(isLate);
   const goals = DATA.goals.filter(g => g.owner === p.name);
-  const pic   = p.photo_url || PHOTOS[p.name] || "";
+  const pic   = p.photo_url || "";
   const rank  = { P0:0, P1:1, P2:2, P3:3 };
   const sorted = open.slice().sort((a,b) =>
     (rank[a.priority] ?? 9) - (rank[b.priority] ?? 9) ||

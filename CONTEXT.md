@@ -252,8 +252,8 @@ sits behind the passcode rather than in the world-readable container, and no upl
 deploy is involved. The function refuses anything over 200kB, and the browser cannot
 open HEIC, so an iPhone photo has to be a JPEG first. The controls appear only on your
 own card, which is a convention rather than a check: see the note on `p_actor` in
-section 3. Joaquin's committed `assets/joaquin.jpg` stays as the fallback when
-`photo_url` is null.
+section 3. There is no fallback image: a person with no
+`photo_url` gets the initials avatar, and no photo is committed to the repo.
 
 A **focus sprint** takes over the whole screen: a dial, the time left, the time it
 started from, four arrows for plus or minus one and five minutes, and pause. Minimise
