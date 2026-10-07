@@ -3,9 +3,9 @@
    MODALS
    ============================================================ */
 function modal(html, opts){
-  const wide = opts && opts.wide ? " wide" : "";
+  const cls = (opts && opts.wide ? " wide" : "") + (opts && opts.tall ? " tall" : "");
   document.body.insertAdjacentHTML("beforeend",
-    '<div class="scrim" id="scrim"><div class="modal' + wide + '" role="dialog" aria-modal="true">' + html + '</div></div>');
+    '<div class="scrim" id="scrim"><div class="modal' + cls + '" role="dialog" aria-modal="true">' + html + '</div></div>');
   const scrim = $("#scrim");
   const close = () => { scrim.remove(); document.removeEventListener("keydown", onEsc); };
   function onEsc(e){ if (e.key === "Escape") close(); }
@@ -305,9 +305,11 @@ function openDoc(key){
         '<input class="input" id="dSummary" value="' + esc(v("summary")) + '"></div>' +
       '<div class="field"><label for="dBody">Body <span class="hint" style="display:inline">' +
         'Markdown. Use [[Document title]] to link to another page.</span></label>' +
-        '<textarea class="input md-edit" id="dBody">' + esc(v("body")) + '</textarea></div>' +
+        mdField("dBody", v("body"), "Write the page. The right half is what people will read.") +
+      '</div>' +
     '</div>' +
-    foot(doc ? "Save document" : "Create document"), { wide:true });
+    foot(doc ? "Save document" : "Create document"), { wide:true, tall:true });
+  wireMd("dBody");
   $("#dTitle").focus();
   $("#mSave").onclick = async () => {
     const title = $("#dTitle").value.trim();

@@ -11,6 +11,8 @@ const RENDERERS = {
   "journey-user":  renderJourney,
   "journey-value": renderJourney,
   ideas:    renderIdeas,
+  ads:        renderAds,
+  "ad-board": renderAdBoard,
   "mkt-strategy": renderMktDoc,
   "mkt-q1":       renderMktDoc,
   "mkt-persona": renderMktDoc,
@@ -242,6 +244,89 @@ function wireMain(){
   $$("[data-editidea]").forEach(el => el.onclick = () => openIdea(el.dataset.editidea));
   const ni = $("#newIdea"); if (ni) ni.onclick = () => openIdea(null);
 
+  /* ---- the ad wall ---- */
+  $$("[data-camp]").forEach(el => el.onclick = () => {
+    UI.adCampaign = el.dataset.camp;
+    store.set("gp_adcamp", UI.adCampaign);
+    goView("ad-board");
+  });
+  $$("[data-editcamp]").forEach(el => el.onclick = e => { e.stopPropagation(); openCampaign(el.dataset.editcamp); });
+  $$("[data-ad]").forEach(el => el.addEventListener("click", () => openAd(el.dataset.ad)));
+  $$("[data-addto]").forEach(el => el.onclick = () => openAd(null, {
+    stage: el.dataset.addto,
+    campaign_id: UI.adCampaign === "loose" ? "" : UI.adCampaign
+  }));
+  const nc = $("#newCampaign"); if (nc) nc.onclick = () => openCampaign(null);
+  const na2 = $("#newAd");      if (na2) na2.onclick = () => openAd(null);
+  const nah = $("#newAdHere");  if (nah) nah.onclick = () => openAd(null, {
+    campaign_id: UI.adCampaign === "loose" ? "" : UI.adCampaign });
+
+  /* cards drag between lanes, the same gesture as the task board */
+  let adDrag = null;
+  $$(".adcard").forEach(el => {
+    el.addEventListener("dragstart", e => {
+      adDrag = el.dataset.ad;
+      el.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      try { e.dataTransfer.setData("text/plain", adDrag); } catch(err){}
+    });
+    el.addEventListener("dragend", () => { el.classList.remove("dragging"); adDrag = null; });
+  });
+  $$(".lane[data-adrop]").forEach(col => {
+    col.addEventListener("dragover", e => { e.preventDefault(); col.classList.add("drop"); });
+    col.addEventListener("dragleave", () => col.classList.remove("drop"));
+    col.addEventListener("drop", async e => {
+      e.preventDefault();
+      col.classList.remove("drop");
+      const id = adDrag || e.dataTransfer.getData("text/plain");
+      const stage = col.dataset.adrop;
+      const ad = (DATA.ads || []).find(x => x.id === id);
+      if (!ad || ad.stage === stage) return;
+      const prev = ad.stage;
+      ad.stage = stage;                   // optimistic
+      render();
+      try {
+        await rpc("pm_set_ad_stage", { p_token:TOKEN, p_id:id, p_stage:stage, p_actor:ME });
+        await refresh(true);
+      } catch(err){ ad.stage = prev; render(); fail(err, "Could not move that card"); }
+    });
+  });
+
+  const wallSend = $("#wallSend");
+  if (wallSend){
+    const send = async () => {
+      const body = $("#wallNote").value.trim();
+      if (!body) return;
+      wallSend.disabled = true;
+      try {
+        await rpc("pm_add_ad_note", { p_token:TOKEN, p_ad_id:null,
+                                      p_campaign_id:UI.adCampaign === "loose" ? null : UI.adCampaign,
+                                      p_body:body, p_actor:ME });
+        await refresh(true);
+      } catch(err){ wallSend.disabled = false; fail(err, "Could not pin that up"); }
+    };
+    wallSend.onclick = send;
+    $("#wallNote").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+  }
+  $$("[data-delnote]").forEach(el => el.onclick = async e => {
+    e.stopPropagation();
+    try { await rpc("pm_delete_ad_note", { p_token:TOKEN, p_id:Number(el.dataset.delnote), p_actor:ME });
+          await refresh(true); }
+    catch(err){ fail(err, "Could not remove that"); }
+  });
+  const cb = $("#copyBrief");
+  if (cb) cb.onclick = async () => {
+    const c = (DATA.campaigns || []).find(x => x.id === UI.adCampaign);
+    if (!c) return;
+    try { await navigator.clipboard.writeText(campaignBrief(c));
+          toast("The brief is on your clipboard"); }
+    catch(err){ toast("Could not reach the clipboard", true); }
+  };
+  if (VIEW === "ad-board"){
+    const want = adsOf(UI.adCampaign).filter(a => a.has_shot).map(a => a.id);
+    if (want.length) ensureAdShots(want);
+  }
+
   const nth = $("#newTaskHere");
   if (nth) nth.onclick = () => openTask(null, { goal: UI.goal });
 
@@ -292,7 +377,8 @@ async function refresh(quiet){
       providers:x.providers||[], assets:x.assets||[],
       files:x.files||[], journey:x.journey||[],
       ideas:x.ideas||[], areas:x.areas||[],
-      metrics:x.metrics||[], activity:x.activity||[]
+      metrics:x.metrics||[], activity:x.activity||[],
+      campaigns:x.campaigns||[], ads:x.ads||[], ad_notes:x.ad_notes||[]
     };
     buildFilters();
     populateWho();

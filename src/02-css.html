@@ -534,5 +534,107 @@
 .bub.all{padding:7px 14px}
 .bub small{font-weight:500;color:var(--ink-3);font-size:11px}
 .bub.on small{color:var(--ink-2)}
+
+/* ---------- the editor: see the whole page, and what the cursor is in ---------- */
+.modal.tall{height:calc(100vh - 40px)}
+.modal.tall .modal-body{flex:1;display:flex;flex-direction:column;min-height:0}
+.modal.tall .modal-body>.field:last-child{flex:1;display:flex;flex-direction:column;min-height:0}
+.mde{display:flex;flex-direction:column;flex:1;min-height:260px;border:1px solid var(--line);
+     border-radius:11px;overflow:hidden;background:var(--white)}
+.mde-bar{display:flex;align-items:center;gap:3px;padding:7px 9px;background:var(--paper);
+         border-bottom:1px solid var(--line-2);flex-wrap:wrap}
+.mdt{min-width:30px;height:28px;padding:0 8px;border-radius:7px;font-size:12px;font-weight:600;
+     color:var(--ink-2);border:1px solid transparent;transition:.12s;background:transparent}
+.mdt:hover{background:var(--white);border-color:var(--line)}
+.mdt.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.mde-ctx{font-size:11px;color:var(--ink-3);font-weight:600;letter-spacing:.02em;
+         padding:0 10px;white-space:nowrap}
+.mde-mode button{font-size:11.5px;padding:4px 9px}
+.mde-panes{flex:1;display:grid;min-height:0;gap:0}
+.mde .md-edit{border:none;border-radius:0;min-height:0;height:100%;resize:none;
+              font-size:13.5px;line-height:1.75;padding:16px 18px;background:var(--white)}
+.mde .md-edit:focus{box-shadow:none;outline:none}
+.mde-prev{padding:16px 20px;overflow:auto;background:var(--paper);border-left:1px solid var(--line-2);
+          font-size:13.5px;max-width:none}
+.mde-prev>:first-child{margin-top:0}
+.mde-split .mde-panes{grid-template-columns:1fr 1fr}
+.mde-write .mde-panes{grid-template-columns:1fr}
+.mde-write .mde-prev{display:none}
+.mde-preview .mde-panes{grid-template-columns:1fr}
+.mde-preview .md-edit{display:none}
+.mde-preview .mde-prev{border-left:none}
+@media (max-width:860px){ .mde-split .mde-panes{grid-template-columns:1fr}
+  .mde-split .mde-prev{display:none} }
+
+/* ---------- the ad wall ---------- */
+.camp{background:var(--white);border:1px solid var(--line);border-left:4px solid var(--gc,var(--orange));
+      border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;
+      cursor:pointer;transition:.15s}
+.camp:hover{border-color:rgba(43,44,44,.24);box-shadow:var(--shadow);transform:translateY(-1px)}
+.camp:hover{border-left-color:var(--gc,var(--orange))}
+.camp-top{display:flex;align-items:center;gap:6px}
+.camp h3{font-size:15px;letter-spacing:-.01em;margin:0}
+.camp p{font-size:12.6px;color:var(--ink-3);margin:0;line-height:1.5}
+.camp-bar{display:flex;gap:3px;height:6px;margin-top:2px}
+.camp-bar .cb{border-radius:3px;background:var(--line);min-width:4px}
+.camp-bar .cb.drafting{background:var(--warn)}
+.camp-bar .cb.ready{background:var(--ok)}
+.camp-bar .cb.live{background:var(--orange)}
+.camp-bar .cb.killed{background:var(--line-2)}
+.camp-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.camp-facts{display:flex;gap:22px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2)}
+.camp-facts b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;
+              color:var(--ink-3);margin-bottom:2px;font-weight:700}
+
+.lanes{display:grid;grid-template-columns:repeat(5,minmax(216px,1fr));gap:11px;margin:16px 0 8px;
+       align-items:start;overflow-x:auto;padding-bottom:4px}
+.lane{background:var(--paper);border:1px solid var(--line-2);border-radius:12px;
+      display:flex;flex-direction:column;min-height:120px;transition:.15s}
+.lane.drop{border-color:var(--orange);background:var(--orange-soft)}
+.lane-head{padding:11px 13px 9px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+           border-bottom:1px solid var(--line-2)}
+.lane-head b{font-size:12.5px}
+.lane-head .count{font-size:11px;color:var(--ink-3);font-weight:600}
+.lane-head small{flex-basis:100%;font-size:10.5px;color:var(--ink-3);line-height:1.35}
+.lane-body{padding:9px;display:flex;flex-direction:column;gap:9px}
+.lane-add{font-size:11.5px;color:var(--ink-3);padding:8px;border-radius:9px;
+          border:1px dashed var(--line);transition:.15s;font-weight:500}
+.lane-add:hover{border-color:var(--orange);color:var(--orange);background:var(--white)}
+
+.adcard{background:var(--white);border:1px solid var(--line);border-radius:11px;overflow:hidden;
+        cursor:pointer;transition:.15s}
+.adcard:hover{border-color:rgba(43,44,44,.26);box-shadow:var(--shadow);transform:translateY(-1px)}
+.adcard.dragging{opacity:.45}
+.adshot{display:block;width:100%;max-height:132px;object-fit:cover;background:var(--paper);
+        border-bottom:1px solid var(--line-2)}
+.adshot.ph{height:60px;background:repeating-linear-gradient(45deg,var(--paper),var(--paper) 8px,var(--cream) 8px,var(--cream) 16px)}
+.adbody{padding:10px 12px 11px;display:flex;flex-direction:column;gap:5px}
+.adtop{display:flex;align-items:center;gap:6px}
+.adtop .av{width:21px;height:21px;font-size:8.5px}
+.adcard h4{font-size:13px;letter-spacing:-.01em;line-height:1.35;margin:0}
+.adh{font-size:12.4px;color:var(--ink-2);margin:0;line-height:1.45;font-weight:500}
+.adb{font-size:11.6px;color:var(--ink-3);margin:0;line-height:1.5}
+.adfoot{display:flex;align-items:center;gap:8px;margin-top:2px}
+.adfoot .cta{font-size:10.5px;font-weight:600;color:var(--orange);background:var(--orange-soft);
+             padding:2px 8px;border-radius:20px}
+.adfoot .note{font-size:10.5px}
+
+.adshot-edit{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.adshot-box{width:180px;min-height:110px;border:1px solid var(--line);border-radius:10px;
+            background:var(--paper);display:grid;place-items:center;overflow:hidden;flex:none}
+.adshot-box img{width:100%;display:block}
+
+.notes{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.nrow{display:flex;gap:10px;align-items:flex-start}
+.nrow .av{flex:none;margin-top:1px}
+.nbody{flex:1;min-width:0}
+.nbody b{font-size:12.5px}
+.nbody .when{font-size:10.5px;color:var(--ink-3);margin-left:6px}
+.nbody p{margin:2px 0 0;font-size:13px;color:var(--ink-2);line-height:1.55;white-space:pre-wrap}
+.nx{color:var(--ink-3);font-size:15px;line-height:1;padding:2px 6px;border-radius:6px;flex:none}
+.nx:hover{background:var(--paper);color:var(--p0)}
+.note-add{display:flex;gap:8px;align-items:center}
+.note-add .input{flex:1}
+@media (max-width:980px){ .lanes{grid-template-columns:repeat(5,minmax(200px,1fr))} }
 </style>
 </head>

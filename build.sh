@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Concatenates src/ into index.html, in order, and refuses to write a broken file.
 # The order matters: 01 opens <html><head>, 03 opens <body> and <script>,
-# 12 closes </script></body></html>. Everything between is plain JS.
+# 13 closes </script></body></html>. Everything between is plain JS.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -17,7 +17,8 @@ PARTS=(
   src/09-files-and-journey.js
   src/10-ideas.js
   src/11-modals.js
-  src/12-render-and-wiring.js
+  src/12-ads.js
+  src/13-render-and-wiring.js
 )
 
 for f in "${PARTS[@]}"; do

@@ -681,6 +681,108 @@ main{flex:1;overflow:auto;padding:20px}
 .bub.all{padding:7px 14px}
 .bub small{font-weight:500;color:var(--ink-3);font-size:11px}
 .bub.on small{color:var(--ink-2)}
+
+/* ---------- the editor: see the whole page, and what the cursor is in ---------- */
+.modal.tall{height:calc(100vh - 40px)}
+.modal.tall .modal-body{flex:1;display:flex;flex-direction:column;min-height:0}
+.modal.tall .modal-body>.field:last-child{flex:1;display:flex;flex-direction:column;min-height:0}
+.mde{display:flex;flex-direction:column;flex:1;min-height:260px;border:1px solid var(--line);
+     border-radius:11px;overflow:hidden;background:var(--white)}
+.mde-bar{display:flex;align-items:center;gap:3px;padding:7px 9px;background:var(--paper);
+         border-bottom:1px solid var(--line-2);flex-wrap:wrap}
+.mdt{min-width:30px;height:28px;padding:0 8px;border-radius:7px;font-size:12px;font-weight:600;
+     color:var(--ink-2);border:1px solid transparent;transition:.12s;background:transparent}
+.mdt:hover{background:var(--white);border-color:var(--line)}
+.mdt.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.mde-ctx{font-size:11px;color:var(--ink-3);font-weight:600;letter-spacing:.02em;
+         padding:0 10px;white-space:nowrap}
+.mde-mode button{font-size:11.5px;padding:4px 9px}
+.mde-panes{flex:1;display:grid;min-height:0;gap:0}
+.mde .md-edit{border:none;border-radius:0;min-height:0;height:100%;resize:none;
+              font-size:13.5px;line-height:1.75;padding:16px 18px;background:var(--white)}
+.mde .md-edit:focus{box-shadow:none;outline:none}
+.mde-prev{padding:16px 20px;overflow:auto;background:var(--paper);border-left:1px solid var(--line-2);
+          font-size:13.5px;max-width:none}
+.mde-prev>:first-child{margin-top:0}
+.mde-split .mde-panes{grid-template-columns:1fr 1fr}
+.mde-write .mde-panes{grid-template-columns:1fr}
+.mde-write .mde-prev{display:none}
+.mde-preview .mde-panes{grid-template-columns:1fr}
+.mde-preview .md-edit{display:none}
+.mde-preview .mde-prev{border-left:none}
+@media (max-width:860px){ .mde-split .mde-panes{grid-template-columns:1fr}
+  .mde-split .mde-prev{display:none} }
+
+/* ---------- the ad wall ---------- */
+.camp{background:var(--white);border:1px solid var(--line);border-left:4px solid var(--gc,var(--orange));
+      border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;
+      cursor:pointer;transition:.15s}
+.camp:hover{border-color:rgba(43,44,44,.24);box-shadow:var(--shadow);transform:translateY(-1px)}
+.camp:hover{border-left-color:var(--gc,var(--orange))}
+.camp-top{display:flex;align-items:center;gap:6px}
+.camp h3{font-size:15px;letter-spacing:-.01em;margin:0}
+.camp p{font-size:12.6px;color:var(--ink-3);margin:0;line-height:1.5}
+.camp-bar{display:flex;gap:3px;height:6px;margin-top:2px}
+.camp-bar .cb{border-radius:3px;background:var(--line);min-width:4px}
+.camp-bar .cb.drafting{background:var(--warn)}
+.camp-bar .cb.ready{background:var(--ok)}
+.camp-bar .cb.live{background:var(--orange)}
+.camp-bar .cb.killed{background:var(--line-2)}
+.camp-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.camp-facts{display:flex;gap:22px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2)}
+.camp-facts b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;
+              color:var(--ink-3);margin-bottom:2px;font-weight:700}
+
+.lanes{display:grid;grid-template-columns:repeat(5,minmax(216px,1fr));gap:11px;margin:16px 0 8px;
+       align-items:start;overflow-x:auto;padding-bottom:4px}
+.lane{background:var(--paper);border:1px solid var(--line-2);border-radius:12px;
+      display:flex;flex-direction:column;min-height:120px;transition:.15s}
+.lane.drop{border-color:var(--orange);background:var(--orange-soft)}
+.lane-head{padding:11px 13px 9px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+           border-bottom:1px solid var(--line-2)}
+.lane-head b{font-size:12.5px}
+.lane-head .count{font-size:11px;color:var(--ink-3);font-weight:600}
+.lane-head small{flex-basis:100%;font-size:10.5px;color:var(--ink-3);line-height:1.35}
+.lane-body{padding:9px;display:flex;flex-direction:column;gap:9px}
+.lane-add{font-size:11.5px;color:var(--ink-3);padding:8px;border-radius:9px;
+          border:1px dashed var(--line);transition:.15s;font-weight:500}
+.lane-add:hover{border-color:var(--orange);color:var(--orange);background:var(--white)}
+
+.adcard{background:var(--white);border:1px solid var(--line);border-radius:11px;overflow:hidden;
+        cursor:pointer;transition:.15s}
+.adcard:hover{border-color:rgba(43,44,44,.26);box-shadow:var(--shadow);transform:translateY(-1px)}
+.adcard.dragging{opacity:.45}
+.adshot{display:block;width:100%;max-height:132px;object-fit:cover;background:var(--paper);
+        border-bottom:1px solid var(--line-2)}
+.adshot.ph{height:60px;background:repeating-linear-gradient(45deg,var(--paper),var(--paper) 8px,var(--cream) 8px,var(--cream) 16px)}
+.adbody{padding:10px 12px 11px;display:flex;flex-direction:column;gap:5px}
+.adtop{display:flex;align-items:center;gap:6px}
+.adtop .av{width:21px;height:21px;font-size:8.5px}
+.adcard h4{font-size:13px;letter-spacing:-.01em;line-height:1.35;margin:0}
+.adh{font-size:12.4px;color:var(--ink-2);margin:0;line-height:1.45;font-weight:500}
+.adb{font-size:11.6px;color:var(--ink-3);margin:0;line-height:1.5}
+.adfoot{display:flex;align-items:center;gap:8px;margin-top:2px}
+.adfoot .cta{font-size:10.5px;font-weight:600;color:var(--orange);background:var(--orange-soft);
+             padding:2px 8px;border-radius:20px}
+.adfoot .note{font-size:10.5px}
+
+.adshot-edit{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.adshot-box{width:180px;min-height:110px;border:1px solid var(--line);border-radius:10px;
+            background:var(--paper);display:grid;place-items:center;overflow:hidden;flex:none}
+.adshot-box img{width:100%;display:block}
+
+.notes{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.nrow{display:flex;gap:10px;align-items:flex-start}
+.nrow .av{flex:none;margin-top:1px}
+.nbody{flex:1;min-width:0}
+.nbody b{font-size:12.5px}
+.nbody .when{font-size:10.5px;color:var(--ink-3);margin-left:6px}
+.nbody p{margin:2px 0 0;font-size:13px;color:var(--ink-2);line-height:1.55;white-space:pre-wrap}
+.nx{color:var(--ink-3);font-size:15px;line-height:1;padding:2px 6px;border-radius:6px;flex:none}
+.nx:hover{background:var(--paper);color:var(--p0)}
+.note-add{display:flex;gap:8px;align-items:center}
+.note-add .input{flex:1}
+@media (max-width:980px){ .lanes{grid-template-columns:repeat(5,minmax(200px,1fr))} }
 </style>
 </head>
 <body>
@@ -890,7 +992,7 @@ let TOKEN = store.get("gp_token") || null;
 let ME = store.get("gp_me") || "";
 let DATA = { people:[], phases:[], tasks:[], goals:[], milestones:[], docs:[],
              providers:[], assets:[], files:[], journey:[], ideas:[], areas:[],
-             metrics:[], activity:[] };
+             metrics:[], activity:[], campaigns:[], ads:[], ad_notes:[] };
 /* the board always opens on Company · Start here, whatever was open last */
 let VIEW = "start";
 const F = { q:"", person:"", cat:"", phase:"", goal:"", pri:new Set(), mine:false, open:false };
@@ -1284,6 +1386,191 @@ function goalPill(g){
   return '<span class="pill ' + (GOAL_STATUS_TONE[g.status] || "mute") + '">' + esc(g.status) + '</span>';
 }
 
+
+/* ============================================================
+   THE EDITOR
+   A textarea you can see all of, a toolbar that tells you what
+   the cursor is standing in, and the rendered page beside it.
+   Used by the handbook and by a campaign brief.
+   ============================================================ */
+const MD_TOOLS = [
+  { k:"bold",    lab:"<b>B</b>",            t:"Bold",            key:"B" },
+  { k:"italic",  lab:"<i>I</i>",            t:"Italic",          key:"I" },
+  { k:"h2",      lab:"H2",                  t:"Heading" },
+  { k:"h3",      lab:"H3",                  t:"Smaller heading" },
+  { k:"ul",      lab:"&bull;&nbsp;list",    t:"Bulleted list" },
+  { k:"ol",      lab:"1.&nbsp;list",        t:"Numbered list" },
+  { k:"quote",   lab:"&ldquo;",             t:"Quote" },
+  { k:"code",    lab:"&lt;/&gt;",           t:"Code" },
+  { k:"link",    lab:"link",                t:"Link" },
+  { k:"wiki",    lab:"[[&nbsp;]]",          t:"Link to another page in the handbook" },
+  { k:"hr",      lab:"rule",                t:"Divider line" }
+];
+
+function mdField(id, value, placeholder){
+  const mode = store.get("gp_mdmode") || "split";
+  return '<div class="mde mde-' + mode + '" data-mde="' + id + '">' +
+    '<div class="mde-bar">' +
+      MD_TOOLS.map(t => '<button type="button" class="mdt" data-md="' + t.k + '" data-for="' + id + '" ' +
+        'title="' + esc(t.t) + (t.key ? " · ⌘" + t.key : "") + '">' + t.lab + '</button>').join("") +
+      '<div class="spacer"></div>' +
+      '<span class="mde-ctx" id="' + id + '_ctx">Paragraph</span>' +
+      '<div class="seg mde-mode" data-for="' + id + '">' +
+        ["write","split","preview"].map(m => '<button type="button" data-mdm="' + m + '"' +
+          (mode === m ? ' class="on"' : '') + '>' + m[0].toUpperCase() + m.slice(1) + '</button>').join("") +
+      '</div>' +
+    '</div>' +
+    '<div class="mde-panes">' +
+      '<textarea class="input md-edit" id="' + id + '" spellcheck="true" ' +
+        'placeholder="' + esc(placeholder || "") + '">' + esc(value || "") + '</textarea>' +
+      '<div class="mde-prev prose" id="' + id + '_prev"></div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* what the cursor is standing in, so the toolbar can say so */
+function mdContext(ta){
+  const val = ta.value, a = ta.selectionStart, b = ta.selectionEnd;
+  const ls = val.lastIndexOf("\n", a - 1) + 1;
+  let le = val.indexOf("\n", a); if (le < 0) le = val.length;
+  const line = val.slice(ls, le);
+  const sel = val.slice(a, b);
+  const fences = (val.slice(0, a).match(/^```/gm) || []).length;
+  const inFence = fences % 2 === 1;
+  const h = line.match(/^(#{1,6})\s/);
+  const around = (mark) => {
+    const before = val.slice(Math.max(0, a - mark.length), a);
+    const after = val.slice(b, b + mark.length);
+    if (before === mark && after === mark) return true;
+    return sel.length > mark.length * 2 && sel.startsWith(mark) && sel.endsWith(mark);
+  };
+  const on = {
+    bold:   !inFence && around("**"),
+    italic: !inFence && !around("**") && (around("*") || around("_")),
+    code:   inFence || around("`"),
+    h2:     !!h && h[1].length === 2,
+    h3:     !!h && h[1].length >= 3,
+    ul:     /^\s*[-*]\s/.test(line),
+    ol:     /^\s*\d+\.\s/.test(line),
+    quote:  /^\s*>/.test(line)
+  };
+  let label = "Paragraph";
+  if (inFence) label = "Code block";
+  else if (h) label = "Heading " + h[1].length;
+  else if (on.quote) label = "Quote";
+  else if (on.ul) label = "List item";
+  else if (on.ol) label = "Numbered item";
+  else if (!line.trim()) label = "Empty line";
+  const extra = [on.bold && "bold", on.italic && "italic", !inFence && on.code && "code"].filter(Boolean);
+  if (extra.length) label += " · " + extra.join(", ");
+  return { on, label, ls, le, line, sel, a, b };
+}
+
+function mdApply(ta, kind){
+  const val = ta.value, a = ta.selectionStart, b = ta.selectionEnd;
+  const ctx = mdContext(ta);
+  const put = (text, selStart, selEnd) => {
+    ta.setRangeText(text, selStart != null ? selStart : a, selEnd != null ? selEnd : b, "end");
+    ta.dispatchEvent(new Event("input", { bubbles:true }));
+  };
+  /* wrapping marks toggle: pressing bold inside bold takes it off again */
+  const wrap = (mark, hint) => {
+    const sel = val.slice(a, b);
+    if (sel.startsWith(mark) && sel.endsWith(mark) && sel.length > mark.length * 2){
+      put(sel.slice(mark.length, -mark.length)); return;
+    }
+    const before = val.slice(Math.max(0, a - mark.length), a);
+    const after  = val.slice(b, b + mark.length);
+    if (before === mark && after === mark){
+      ta.setRangeText(sel, a - mark.length, b + mark.length, "end");
+      ta.dispatchEvent(new Event("input", { bubbles:true }));
+      return;
+    }
+    put(mark + (sel || hint || "") + mark);
+    if (!sel){
+      const p = a + mark.length;
+      ta.setSelectionRange(p, p + (hint || "").length);
+    }
+  };
+  /* line marks apply to every line the selection touches, and toggle off */
+  const lineMark = (re, make) => {
+    let s = val.lastIndexOf("\n", a - 1) + 1;
+    let e = val.indexOf("\n", b); if (e < 0) e = val.length;
+    const lines = val.slice(s, e).split("\n");
+    const allOn = lines.every(l => re.test(l) || !l.trim());
+    const next = lines.map((l, i) => allOn ? l.replace(re, "") : (l.trim() || lines.length === 1 ? make(l, i) : l));
+    ta.setRangeText(next.join("\n"), s, e, "end");
+    ta.dispatchEvent(new Event("input", { bubbles:true }));
+  };
+
+  if (kind === "bold")   return wrap("**", "bold text");
+  if (kind === "italic") return wrap("_", "italic");
+  if (kind === "code")   return wrap("`", "code");
+  if (kind === "h2")     return lineMark(/^#{1,6}\s+/, l => "## " + l.replace(/^#{1,6}\s+/, ""));
+  if (kind === "h3")     return lineMark(/^#{1,6}\s+/, l => "### " + l.replace(/^#{1,6}\s+/, ""));
+  if (kind === "ul")     return lineMark(/^\s*[-*]\s+/, l => "- " + l.replace(/^\s*[-*]\s+/, ""));
+  if (kind === "ol")     return lineMark(/^\s*\d+\.\s+/, (l,i) => (i+1) + ". " + l.replace(/^\s*\d+\.\s+/, ""));
+  if (kind === "quote")  return lineMark(/^\s*>\s?/, l => "> " + l.replace(/^\s*>\s?/, ""));
+  if (kind === "hr")     return put((ctx.line.trim() ? "\n\n" : "") + "---\n\n");
+  if (kind === "link"){
+    const sel = val.slice(a, b) || "the words";
+    put("[" + sel + "](https://)");
+    const p = a + sel.length + 3;
+    ta.setSelectionRange(p, p + 8);
+    return;
+  }
+  if (kind === "wiki"){
+    const sel = val.slice(a, b) || "Document title";
+    put("[[" + sel + "]]");
+    if (!val.slice(a, b)) ta.setSelectionRange(a + 2, a + 2 + sel.length);
+  }
+}
+
+/* call once after a modal holding mdField() is in the document */
+function wireMd(id){
+  const ta = document.getElementById(id);
+  if (!ta) return;
+  const prev = document.getElementById(id + "_prev");
+  const ctxEl = document.getElementById(id + "_ctx");
+  const box = ta.closest(".mde");
+  const tools = Array.from(box.querySelectorAll(".mdt"));
+
+  const paint = () => {
+    const c = mdContext(ta);
+    tools.forEach(b => b.classList.toggle("on", !!c.on[b.dataset.md]));
+    if (ctxEl) ctxEl.textContent = c.label;
+  };
+  const draw = () => { if (prev) prev.innerHTML = md(ta.value); };
+  let t = null;
+  ta.addEventListener("input", () => { clearTimeout(t); t = setTimeout(draw, 140); paint(); });
+  ["keyup","click","focus","select"].forEach(e => ta.addEventListener(e, paint));
+  document.addEventListener("selectionchange", () => { if (document.activeElement === ta) paint(); });
+
+  tools.forEach(b => b.onclick = e => {
+    e.preventDefault();
+    ta.focus();
+    mdApply(ta, b.dataset.md);
+    paint();
+  });
+  box.querySelectorAll(".mde-mode button").forEach(b => b.onclick = e => {
+    e.preventDefault();
+    const m = b.dataset.mdm;
+    box.className = "mde mde-" + m;
+    box.querySelectorAll(".mde-mode button").forEach(x => x.classList.toggle("on", x === b));
+    store.set("gp_mdmode", m);
+    draw();
+  });
+  ta.addEventListener("keydown", e => {
+    const meta = e.metaKey || e.ctrlKey;
+    if (meta && e.key.toLowerCase() === "b"){ e.preventDefault(); mdApply(ta, "bold"); paint(); }
+    else if (meta && e.key.toLowerCase() === "i"){ e.preventDefault(); mdApply(ta, "italic"); paint(); }
+    else if (e.key === "Tab"){
+      e.preventDefault();
+      ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end");
+    }
+  });
+  draw(); paint();
+}
 /* ============================================================
    GANTT
    Rows are goal -> milestone -> task, collapsible to any depth.
@@ -3054,9 +3341,9 @@ function openIdea(id){
    MODALS
    ============================================================ */
 function modal(html, opts){
-  const wide = opts && opts.wide ? " wide" : "";
+  const cls = (opts && opts.wide ? " wide" : "") + (opts && opts.tall ? " tall" : "");
   document.body.insertAdjacentHTML("beforeend",
-    '<div class="scrim" id="scrim"><div class="modal' + wide + '" role="dialog" aria-modal="true">' + html + '</div></div>');
+    '<div class="scrim" id="scrim"><div class="modal' + cls + '" role="dialog" aria-modal="true">' + html + '</div></div>');
   const scrim = $("#scrim");
   const close = () => { scrim.remove(); document.removeEventListener("keydown", onEsc); };
   function onEsc(e){ if (e.key === "Escape") close(); }
@@ -3356,9 +3643,11 @@ function openDoc(key){
         '<input class="input" id="dSummary" value="' + esc(v("summary")) + '"></div>' +
       '<div class="field"><label for="dBody">Body <span class="hint" style="display:inline">' +
         'Markdown. Use [[Document title]] to link to another page.</span></label>' +
-        '<textarea class="input md-edit" id="dBody">' + esc(v("body")) + '</textarea></div>' +
+        mdField("dBody", v("body"), "Write the page. The right half is what people will read.") +
+      '</div>' +
     '</div>' +
-    foot(doc ? "Save document" : "Create document"), { wide:true });
+    foot(doc ? "Save document" : "Create document"), { wide:true, tall:true });
+  wireMd("dBody");
   $("#dTitle").focus();
   $("#mSave").onclick = async () => {
     const title = $("#dTitle").value.trim();
@@ -3771,6 +4060,532 @@ function openProfile(name){
 }
 
 /* ============================================================
+   ADS  ·  the whiteboard
+   A campaign is a wall. Every ad on it is a card that moves left
+   to right as it gets realer: an idea, a draft, ready, running,
+   stopped. Anyone can pin one up, and every card and every note
+   carries a name and a time, so the wall reads as a conversation
+   rather than a filing cabinet.
+
+   The picture on a card is a small reference image kept in the
+   database. Finished creatives belong in the Azure container and
+   are linked from the card: see CONTEXT.md section 6.
+   ============================================================ */
+const AD_STAGES = [
+  { k:"idea",     label:"Idea",     sub:"a thought, nothing written", tone:"mute" },
+  { k:"drafting", label:"Drafting", sub:"copy and visual being made", tone:"warn" },
+  { k:"ready",    label:"Ready",    sub:"could go live today",        tone:"ok"   },
+  { k:"live",     label:"Running",  sub:"out in the world",           tone:"ok"   },
+  { k:"killed",   label:"Stopped",  sub:"kept so we remember why",    tone:"mute" }
+];
+const AD_FORMATS   = ["Static","Story","Reel","Feed post","Video","Carousel","Text only"];
+const AD_PLATFORMS = ["Meta","Instagram","Google","Reddit","TikTok","YouTube","Email","Other"];
+const CAMPAIGN_STATUS = [
+  { k:"draft",  t:"Planning" },
+  { k:"live",   t:"Running"  },
+  { k:"paused", t:"Paused"   },
+  { k:"done",   t:"Finished" }
+];
+const LOOSE = "loose";          // the board for ads that belong to no campaign
+
+function campaignsAll(){ return (DATA.campaigns || []).slice(); }
+function adsOf(id){
+  return (DATA.ads || []).filter(a => id === LOOSE ? !a.campaign_id : a.campaign_id === id);
+}
+function notesOf(adId, campaignId){
+  return (DATA.ad_notes || []).filter(n =>
+    adId ? n.ad_id === adId : (n.campaign_id === campaignId && !n.ad_id));
+}
+function stageMeta(k){ return AD_STAGES.find(s => s.k === k) || AD_STAGES[0]; }
+function money(n, cur){
+  if (n == null || n === "") return "";
+  const sym = cur === "USD" ? "$" : cur === "GBP" ? "£" : "€";
+  return sym + Number(n).toLocaleString();
+}
+
+/* ---- the pictures, fetched one campaign at a time so pm_bootstrap stays small ---- */
+const AD_SHOTS = {};
+const AD_SHOTS_ASKED = new Set();
+async function ensureAdShots(ids){
+  const want = ids.filter(id => !(id in AD_SHOTS) && !AD_SHOTS_ASKED.has(id));
+  if (!want.length) return;
+  want.forEach(id => AD_SHOTS_ASKED.add(id));
+  try {
+    const got = await rpc("pm_ad_shots", { p_token:TOKEN, p_ids:want });
+    Object.assign(AD_SHOTS, got || {});
+    want.forEach(id => { if (!(id in AD_SHOTS)) AD_SHOTS[id] = null; });
+    render();
+  } catch(err){ want.forEach(id => AD_SHOTS_ASKED.delete(id)); }
+}
+
+/* fit inside a box, keep the shape, small enough to live in a row */
+function fitImageDataUrl(file, maxEdge, quality){
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error("Could not read that file"));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("The browser cannot open that image. JPEG, PNG or WebP."));
+      img.onload = () => {
+        const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * scale));
+        const h = Math.max(1, Math.round(img.height * scale));
+        const c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        const ctx = c.getContext("2d");
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL("image/jpeg", quality || 0.72));
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+/* ============================================================
+   THE SHELF  ·  every campaign, and the loose ads
+   ============================================================ */
+function renderAds(){
+  const camps = campaignsAll();
+  const loose = adsOf(LOOSE);
+
+  let out = '<div class="wrap">' +
+    '<div class="panel-head" style="border:none;padding:0 0 6px">' +
+      '<h2 style="font-size:17px">Ads</h2>' +
+      '<span class="sub">campaigns, and the creative on the wall of each one</span>' +
+      '<div class="spacer"></div>' +
+      '<button class="btn btn-ghost btn-sm" id="newAd">+ Ad</button>' +
+      '<button class="btn btn-primary btn-sm" id="newCampaign">+ Campaign</button>' +
+    '</div>' +
+    '<p class="note" style="margin:0 0 16px;max-width:700px">A campaign holds the ' +
+    'decisions: who it is aimed at, what it costs, when it runs. The wall inside it ' +
+    'holds the work: one card per ad, moving right as it gets realer. Pin up a ' +
+    'half-thought, somebody else will finish it.</p>';
+
+  if (!camps.length && !loose.length){
+    return out + '<div class="empty">No campaigns yet. Start one, or pin a single ad ' +
+      'up and give it a campaign later.</div></div>';
+  }
+
+  if (camps.length){
+    out += '<div class="grid-auto">' + camps.map(campaignCard).join("") + '</div>';
+  }
+  if (loose.length){
+    out += '<div class="section-title">Not in a campaign' +
+      '<span class="st-sub">' + loose.length + (loose.length === 1 ? ' ad' : ' ads') + '</span></div>' +
+      '<div class="grid-auto">' + campaignCard({ id:LOOSE, name:"Loose ads",
+        objective:"Single ads with no campaign behind them yet.", color:"#8A8A8A",
+        status:"draft", platform:"" }) + '</div>';
+  }
+  return out + '</div>';
+}
+
+function campaignCard(c){
+  const ads = adsOf(c.id);
+  const counts = AD_STAGES.map(s => ({ s, n: ads.filter(a => a.stage === s.k).length }));
+  const stat = CAMPAIGN_STATUS.find(x => x.k === c.status) || CAMPAIGN_STATUS[0];
+  const live = ads.filter(a => a.stage === "live").length;
+  const last = ads.map(a => a.updated_at).sort().pop();
+
+  return '<div class="camp" data-camp="' + esc(c.id) + '" style="--gc:' + (c.color || "#EF6E45") + '">' +
+    '<div class="camp-top">' +
+      '<span class="pill ' + (c.status === "live" ? "ok" : c.status === "paused" ? "warn" : "mute") + '">' +
+        esc(stat.t) + '</span>' +
+      (c.platform ? '<span class="pill mute">' + esc(c.platform) + '</span>' : '') +
+      '<div class="spacer"></div>' +
+      (c.owner ? avatar(c.owner, c.owner + " owns this") : "") +
+    '</div>' +
+    '<h3>' + esc(c.name) + '</h3>' +
+    (c.objective ? '<p>' + esc(c.objective) + '</p>' : '') +
+    '<div class="camp-bar">' + counts.map(x =>
+      '<span class="cb ' + x.s.k + '" style="flex:' + (x.n || 0.08) + '" ' +
+      'title="' + x.n + ' ' + esc(x.s.label.toLowerCase()) + '"></span>').join("") + '</div>' +
+    '<div class="camp-foot">' +
+      '<span class="note">' + ads.length + (ads.length === 1 ? ' ad' : ' ads') +
+        (live ? ' · <b style="color:var(--ok)">' + live + ' running</b>' : '') + '</span>' +
+      '<div class="spacer"></div>' +
+      (c.budget_amount != null ? '<span class="note">' + money(c.budget_amount, c.budget_currency) + '</span>' : '') +
+      (c.ends ? '<span class="note">to ' + fmtDate(c.ends) + '</span>' : '') +
+      (last && !c.ends ? '<span class="note">' + ago(last) + '</span>' : '') +
+    '</div>' +
+  '</div>';
+}
+
+/* ============================================================
+   ONE WALL  ·  lanes you drag across
+   ============================================================ */
+function renderAdBoard(){
+  const id = UI.adCampaign;
+  const c = id === LOOSE
+    ? { id:LOOSE, name:"Loose ads", color:"#8A8A8A", objective:"Ads with no campaign behind them yet." }
+    : (DATA.campaigns || []).find(x => x.id === id);
+  if (!c){ UI.adCampaign = null; return renderAds(); }
+  const ads = adsOf(c.id);
+  const real = id !== LOOSE;
+  const stat = CAMPAIGN_STATUS.find(x => x.k === c.status) || CAMPAIGN_STATUS[0];
+  const wall = notesOf(null, c.id);
+
+  let out = '<div class="wrap" style="max-width:none">' +
+    '<button class="btn btn-ghost btn-sm" data-goview="ads" style="margin-bottom:12px">' +
+      '← All campaigns</button>' +
+    '<div class="panel" style="border-left:4px solid ' + (c.color || "#EF6E45") + '">' +
+      '<div class="panel-head">' +
+        '<h3 style="font-size:17px">' + esc(c.name) + '</h3>' +
+        (real ? '<span class="pill ' + (c.status === "live" ? "ok" : c.status === "paused" ? "warn" : "mute") +
+          '">' + esc(stat.t) + '</span>' : '') +
+        (c.platform ? '<span class="pill mute">' + esc(c.platform) + '</span>' : '') +
+        '<div class="spacer"></div>' +
+        (real ? '<button class="btn btn-ghost btn-sm" id="copyBrief">Copy the brief</button>' : '') +
+        (real ? '<button class="btn btn-ghost btn-sm" data-editcamp="' + esc(c.id) + '">Edit</button>' : '') +
+        '<button class="btn btn-primary btn-sm" id="newAdHere">+ Ad</button>' +
+      '</div>' +
+      '<div class="panel-body">' +
+        (c.objective ? '<p class="note" style="margin:0 0 10px">' + esc(c.objective) + '</p>' : '') +
+        (real ? '<div class="camp-facts">' +
+          (c.audience ? '<div><b>Who</b>' + esc(c.audience) + '</div>' : '') +
+          (c.budget_amount != null ? '<div><b>Budget</b>' + money(c.budget_amount, c.budget_currency) + '</div>' : '') +
+          (c.starts || c.ends ? '<div><b>When</b>' + esc(fmtDate(c.starts)) +
+            (c.ends ? ' to ' + esc(fmtDateY(c.ends)) : '') + '</div>' : '') +
+          (c.owner ? '<div><b>Owner</b>' + esc(c.owner) + '</div>' : '') +
+        '</div>' : '') +
+        (c.brief ? '<details class="fold" style="margin:12px 0 0"><summary>The brief</summary>' +
+          '<div class="prose" style="margin-top:10px">' + md(c.brief) + '</div></details>' : '') +
+      '</div>' +
+    '</div>';
+
+  out += '<div class="lanes">' + AD_STAGES.map(s => {
+    const got = ads.filter(a => a.stage === s.k);
+    return '<div class="lane" data-adrop="' + s.k + '">' +
+      '<div class="lane-head"><b>' + esc(s.label) + '</b>' +
+        '<span class="count">' + got.length + '</span>' +
+        '<small>' + esc(s.sub) + '</small></div>' +
+      '<div class="lane-body">' + got.map(adCard).join("") +
+        '<button class="lane-add" data-addto="' + s.k + '">+ Pin one up</button>' +
+      '</div>' +
+    '</div>';
+  }).join("") + '</div>';
+
+  /* the wall note: a line about the campaign, not about one ad */
+  out += '<div class="section-title">On the wall<span class="st-sub">notes about the campaign itself</span></div>' +
+    '<div class="panel" style="max-width:760px"><div class="panel-body">' +
+      (wall.length ? '<div class="notes">' + wall.map(noteRow).join("") + '</div>'
+                   : '<div class="empty" style="padding:14px">Nothing written here yet.</div>') +
+      '<div class="note-add">' +
+        '<input class="input" id="wallNote" placeholder="Add a line. It goes up with your name on it.">' +
+        '<button class="btn btn-ghost btn-sm" id="wallSend">Pin it</button>' +
+      '</div>' +
+    '</div></div>';
+
+  return out + '</div>';
+}
+
+function noteRow(n){
+  return '<div class="nrow">' + avatar(n.author) +
+    '<div class="nbody"><b>' + esc(n.author) + '</b> <span class="when">' + ago(n.at) + '</span>' +
+    '<p>' + esc(n.body) + '</p></div>' +
+    (n.author === ME ? '<button class="nx" data-delnote="' + n.id + '" title="Remove">×</button>' : '') +
+  '</div>';
+}
+
+function adCard(a){
+  const shot = AD_SHOTS[a.id];
+  const notes = notesOf(a.id).length;
+  const f = (DATA.files || []).find(x => x.id === a.file_id);
+  return '<div class="adcard" draggable="true" data-ad="' + a.id + '">' +
+    (a.has_shot
+      ? (shot ? '<img class="adshot" src="' + shot + '" alt="">' : '<div class="adshot ph"></div>')
+      : (f && f.thumb_url ? '<img class="adshot" src="' + esc(f.thumb_url) + '" alt="">' : '')) +
+    '<div class="adbody">' +
+      '<div class="adtop">' +
+        (a.format ? '<span class="pill mute">' + esc(a.format) + '</span>' : '') +
+        '<div class="spacer"></div>' +
+        (a.author ? avatar(a.author, "Pinned up by " + a.author) : "") +
+      '</div>' +
+      '<h4>' + esc(a.name) + '</h4>' +
+      (a.headline ? '<p class="adh">' + esc(a.headline) + '</p>' : '') +
+      (a.body ? '<p class="adb">' + esc(a.body.slice(0, 120)) + (a.body.length > 120 ? "…" : "") + '</p>' : '') +
+      '<div class="adfoot">' +
+        (a.cta ? '<span class="cta">' + esc(a.cta) + '</span>' : '') +
+        '<div class="spacer"></div>' +
+        (notes ? '<span class="note" title="' + notes + ' notes">● ' + notes + '</span>' : '') +
+        '<span class="note">' + ago(a.updated_at) + '</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* ============================================================
+   THE CARD, OPENED
+   ============================================================ */
+function openAd(id, seed){
+  const a = id ? (DATA.ads || []).find(x => x.id === id) : null;
+  const v = (k, d) => (a && a[k] != null ? a[k] : ((seed && seed[k]) ?? d ?? ""));
+  const camps = campaignsAll().map(c => ({ id:c.id, name:c.name }));
+  const notes = a ? notesOf(a.id) : [];
+  const shot = a && a.has_shot ? AD_SHOTS[a.id] : null;
+
+  const close = modal(
+    head(a ? "Ad" : "Pin up an ad", a && a.format) +
+    '<div class="modal-body">' +
+      '<div class="field"><label for="aName">What is it</label>' +
+        '<input class="input" id="aName" value="' + esc(v("name")) + '" ' +
+        'placeholder="Sunday night, no plan, 20 minutes"></div>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="aCamp">Campaign</label><select class="input" id="aCamp">' +
+          selOpts(camps, v("campaign_id"), "No campaign") + '</select></div>' +
+        '<div class="field"><label for="aFormat">Format</label><select class="input" id="aFormat">' +
+          selOpts(AD_FORMATS, v("format"), "Not set") + '</select></div>' +
+        '<div class="field"><label for="aStage">Where it is</label><select class="input" id="aStage">' +
+          selOpts(AD_STAGES.map(s => ({ k:s.k, t:s.label })), v("stage","idea")) + '</select></div>' +
+      '</div>' +
+      '<div class="field"><label for="aHead">The hook</label>' +
+        '<input class="input" id="aHead" value="' + esc(v("headline")) + '" ' +
+        'placeholder="The line somebody reads first"></div>' +
+      '<div class="field"><label for="aBody">The words</label>' +
+        '<textarea class="input" id="aBody" style="min-height:96px" ' +
+        'placeholder="The body copy, as it would run.">' + esc(v("body")) + '</textarea></div>' +
+      '<div class="grid2">' +
+        '<div class="field"><label for="aCta">Button</label>' +
+          '<input class="input" id="aCta" value="' + esc(v("cta")) + '" placeholder="Get my plan"></div>' +
+        '<div class="field"><label for="aOwner">Who is making it</label><select class="input" id="aOwner">' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "Nobody yet") + '</select></div>' +
+      '</div>' +
+      '<div class="field"><label for="aVisual">The picture, in words</label>' +
+        '<textarea class="input" id="aVisual" style="min-height:62px" ' +
+        'placeholder="What it should look like, so somebody else could make it.">' + esc(v("visual")) + '</textarea></div>' +
+
+      '<div class="section-title" style="margin:16px 0 8px">The picture</div>' +
+      '<div class="adshot-edit">' +
+        '<div class="adshot-box" id="aShotBox">' +
+          (shot ? '<img src="' + shot + '" alt="">' :
+           a && a.has_shot ? '<span class="note">loading</span>' :
+           '<span class="note">No picture</span>') +
+        '</div>' +
+        '<div style="flex:1;min-width:200px">' +
+          '<input type="file" id="aShotFile" accept="image/png,image/jpeg,image/webp" hidden>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">' +
+            '<button class="btn btn-ghost btn-sm" id="aShotPick"' + (a ? '' : ' disabled') + '>' +
+              'Choose a picture</button>' +
+            (a && a.has_shot ? '<button class="btn btn-ghost btn-sm" id="aShotDrop">Remove it</button>' : '') +
+          '</div>' +
+          '<span class="hint">' + (a
+            ? 'A reference to think with: it is shrunk to 560px and kept in the database, ' +
+              'behind the passcode. The finished creative belongs in the brand container, ' +
+              'and goes on the card as a link below.'
+            : 'Save the card first, then you can put a picture on it.') + '</span>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="grid2" style="margin-top:14px">' +
+        '<div class="field"><label for="aLink">Where it points</label>' +
+          '<input class="input" id="aLink" value="' + esc(v("link_url")) + '" placeholder="https://goprep…"></div>' +
+        '<div class="field"><label for="aRef">Reference or asset</label>' +
+          '<input class="input" id="aRef" value="' + esc(v("ref_url")) + '" ' +
+          'placeholder="a link to the file, or the ad that inspired it"></div>' +
+      '</div>' +
+
+      (a ? '<div class="section-title" style="margin:18px 0 8px">What people said</div>' +
+        (notes.length ? '<div class="notes">' + notes.map(noteRow).join("") + '</div>'
+                      : '<div class="empty" style="padding:12px">Nothing yet.</div>') +
+        '<div class="note-add">' +
+          '<input class="input" id="adNote" placeholder="Say what you think. Your name goes on it.">' +
+          '<button class="btn btn-ghost btn-sm" id="adNoteSend">Add</button>' +
+        '</div>' : '') +
+    '</div>' +
+    '<div class="modal-foot">' +
+      (a ? '<button class="btn btn-danger" id="aDel">Take it down</button>' : '') +
+      (a ? '<button class="btn btn-ghost" id="aTask">Make it a task</button>' : '') +
+      '<div class="spacer"></div>' +
+      '<button class="btn btn-ghost" id="mCancel">Cancel</button>' +
+      '<button class="btn btn-primary" id="mSave">' + (a ? "Save" : "Pin it up") + '</button>' +
+    '</div>', { wide:true });
+
+  $("#aName").focus();
+  if (a && a.has_shot && !shot) ensureAdShots([a.id]);
+
+  $("#mSave").onclick = async () => {
+    const name = $("#aName").value.trim();
+    if (!name) return toast("Give the card a name", true);
+    const payload = { name, campaign_id:$("#aCamp").value, format:$("#aFormat").value,
+                      stage:$("#aStage").value, headline:$("#aHead").value.trim(),
+                      body:$("#aBody").value.trim(), cta:$("#aCta").value.trim(),
+                      visual:$("#aVisual").value.trim(), owner:$("#aOwner").value,
+                      link_url:$("#aLink").value.trim(), ref_url:$("#aRef").value.trim() };
+    if (a) payload.id = a.id;
+    $("#mSave").disabled = true;
+    try {
+      const row = await rpc("pm_save_ad", { p_token:TOKEN, p_ad:payload, p_actor:ME });
+      close(); await refresh(true);
+      if (!a && row && row.id) openAd(row.id);
+      toast(a ? "Saved" : "Up on the wall");
+    } catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
+  };
+
+  if (a){
+    const pick = $("#aShotPick"), file = $("#aShotFile");
+    pick.onclick = () => file.click();
+    file.onchange = async () => {
+      const f = file.files && file.files[0];
+      if (!f) return;
+      pick.disabled = true; pick.textContent = "Shrinking…";
+      try {
+        const url = await fitImageDataUrl(f, 560, 0.72);
+        if (url.length > 220000) throw new Error("Still too big after shrinking. Try a smaller picture.");
+        await rpc("pm_set_ad_shot", { p_token:TOKEN, p_ad_id:a.id, p_data:url, p_actor:ME });
+        AD_SHOTS[a.id] = url;
+        close(); await refresh(true); openAd(a.id);
+        toast("Picture on the card");
+      } catch(err){
+        pick.disabled = false; pick.textContent = "Choose a picture";
+        toast(err.message, true);
+      }
+    };
+    const drop = $("#aShotDrop");
+    if (drop) drop.onclick = async () => {
+      try {
+        await rpc("pm_set_ad_shot", { p_token:TOKEN, p_ad_id:a.id, p_data:null, p_actor:ME });
+        delete AD_SHOTS[a.id]; AD_SHOTS_ASKED.delete(a.id);
+        close(); await refresh(true); openAd(a.id); toast("Picture removed");
+      } catch(err){ fail(err, "Could not remove it"); }
+    };
+
+    const send = async () => {
+      const body = $("#adNote").value.trim();
+      if (!body) return;
+      try {
+        await rpc("pm_add_ad_note", { p_token:TOKEN, p_ad_id:a.id, p_campaign_id:null,
+                                      p_body:body, p_actor:ME });
+        close(); await refresh(true); openAd(a.id);
+      } catch(err){ fail(err, "Could not add that"); }
+    };
+    $("#adNoteSend").onclick = send;
+    $("#adNote").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+    $$("[data-delnote]").forEach(el => el.onclick = async () => {
+      try { await rpc("pm_delete_ad_note", { p_token:TOKEN, p_id:Number(el.dataset.delnote), p_actor:ME });
+            close(); await refresh(true); openAd(a.id); }
+      catch(err){ fail(err, "Could not remove that"); }
+    });
+
+    $("#aDel").onclick = async () => {
+      if (!confirm("Take “" + a.name + "” off the wall?")) return;
+      try { await rpc("pm_delete_ad", { p_token:TOKEN, p_id:a.id, p_actor:ME });
+            close(); await refresh(true); toast("Taken down"); }
+      catch(err){ fail(err, "Could not remove it"); }
+    };
+    $("#aTask").onclick = () => {
+      close();
+      openTask(null, { title:"Make the ad: " + a.name,
+        description:[a.headline, a.body, a.visual].filter(Boolean).join("\n\n") });
+    };
+  }
+}
+
+function openCampaign(id){
+  const c = id ? (DATA.campaigns || []).find(x => x.id === id) : null;
+  const v = (k, d) => (c && c[k] != null ? c[k] : (d ?? ""));
+  const close = modal(
+    head(c ? "Campaign" : "New campaign") +
+    '<div class="modal-body">' +
+      '<div class="field"><label for="cName">Campaign</label>' +
+        '<input class="input" id="cName" value="' + esc(v("name")) + '" ' +
+        'placeholder="January, the people who already cook"></div>' +
+      '<div class="field"><label for="cObj">What it is for</label>' +
+        '<input class="input" id="cObj" value="' + esc(v("objective")) + '" ' +
+        'placeholder="One line. What changes if this works."></div>' +
+      '<div class="field"><label for="cAud">Who it is aimed at</label>' +
+        '<textarea class="input" id="cAud" style="min-height:58px" ' +
+        'placeholder="The archetype, in your own words.">' + esc(v("audience")) + '</textarea></div>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="cPlat">Where</label><select class="input" id="cPlat">' +
+          selOpts(AD_PLATFORMS, v("platform"), "Not set") + '</select></div>' +
+        '<div class="field"><label for="cStatus">Status</label><select class="input" id="cStatus">' +
+          selOpts(CAMPAIGN_STATUS, v("status","draft")) + '</select></div>' +
+        '<div class="field"><label for="cOwner">Owner</label><select class="input" id="cOwner">' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner", ME), "Not set") + '</select></div>' +
+      '</div>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="cBudget">Budget</label>' +
+          '<input class="input" id="cBudget" type="number" step="any" value="' + esc(v("budget_amount")) + '"></div>' +
+        '<div class="field"><label for="cStarts">Starts</label>' +
+          '<input class="input" id="cStarts" type="date" value="' + esc(v("starts")) + '"></div>' +
+        '<div class="field"><label for="cEnds">Ends</label>' +
+          '<input class="input" id="cEnds" type="date" value="' + esc(v("ends")) + '"></div>' +
+      '</div>' +
+      '<div class="field" style="flex:1;display:flex;flex-direction:column;min-height:0">' +
+        '<label for="cBrief">The brief <span class="hint" style="display:inline">' +
+        'Everything a designer or a writer would need. This is what Copy the brief sends them.</span></label>' +
+        mdField("cBrief", v("brief"), "The argument, the proof, the tone, the thing to avoid.") +
+      '</div>' +
+    '</div>' +
+    foot(c ? "Save campaign" : "Create campaign",
+         c ? '<button class="btn btn-danger" id="cDel">Archive</button>' : ""),
+    { wide:true, tall:true });
+  wireMd("cBrief");
+  $("#cName").focus();
+
+  $("#mSave").onclick = async () => {
+    const name = $("#cName").value.trim();
+    if (!name) return toast("Give the campaign a name", true);
+    const payload = { name, objective:$("#cObj").value.trim(), audience:$("#cAud").value.trim(),
+                      platform:$("#cPlat").value, status:$("#cStatus").value, owner:$("#cOwner").value,
+                      budget_amount:$("#cBudget").value, starts:$("#cStarts").value,
+                      ends:$("#cEnds").value, brief:$("#cBrief").value };
+    if (c) payload.id = c.id;
+    $("#mSave").disabled = true;
+    try {
+      const row = await rpc("pm_save_campaign", { p_token:TOKEN, p_c:payload, p_actor:ME });
+      close(); await refresh(true);
+      if (!c && row && row.id){ UI.adCampaign = row.id; store.set("gp_adcamp", row.id); goView("ad-board"); }
+      toast(c ? "Saved" : "Campaign started");
+    } catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
+  };
+  if (c) $("#cDel").onclick = async () => {
+    if (!confirm("Archive “" + c.name + "”? Its ads stay, with no campaign.")) return;
+    try { await rpc("pm_delete_campaign", { p_token:TOKEN, p_id:c.id, p_actor:ME });
+          close(); UI.adCampaign = null; goView("ads"); await refresh(true); toast("Archived"); }
+    catch(err){ fail(err, "Could not archive"); }
+  };
+}
+
+/* ---- what you send somebody who has to make the thing ---- */
+function campaignBrief(c){
+  const ads = adsOf(c.id);
+  const L = [];
+  L.push("# " + c.name);
+  if (c.objective) L.push("", c.objective);
+  const facts = [];
+  if (c.platform) facts.push("Where: " + c.platform);
+  if (c.budget_amount != null) facts.push("Budget: " + money(c.budget_amount, c.budget_currency));
+  if (c.starts || c.ends) facts.push("When: " + fmtDate(c.starts) + (c.ends ? " to " + fmtDateY(c.ends) : ""));
+  if (c.owner) facts.push("Owner: " + c.owner);
+  if (facts.length) L.push("", facts.join("  ·  "));
+  if (c.audience) L.push("", "## Who it is aimed at", "", c.audience);
+  if (c.brief) L.push("", "## The brief", "", c.brief);
+
+  AD_STAGES.forEach(s => {
+    const got = ads.filter(a => a.stage === s.k);
+    if (!got.length) return;
+    L.push("", "## " + s.label);
+    got.forEach(a => {
+      L.push("", "### " + a.name + (a.format ? "  (" + a.format + ")" : ""));
+      if (a.headline) L.push("", "Hook: " + a.headline);
+      if (a.body) L.push("", a.body);
+      if (a.cta) L.push("", "Button: " + a.cta);
+      if (a.visual) L.push("", "Picture: " + a.visual);
+      if (a.link_url) L.push("", "Points at: " + a.link_url);
+      if (a.ref_url) L.push("", "Reference: " + a.ref_url);
+      if (a.owner) L.push("", "Making it: " + a.owner);
+      const ns = notesOf(a.id);
+      if (ns.length) L.push("", ns.map(n => "- " + n.author + ": " + n.body).join("\n"));
+    });
+  });
+  const wall = notesOf(null, c.id);
+  if (wall.length) L.push("", "## On the wall", "", wall.map(n => "- " + n.author + ": " + n.body).join("\n"));
+  return L.join("\n");
+}
+
+/* ============================================================
    RENDER
    ============================================================ */
 const RENDERERS = {
@@ -3782,6 +4597,8 @@ const RENDERERS = {
   "journey-user":  renderJourney,
   "journey-value": renderJourney,
   ideas:    renderIdeas,
+  ads:        renderAds,
+  "ad-board": renderAdBoard,
   "mkt-strategy": renderMktDoc,
   "mkt-q1":       renderMktDoc,
   "mkt-persona": renderMktDoc,
@@ -4013,6 +4830,89 @@ function wireMain(){
   $$("[data-editidea]").forEach(el => el.onclick = () => openIdea(el.dataset.editidea));
   const ni = $("#newIdea"); if (ni) ni.onclick = () => openIdea(null);
 
+  /* ---- the ad wall ---- */
+  $$("[data-camp]").forEach(el => el.onclick = () => {
+    UI.adCampaign = el.dataset.camp;
+    store.set("gp_adcamp", UI.adCampaign);
+    goView("ad-board");
+  });
+  $$("[data-editcamp]").forEach(el => el.onclick = e => { e.stopPropagation(); openCampaign(el.dataset.editcamp); });
+  $$("[data-ad]").forEach(el => el.addEventListener("click", () => openAd(el.dataset.ad)));
+  $$("[data-addto]").forEach(el => el.onclick = () => openAd(null, {
+    stage: el.dataset.addto,
+    campaign_id: UI.adCampaign === "loose" ? "" : UI.adCampaign
+  }));
+  const nc = $("#newCampaign"); if (nc) nc.onclick = () => openCampaign(null);
+  const na2 = $("#newAd");      if (na2) na2.onclick = () => openAd(null);
+  const nah = $("#newAdHere");  if (nah) nah.onclick = () => openAd(null, {
+    campaign_id: UI.adCampaign === "loose" ? "" : UI.adCampaign });
+
+  /* cards drag between lanes, the same gesture as the task board */
+  let adDrag = null;
+  $$(".adcard").forEach(el => {
+    el.addEventListener("dragstart", e => {
+      adDrag = el.dataset.ad;
+      el.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      try { e.dataTransfer.setData("text/plain", adDrag); } catch(err){}
+    });
+    el.addEventListener("dragend", () => { el.classList.remove("dragging"); adDrag = null; });
+  });
+  $$(".lane[data-adrop]").forEach(col => {
+    col.addEventListener("dragover", e => { e.preventDefault(); col.classList.add("drop"); });
+    col.addEventListener("dragleave", () => col.classList.remove("drop"));
+    col.addEventListener("drop", async e => {
+      e.preventDefault();
+      col.classList.remove("drop");
+      const id = adDrag || e.dataTransfer.getData("text/plain");
+      const stage = col.dataset.adrop;
+      const ad = (DATA.ads || []).find(x => x.id === id);
+      if (!ad || ad.stage === stage) return;
+      const prev = ad.stage;
+      ad.stage = stage;                   // optimistic
+      render();
+      try {
+        await rpc("pm_set_ad_stage", { p_token:TOKEN, p_id:id, p_stage:stage, p_actor:ME });
+        await refresh(true);
+      } catch(err){ ad.stage = prev; render(); fail(err, "Could not move that card"); }
+    });
+  });
+
+  const wallSend = $("#wallSend");
+  if (wallSend){
+    const send = async () => {
+      const body = $("#wallNote").value.trim();
+      if (!body) return;
+      wallSend.disabled = true;
+      try {
+        await rpc("pm_add_ad_note", { p_token:TOKEN, p_ad_id:null,
+                                      p_campaign_id:UI.adCampaign === "loose" ? null : UI.adCampaign,
+                                      p_body:body, p_actor:ME });
+        await refresh(true);
+      } catch(err){ wallSend.disabled = false; fail(err, "Could not pin that up"); }
+    };
+    wallSend.onclick = send;
+    $("#wallNote").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+  }
+  $$("[data-delnote]").forEach(el => el.onclick = async e => {
+    e.stopPropagation();
+    try { await rpc("pm_delete_ad_note", { p_token:TOKEN, p_id:Number(el.dataset.delnote), p_actor:ME });
+          await refresh(true); }
+    catch(err){ fail(err, "Could not remove that"); }
+  });
+  const cb = $("#copyBrief");
+  if (cb) cb.onclick = async () => {
+    const c = (DATA.campaigns || []).find(x => x.id === UI.adCampaign);
+    if (!c) return;
+    try { await navigator.clipboard.writeText(campaignBrief(c));
+          toast("The brief is on your clipboard"); }
+    catch(err){ toast("Could not reach the clipboard", true); }
+  };
+  if (VIEW === "ad-board"){
+    const want = adsOf(UI.adCampaign).filter(a => a.has_shot).map(a => a.id);
+    if (want.length) ensureAdShots(want);
+  }
+
   const nth = $("#newTaskHere");
   if (nth) nth.onclick = () => openTask(null, { goal: UI.goal });
 
@@ -4063,7 +4963,8 @@ async function refresh(quiet){
       providers:x.providers||[], assets:x.assets||[],
       files:x.files||[], journey:x.journey||[],
       ideas:x.ideas||[], areas:x.areas||[],
-      metrics:x.metrics||[], activity:x.activity||[]
+      metrics:x.metrics||[], activity:x.activity||[],
+      campaigns:x.campaigns||[], ads:x.ads||[], ad_notes:x.ad_notes||[]
     };
     buildFilters();
     populateWho();

@@ -225,3 +225,188 @@ function goalPill(g){
   return '<span class="pill ' + (GOAL_STATUS_TONE[g.status] || "mute") + '">' + esc(g.status) + '</span>';
 }
 
+
+/* ============================================================
+   THE EDITOR
+   A textarea you can see all of, a toolbar that tells you what
+   the cursor is standing in, and the rendered page beside it.
+   Used by the handbook and by a campaign brief.
+   ============================================================ */
+const MD_TOOLS = [
+  { k:"bold",    lab:"<b>B</b>",            t:"Bold",            key:"B" },
+  { k:"italic",  lab:"<i>I</i>",            t:"Italic",          key:"I" },
+  { k:"h2",      lab:"H2",                  t:"Heading" },
+  { k:"h3",      lab:"H3",                  t:"Smaller heading" },
+  { k:"ul",      lab:"&bull;&nbsp;list",    t:"Bulleted list" },
+  { k:"ol",      lab:"1.&nbsp;list",        t:"Numbered list" },
+  { k:"quote",   lab:"&ldquo;",             t:"Quote" },
+  { k:"code",    lab:"&lt;/&gt;",           t:"Code" },
+  { k:"link",    lab:"link",                t:"Link" },
+  { k:"wiki",    lab:"[[&nbsp;]]",          t:"Link to another page in the handbook" },
+  { k:"hr",      lab:"rule",                t:"Divider line" }
+];
+
+function mdField(id, value, placeholder){
+  const mode = store.get("gp_mdmode") || "split";
+  return '<div class="mde mde-' + mode + '" data-mde="' + id + '">' +
+    '<div class="mde-bar">' +
+      MD_TOOLS.map(t => '<button type="button" class="mdt" data-md="' + t.k + '" data-for="' + id + '" ' +
+        'title="' + esc(t.t) + (t.key ? " · ⌘" + t.key : "") + '">' + t.lab + '</button>').join("") +
+      '<div class="spacer"></div>' +
+      '<span class="mde-ctx" id="' + id + '_ctx">Paragraph</span>' +
+      '<div class="seg mde-mode" data-for="' + id + '">' +
+        ["write","split","preview"].map(m => '<button type="button" data-mdm="' + m + '"' +
+          (mode === m ? ' class="on"' : '') + '>' + m[0].toUpperCase() + m.slice(1) + '</button>').join("") +
+      '</div>' +
+    '</div>' +
+    '<div class="mde-panes">' +
+      '<textarea class="input md-edit" id="' + id + '" spellcheck="true" ' +
+        'placeholder="' + esc(placeholder || "") + '">' + esc(value || "") + '</textarea>' +
+      '<div class="mde-prev prose" id="' + id + '_prev"></div>' +
+    '</div>' +
+  '</div>';
+}
+
+/* what the cursor is standing in, so the toolbar can say so */
+function mdContext(ta){
+  const val = ta.value, a = ta.selectionStart, b = ta.selectionEnd;
+  const ls = val.lastIndexOf("\n", a - 1) + 1;
+  let le = val.indexOf("\n", a); if (le < 0) le = val.length;
+  const line = val.slice(ls, le);
+  const sel = val.slice(a, b);
+  const fences = (val.slice(0, a).match(/^```/gm) || []).length;
+  const inFence = fences % 2 === 1;
+  const h = line.match(/^(#{1,6})\s/);
+  const around = (mark) => {
+    const before = val.slice(Math.max(0, a - mark.length), a);
+    const after = val.slice(b, b + mark.length);
+    if (before === mark && after === mark) return true;
+    return sel.length > mark.length * 2 && sel.startsWith(mark) && sel.endsWith(mark);
+  };
+  const on = {
+    bold:   !inFence && around("**"),
+    italic: !inFence && !around("**") && (around("*") || around("_")),
+    code:   inFence || around("`"),
+    h2:     !!h && h[1].length === 2,
+    h3:     !!h && h[1].length >= 3,
+    ul:     /^\s*[-*]\s/.test(line),
+    ol:     /^\s*\d+\.\s/.test(line),
+    quote:  /^\s*>/.test(line)
+  };
+  let label = "Paragraph";
+  if (inFence) label = "Code block";
+  else if (h) label = "Heading " + h[1].length;
+  else if (on.quote) label = "Quote";
+  else if (on.ul) label = "List item";
+  else if (on.ol) label = "Numbered item";
+  else if (!line.trim()) label = "Empty line";
+  const extra = [on.bold && "bold", on.italic && "italic", !inFence && on.code && "code"].filter(Boolean);
+  if (extra.length) label += " · " + extra.join(", ");
+  return { on, label, ls, le, line, sel, a, b };
+}
+
+function mdApply(ta, kind){
+  const val = ta.value, a = ta.selectionStart, b = ta.selectionEnd;
+  const ctx = mdContext(ta);
+  const put = (text, selStart, selEnd) => {
+    ta.setRangeText(text, selStart != null ? selStart : a, selEnd != null ? selEnd : b, "end");
+    ta.dispatchEvent(new Event("input", { bubbles:true }));
+  };
+  /* wrapping marks toggle: pressing bold inside bold takes it off again */
+  const wrap = (mark, hint) => {
+    const sel = val.slice(a, b);
+    if (sel.startsWith(mark) && sel.endsWith(mark) && sel.length > mark.length * 2){
+      put(sel.slice(mark.length, -mark.length)); return;
+    }
+    const before = val.slice(Math.max(0, a - mark.length), a);
+    const after  = val.slice(b, b + mark.length);
+    if (before === mark && after === mark){
+      ta.setRangeText(sel, a - mark.length, b + mark.length, "end");
+      ta.dispatchEvent(new Event("input", { bubbles:true }));
+      return;
+    }
+    put(mark + (sel || hint || "") + mark);
+    if (!sel){
+      const p = a + mark.length;
+      ta.setSelectionRange(p, p + (hint || "").length);
+    }
+  };
+  /* line marks apply to every line the selection touches, and toggle off */
+  const lineMark = (re, make) => {
+    let s = val.lastIndexOf("\n", a - 1) + 1;
+    let e = val.indexOf("\n", b); if (e < 0) e = val.length;
+    const lines = val.slice(s, e).split("\n");
+    const allOn = lines.every(l => re.test(l) || !l.trim());
+    const next = lines.map((l, i) => allOn ? l.replace(re, "") : (l.trim() || lines.length === 1 ? make(l, i) : l));
+    ta.setRangeText(next.join("\n"), s, e, "end");
+    ta.dispatchEvent(new Event("input", { bubbles:true }));
+  };
+
+  if (kind === "bold")   return wrap("**", "bold text");
+  if (kind === "italic") return wrap("_", "italic");
+  if (kind === "code")   return wrap("`", "code");
+  if (kind === "h2")     return lineMark(/^#{1,6}\s+/, l => "## " + l.replace(/^#{1,6}\s+/, ""));
+  if (kind === "h3")     return lineMark(/^#{1,6}\s+/, l => "### " + l.replace(/^#{1,6}\s+/, ""));
+  if (kind === "ul")     return lineMark(/^\s*[-*]\s+/, l => "- " + l.replace(/^\s*[-*]\s+/, ""));
+  if (kind === "ol")     return lineMark(/^\s*\d+\.\s+/, (l,i) => (i+1) + ". " + l.replace(/^\s*\d+\.\s+/, ""));
+  if (kind === "quote")  return lineMark(/^\s*>\s?/, l => "> " + l.replace(/^\s*>\s?/, ""));
+  if (kind === "hr")     return put((ctx.line.trim() ? "\n\n" : "") + "---\n\n");
+  if (kind === "link"){
+    const sel = val.slice(a, b) || "the words";
+    put("[" + sel + "](https://)");
+    const p = a + sel.length + 3;
+    ta.setSelectionRange(p, p + 8);
+    return;
+  }
+  if (kind === "wiki"){
+    const sel = val.slice(a, b) || "Document title";
+    put("[[" + sel + "]]");
+    if (!val.slice(a, b)) ta.setSelectionRange(a + 2, a + 2 + sel.length);
+  }
+}
+
+/* call once after a modal holding mdField() is in the document */
+function wireMd(id){
+  const ta = document.getElementById(id);
+  if (!ta) return;
+  const prev = document.getElementById(id + "_prev");
+  const ctxEl = document.getElementById(id + "_ctx");
+  const box = ta.closest(".mde");
+  const tools = Array.from(box.querySelectorAll(".mdt"));
+
+  const paint = () => {
+    const c = mdContext(ta);
+    tools.forEach(b => b.classList.toggle("on", !!c.on[b.dataset.md]));
+    if (ctxEl) ctxEl.textContent = c.label;
+  };
+  const draw = () => { if (prev) prev.innerHTML = md(ta.value); };
+  let t = null;
+  ta.addEventListener("input", () => { clearTimeout(t); t = setTimeout(draw, 140); paint(); });
+  ["keyup","click","focus","select"].forEach(e => ta.addEventListener(e, paint));
+  document.addEventListener("selectionchange", () => { if (document.activeElement === ta) paint(); });
+
+  tools.forEach(b => b.onclick = e => {
+    e.preventDefault();
+    ta.focus();
+    mdApply(ta, b.dataset.md);
+    paint();
+  });
+  box.querySelectorAll(".mde-mode button").forEach(b => b.onclick = e => {
+    e.preventDefault();
+    const m = b.dataset.mdm;
+    box.className = "mde mde-" + m;
+    box.querySelectorAll(".mde-mode button").forEach(x => x.classList.toggle("on", x === b));
+    store.set("gp_mdmode", m);
+    draw();
+  });
+  ta.addEventListener("keydown", e => {
+    const meta = e.metaKey || e.ctrlKey;
+    if (meta && e.key.toLowerCase() === "b"){ e.preventDefault(); mdApply(ta, "bold"); paint(); }
+    else if (meta && e.key.toLowerCase() === "i"){ e.preventDefault(); mdApply(ta, "italic"); paint(); }
+    else if (e.key === "Tab"){
+      e.preventDefault();
+      ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end");
+    }
+  });
+  draw(); paint();
+}
