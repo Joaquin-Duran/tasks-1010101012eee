@@ -3,7 +3,7 @@
 Everything a new session needs to pick this up. Read this first; the README covers
 what the board *is*, this covers how to *work on it*.
 
-Last updated 29 Aug 2026.
+Last updated 7 Oct 2026.
 
 ---
 
@@ -54,7 +54,12 @@ The page is public. The data is not.
   login with a 15-minute lockout after 8 failures.
 
 **Adding a table means:** RLS on, zero policies, revoke from `anon`, and reach it only
-through a new `SECURITY DEFINER` function that requires the token.
+through a new `SECURITY DEFINER` function that requires the token. Grant `execute` to
+`anon` and revoke it from `public`, which is the tightest pattern already in use
+(`pm_save_task`, `pm_bootstrap`). The four ad tables added in October follow it.
+
+A save that writes to `pm_activity` should also record what it changed: see the rule at
+the end of `docs/schema.md`.
 
 **`p_actor` is a claimed identity, not a verified one.** It is supplied by the caller on
 every write, `pm_reveal_secret` included, and the page sends `localStorage.gp_me`. That
@@ -142,6 +147,10 @@ Serve locally with `python3 -m http.server 8777 --directory ~/Downloads/goprep-b
 | `pm_journey_steps` | 16 steps across two journeys, each optionally bound to a task |
 | `pm_ideas` | The creative board |
 | `pm_areas` | Area labels and colours |
+| `pm_campaigns` | Ad campaigns. `status` is `draft`, `live`, `paused` or `done` |
+| `pm_ads` | Cards on a campaign wall. `stage` is `idea`, `drafting`, `ready`, `live` or `killed` |
+| `pm_ad_shots` | A card's reference picture, kept **out** of `pm_bootstrap` on purpose |
+| `pm_ad_notes` | Signed, timed notes on a card or on a campaign |
 
 Full column list in `docs/schema.md`, regenerated from the database.
 | `pm_people` | The roster. `photo_url` holds a profile photo, usually a data URI. `bio` is the short self description |
@@ -219,6 +228,16 @@ instead: the onboarding deck and five unchecked screenshots.
 For things that should not be public, add a row to `pm_assets` with a
 `location` and no `url`. The Files view lists those under "Elsewhere".
 
+### A picture on an ad card
+
+A card on the ad wall takes a reference picture, shrunk to 560px in the browser and kept
+in `pm_ad_shots`. That is a thumbnail to think with, not an asset library: it is capped
+at 220kB, it lives behind the passcode, and `pm_bootstrap` does not return it.
+
+**A finished creative still goes in the Azure container**, through `tools/add-files.py`
+above, and on to the card as a link. The card has two link fields for this: where the ad
+points, and the asset or reference.
+
 ### A file that is not in the container
 
 `pm_assets` is the curated pointer list: things that live in Drive, on a laptop,
@@ -228,22 +247,57 @@ or behind someone's login. Add one from the Files view with **+ Elsewhere**.
 
 ## 7. Navigation
 
-Seven destinations. Two have a second row. **Company is first, and the board always
+Six destinations. Three have a second row. **Company is first, and the board always
 opens there**: every load lands on Welcome, whatever was open last.
 
 ```
 Company        Welcome · Handbook · Team · Activity. The landing destination
-My week        tiles expand, buckets fold
-Where we are   mission + health checks + goals by area, cards expand in place
-Timeline       the roadmap: by goal (Gantt) or by phase
+Tasks          My week · Where we are · Timeline · Every task
 Marketing      Strategy · Q1 plan · Buyer persona · Competitors ·
                User journey · Value creation · Files
+Ads            campaigns, and a wall of cards inside each one
 Subscriptions  providers, infrastructure first
 Ideas          the creative board
 ```
 
+The four ways of reading the work are four ways of reading the *same* work, so they sit
+behind one tab. The destination key is `tasks` and so is the view key of Every task:
+different namespaces, and `VIEW_HOME` maps one to the other.
+
 Two pages have no tab and are reached by drilling: **a goal** (from Where we are) and
-**every task** (from My week). Clicking a roster card on Team opens **a person**.
+**a campaign wall** (from Ads). Clicking a roster card on Team opens **a person**.
+
+`PAGED` names the destinations whose second row is a reading order rather than four
+views of one thing: Company and Marketing get **Next and Back**, top and bottom, drawn
+by `pager()` in `render()` rather than by each view. Tasks deliberately does not.
+
+**The button top right always makes a task.** It used to make whatever the current view
+was about, which meant it meant nothing in particular. Every other thing that can be
+created has its own button on the page that holds it, so nothing was lost.
+
+**My week** is no longer Just me or Everyone. `UI.weekPeople` is a set of names and
+empty means everybody, so several people's weeks can be read together. The area chips
+filter by **the area of the goal a task serves**, not by `pm_tasks.category`: areas come
+from `pm_areas` and are what band the goals on Where we are, while a category is a
+smaller and different idea (Bug, Feature). `areaOfTask()` in part 06 is the one place
+that decides this.
+
+**The editor.** `mdField(id, value)` plus `wireMd(id)` gives a full-height editor with a
+toolbar, the rendered page beside it, and a line naming what the cursor is standing in.
+Used by the handbook and by a campaign brief. Modal option `tall` makes the dialog fill
+the window; the last `.field` in the body is what flexes.
+
+**An activity line opens.** `pm_activity.changes` holds the fields a save actually moved
+and `openActivity()` shows them, before and after, with ids resolved to names. See
+`docs/schema.md` for the rule every new `pm_save_*` has to follow, and for the two
+columns that can never reach a log.
+
+**Goals and milestones.** A goal form is five fields and a More fold; a milestone is a
+name and a date, added in one line from the goal page. Goal health has an automatic
+option that computes from the number against the window and **writes the answer**, so
+`pm_goals.status` stays the single source of truth rather than becoming a second one.
+The UI says This quarter, This year, Someday and Mission; the stored `horizon` values
+are untouched. Read the rename gotcha in section 11 before changing that.
 
 **Profile photos.** Anyone can put a photo on their own card. A pencil badge sits on the
 picture, opens the file browser, and the page centre-crops the chosen file to a square,
@@ -292,29 +346,31 @@ These were explicit requests. Keep them.
 
 ---
 
-## 9. Verified state, 30 Aug 2026
+## 9. Verified state, 7 Oct 2026
 
 Checked against the live database and the deployed page, not from memory.
 
-- `pm_sessions` holds 6 rows, all 30-day logins from 20 to 26 Aug. No test tokens
-  survive. Cleanup after temporary sessions has held.
-- The page ships **0 em dashes**. The rule in section 8 is about what users read;
-  the markdown in this repo had drifted from it and has now been brought in line.
-- Orange: the board uses `#EF6E45` in 6 places and `#E8693A` in none. There is no
-  conflict inside the board. The unresolved conflict is between two source
-  documents, the marketing workbook and the UI brief, and it concerns the product
-  rather than this page.
+- `pm_sessions` holds 3 rows, none expired: `pm__require` deletes expired rows on
+  every call, so the August logins are gone. No test tokens survive.
+- The page ships **0 em dashes**. `build.sh` warns, and the warning has stayed quiet.
+- Orange: the board uses `#EF6E45` and `#E8693A` in none. There is no conflict inside
+  the board. The unresolved conflict is between two source documents, the marketing
+  workbook and the UI brief, and it concerns the product rather than this page.
 - `p_actor` is supplied by the caller on every write, so `pm_activity` records a
   claimed identity, not a verified one. This is a consequence of the single shared
   passcode, not a patchable bug: there is no server-side identity to check against
   until per-person accounts exist. Treat the activity log as an honest record among
-  colleagues, not an audit trail.
+  colleagues, not an audit trail. **The new before-and-after does not change this.**
+  It makes the *what* exact; the *who* is still a claim.
 - A Supabase branch costs `$0.01344` per hour, about `$9.70` a month left running. That
   does not earn a standing test branch. Spin one up for a risky migration and delete it
   afterwards. Section 4 stands as written: ordinary work goes straight to production.
-- `pm_sprints` is on hold until **13 Sep 2026**. Build it only if focus sprints are
-  being used by then. Until that date there is no sprint history by choice, not by
-  oversight.
+- **The `pm_sprints` hold expired on 13 Sep and nothing was built.** There is no
+  evidence focus sprints are being used: zero activity rows mention one, and a sprint
+  only ever writes a status change. Treat sprint history as declined rather than
+  pending, and delete this line if somebody starts using the timer.
+- `pm_activity.changes` is populated from 7 Oct onward. The rows before that date have
+  none and say so when opened.
 
 ### One thing not to delete
 
@@ -327,32 +383,45 @@ one. Removing it makes onboarding worse, not safer.
 
 ## 10. Where the project actually stands
 
-**Healthy:** zero overdue tasks, every open task attached to a goal, 7 live goals,
-214 brand files browsable and downloadable, 15 handbook pages with no dead links.
+Counted 7 Oct 2026.
+
+**Healthy:** 53 tasks, every one but 2 attached to a goal. 7 live goals, 19 milestones,
+15 handbook pages with no dead links, 214 brand files browsable and downloadable,
+19 providers with the credentials rule holding.
 
 **The one thing blocking everything else:** nothing is measured. 7 of 9 goals have a
-metric that has never been read, and there is exactly **1 metric reading** in the whole
-database. Google Analytics is not connected. `GP-041` unblocks this and should be
+metric that has never been read, and there is still exactly **1 metric reading** in the
+whole database. Google Analytics is not connected. `GP-041` unblocks this and should be
 treated as the highest-leverage open task.
 
 **Open, in rough priority order:**
 
-1. **GP-041** instrument the funnel. Until this lands every health flag is opinion.
-2. **MS-22** the onboarding cut, under *First 50 recurring users*. GP-043 carries a
+1. **GP-041** instrument the funnel. Until this lands every health flag is opinion,
+   including the automatic one the goal form now offers.
+2. **9 open tasks are past their date**, and **2 milestones** with them. The board was
+   last edited on 1 September, so this is a month of drift rather than a bad week.
+3. **16 of 35 open tasks say In Progress**, most untouched since late August. A status
+   that is never cleared stops meaning anything.
+4. **10 open tasks have no date**, all icebox. Weekly triage is the intended habit.
+5. **MS-22** the onboarding cut, under *First 50 recurring users*. GP-043 carries a
    proposed cut list and a blocking note about allergens that needs a human decision.
-3. **9 open tasks have no date**, all icebox. Weekly triage is the intended habit.
-4. **15 of 16 journey steps have no screenshot.** They sit behind a login; each step's
+6. **15 of 16 journey steps have no screenshot.** They sit behind a login; each step's
    editor takes a link once someone captures them.
-5. **Two brand conflicts unresolved:** orange is `#EF6E45` in the marketing workbook and
+7. **Two brand conflicts unresolved:** orange is `#EF6E45` in the marketing workbook and
    `#E8693A` in the UI brief. (Typography was settled by the font files: Murs Gothic
    Wide Dark and Poppins Italic.)
-6. **Roster vs pillars:** the pitch describes five people in three pillars; the board has
+8. **Roster vs pillars:** the pitch describes five people in three pillars; the board has
    eight. Simon, Seba and Benja are in neither.
-7. **Onboarding deck and five screenshots** are deliberately not uploaded, the container
+9. **Onboarding deck and five screenshots** are deliberately not uploaded, the container
    is world-readable and nobody has confirmed what is in them.
 
 **Known distribution problem:** Joaquin owns most open tasks. The board surfaces it on
 Where we are rather than hiding it.
+
+**The ad wall is empty on purpose.** One campaign shell exists, *Beta ads, first tests*,
+holding the three tasks that have to land first and the stage-one copy rule. No ad cards
+were invented to fill it: copy written by nobody, signed with somebody's name, is worse
+than an empty wall.
 
 ---
 
@@ -372,6 +441,12 @@ Where we are rather than hiding it.
   JPEG in `thumbs/`; use `thumb_url` in grids.
 - **Verifying "every view renders" catches crashes, not wrongness.** Check the deployed
   artifact for a string that *should* be there.
+- **A screenshot of the preview can be a frame behind.** Twice during the October work a
+  screenshot showed the state before the click that had already landed. Read the data
+  back with `javascript_tool` before believing a picture.
+- **Seeding a demo writes real rows under a real name.** Test cards, test notes and the
+  activity they generate were deleted after the October work. Anything left behind would
+  have read as a teammate's decision.
 
 ---
 

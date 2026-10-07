@@ -11,16 +11,38 @@ and **six destinations**, every one a concrete noun a newcomer can guess the con
 
 | Tab | What is behind it |
 |---|---|
-| **My week** | What you personally owe. The landing page. Week/month/quarter, Just me / Everyone. Carries a one-line company strip and a "Handy" shelf of shortcuts. |
-| **Where we are** | The company on one page: north star, health checks, every goal as a card. Click a goal to open it, its metric, milestones and tasks. |
-| **Timeline** | The roadmap: the same work against a calendar, by goal (plan-vs-actual Gantt) or by phase (windows, verdicts, and a rescue for work stranded in a closed one). |
+| **Company** | Welcome · Handbook · Team · Activity. The board always opens here. An activity line opens to show the fields a change actually moved, before and after. |
+| **Tasks** | My week · Where we are · Timeline · Every task. Four ways of reading the same work. **My week** is what you owe: pick any combination of people from the bubbles and filter by area. **Where we are** is the company on one page, every goal as a card. **Timeline** is the roadmap, by goal (plan-vs-actual Gantt) or by phase. **Every task** is the lot, grouped by status, person, goal or area. |
 | **Marketing** | Strategy · Q1 plan · Buyer persona · Competitors · User journey · Value creation · Files. The two journeys are vertical node flows; every step is clickable and opens (or seeds) the task that would improve it. |
+| **Ads** | Campaigns, and a wall of creative inside each one. See *The ad wall*. |
 | **Subscriptions** | Every provider, cost, owner and access route. See *Credentials*. |
-| **Company** | Start here · Handbook · Team · Activity. |
 | **Ideas** | A creative board: sparks, resources, tools, inspiration and open questions. Anything can be promoted into a task. |
 
 Two pages have no tab and are reached by drilling: **a goal** (from Where we are) and
-**every task** (from My week; group by status, person, goal or area).
+**a campaign's wall** (from Ads). The button at the top right always means one thing:
+a new task. Everything else that can be created has its own button on the page that
+holds it.
+
+Company and Marketing read in order, so each page carries Next and Back at the top and
+the foot.
+
+## The ad wall
+
+A campaign holds the decisions: where it runs, who it is aimed at, what it costs, when,
+and a brief written in markdown. Inside it is a wall of cards, one per ad, in five lanes
+from **Idea** to **Stopped**, dragged across the way a task moves between columns.
+
+A card carries the hook, the words, the button, the picture described in words, where it
+points, and a reference link. Every card and every note is signed and timed. Notes go on
+a card, or on the campaign itself.
+
+A reference picture is shrunk to 560px in the browser and kept in `pm_ad_shots`, which
+`pm_bootstrap` deliberately does not return: the board asks for one campaign's pictures
+in a single call when that wall opens. **Finished creatives still belong in the Azure
+container** and go on the card as a link.
+
+**Copy the brief** puts the whole campaign, every card and every note on the clipboard as
+markdown. That is what you send somebody who has to make the thing.
 
 `pm_assets` is a registry, not storage, a static page cannot host files. Each entry
 carries a link where one exists and an honest location where it does not.
@@ -81,7 +103,8 @@ The board appears at `https://<you>.github.io/goprep-board/` within a minute or 
 The page is public; the data is not.
 
 Every read and write goes through Postgres functions (`pm_login`, `pm_bootstrap`,
-`pm_save_task`, `pm_set_status`, `pm_delete_task`). The `pm_*` tables have row-level
+`pm_save_task`, `pm_set_status`, `pm_delete_task`, and one pair per thing the board
+holds). The `pm_*` tables have row-level
 security enabled with **zero policies** and all table grants revoked, so the API key
 embedded in this page cannot read or write a single row on its own. It can only call
 those functions, and every function except `pm_login` refuses without a session token.
@@ -145,6 +168,10 @@ Pick a colour that isn't already taken; the current ones are listed in `pm_peopl
 | `pm_journey_steps` | Steps in the user journey and the value ladder, each optionally bound to a task. |
 | `pm_ideas` | The creative board. |
 | `pm_areas` | Area labels and colours, used to band the goals view. |
+| `pm_campaigns` | An ad campaign: where it runs, the budget, the dates, the brief. |
+| `pm_ads` | One card on a campaign wall, in one of five lanes. |
+| `pm_ad_shots` | The reference picture of a card, kept out of `pm_bootstrap`. |
+| `pm_ad_notes` | What people said, on a card or on the campaign. |
 
 Goals carry a `horizon`: `north-star` (the one number), `quarter` and `year` (live work),
 and `someday`, a destination with nothing scheduled against it. `someday` goals are kept

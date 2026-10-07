@@ -17,10 +17,20 @@ with zero policies; the page reaches all of it through `pm_bootstrap` and the
 `pm_save_*` functions, never directly.
 
 ```
-pm_activity            id, task_id, task_title, actor, action, detail, at, entity
+pm_activity            id, task_id, task_title, actor, action, detail, at, entity,
+                       changes
+pm_ad_notes            id, ad_id, campaign_id, author, body, at
+pm_ad_shots            ad_id, data, bytes, updated_by, updated_at
+pm_ads                 id, campaign_id, name, format, stage, headline, body, cta,
+                       visual, link_url, ref_url, file_id, owner, author,
+                       sort_order, archived, created_at, updated_at
 pm_areas               key, label, color, sort_order
 pm_assets              id, name, category, kind, url, location, description, owner,
                        sort_order, archived, created_at, updated_at, lang
+pm_campaigns           id, name, platform, objective, audience, brief,
+                       budget_amount, budget_currency, starts, ends, status,
+                       owner, color, sort_order, archived, created_by,
+                       created_at, updated_at
 pm_config              id, passcode_hash, updated_at
 pm_docs                id, key, title, section, icon, summary, body, sort_order,
                        archived, updated_by, created_at, updated_at
@@ -61,6 +71,16 @@ pm_tasks               id, code, title, category, priority, effort, phase_key, s
 - `pm_metric_points` is unique on `(goal_id, on_date)`, so a second reading on the
   same day updates rather than duplicates.
 - `pm_files.path` is unique, which is what makes `pm_reindex_files` idempotent.
+- `pm_ads.stage` is one of `idea`, `drafting`, `ready`, `live`, `killed`, and
+  `pm_campaigns.status` one of `draft`, `live`, `paused`, `done`. Both are
+  database check constraints, so a typo cannot create a sixth lane.
+- `pm_ad_notes` must carry an `ad_id` or a `campaign_id`: a note with neither
+  belongs to nothing and is refused.
+- `pm_ad_shots` holds the reference picture of an ad, apart from the row.
+  **`pm_bootstrap` deliberately does not return it**, only `has_shot`, so a
+  wall of pictures does not land in every page load. `pm_ad_shots(p_ids)`
+  fetches the ones a campaign needs in a single call. The setter refuses
+  anything that is not a data URI image, and anything over 220kB.
 
 ## Functions the page calls
 
@@ -69,6 +89,27 @@ pm_tasks               id, code, title, category, priority, effort, phase_key, s
 `pm_save_metric`, `pm_save_doc`, `pm_save_provider`, `pm_delete_provider`,
 `pm_reveal_secret`, `pm_save_asset`, `pm_delete_asset`, `pm_save_phase`,
 `pm_move_phase_tasks`, `pm_save_journey_step`, `pm_save_idea`, `pm_delete_idea`,
-`pm_reindex_files`.
+`pm_reindex_files`, `pm_save_campaign`, `pm_delete_campaign`, `pm_save_ad`,
+`pm_set_ad_stage`, `pm_delete_ad`, `pm_set_ad_shot`, `pm_ad_shots`,
+`pm_add_ad_note`, `pm_delete_ad_note`.
 
 Every one calls `pm__require(p_token)` first.
+
+## Who did what
+
+`pm_activity.changes` holds the fields a save actually moved, as
+`{field: {from, to}}`, built by `pm__diff(old, new, skip[])`. The page opens an
+activity line to show it.
+
+Two columns can never reach it, and the default skip list is what stops them:
+`secret`, so a password cannot leak into a log that everyone with the passcode
+can read, and `photo_url`, so a data URI does not bury the feed. A provider
+password shows as changed and nothing more. `id`, `created_at`, `updated_at`
+and `sort_order` are skipped as noise.
+
+A save that writes a diff takes a snapshot of the row before it updates it.
+**Any new `pm_save_*` function should do the same**: declare `v_before jsonb`,
+`select to_jsonb(x) into v_before` before the update, and pass
+`pm__diff(coalesce(v_before, '{}'::jsonb), to_jsonb(v_row))` into the activity
+insert. Pass `'{}'` as the old row for a creation and the line records what it
+was created with.
