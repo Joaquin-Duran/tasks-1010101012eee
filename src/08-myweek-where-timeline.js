@@ -394,7 +394,8 @@ function renderGoalDetail(list){
     '<div class="tree-goal' + (g.horizon === "someday" ? " someday" : "") + '" style="--gc:' + g.color + '">' +
       '<div class="tg-head" style="cursor:default">' +
         '<div style="flex:1;min-width:240px">' +
-          '<div class="ga">' + esc(g.area||"") + ' · ' + esc(g.horizon) + '</div>' +
+          '<div class="ga">' + esc(g.area||"") +
+            (HORIZON_LABEL[g.horizon] ? ' · ' + esc(HORIZON_LABEL[g.horizon]) : '') + '</div>' +
           '<h3 style="font-size:19px;margin:3px 0 6px">' + esc(g.name) + '</h3>' +
           (g.statement ? '<p class="note" style="margin:0;font-size:13px">' + esc(g.statement) + '</p>' : '') +
         '</div>' +
@@ -413,7 +414,6 @@ function renderGoalDetail(list){
     '</div>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px">' +
       '<button class="btn btn-ghost btn-sm" data-goal="' + g.id + '">Edit goal</button>' +
-      '<button class="btn btn-ghost btn-sm" id="newMs">+ Milestone</button>' +
       '<button class="btn btn-ghost btn-sm" id="newTaskHere">+ Task</button>' +
     '</div>';
 
@@ -423,7 +423,15 @@ function renderGoalDetail(list){
       '</div></div></div>';
   }
 
-  out += '<div class="section-title">Milestones</div>';
+  /* A milestone is a name and a date. Asking for seven fields to write one
+     down is why there are not more of them. */
+  out += '<div class="section-title">Milestones<span class="st-sub">a dated thing that will exist</span></div>' +
+    '<div class="ms-quick">' +
+      '<input class="input" id="msQName" placeholder="Name a milestone, for instance: the onboarding cut is live">' +
+      '<input class="input" id="msQDate" type="date" title="Due">' +
+      '<button class="btn btn-ghost btn-sm" id="msQAdd">Add</button>' +
+      '<button class="btn btn-ghost btn-sm" id="newMs" title="With everything else">More</button>' +
+    '</div>';
   out += mss.length ? mss.map(m => {
     const mAll = tasksOfMs(m);
     const mpr = progress(mAll);

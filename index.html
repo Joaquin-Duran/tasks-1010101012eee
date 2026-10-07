@@ -810,6 +810,11 @@ main{flex:1;overflow:auto;padding:20px}
                       text-decoration:none}
 .drow.long .dv.after{background:rgba(76,154,143,.07);border:1px solid rgba(76,154,143,.25)}
 @media (max-width:720px){ .drow{grid-template-columns:1fr;gap:4px} .darrow{display:none} }
+
+/* ---------- a milestone in one line ---------- */
+.ms-quick{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
+.ms-quick #msQName{flex:1;min-width:240px}
+.ms-quick input[type=date]{width:auto}
 </style>
 </head>
 <body>
@@ -947,6 +952,15 @@ const EFFORTS = [
    date when nobody set one -- a Gantt needs a beginning, not just a deadline */
 const EFFORT_DAYS = { S:1, M:3, L:10, XL:21 };
 const GOAL_STATUS = ["Not started","On track","At risk","Off track","Achieved"];
+/* The stored horizon values never changed; only what we call them did.
+   See the rename gotcha in CONTEXT.md section 11 before touching the data. */
+const HORIZON_LABEL = { impulse:"Mission", quarter:"This quarter", year:"This year", someday:"Someday" };
+const HORIZONS = [
+  { k:"quarter", t:"This quarter" },
+  { k:"year",    t:"This year" },
+  { k:"someday", t:"Someday, nothing scheduled" },
+  { k:"impulse", t:"The mission, above all the others" }
+];
 const GOAL_STATUS_TONE = { "Not started":"mute","On track":"ok","At risk":"warn","Off track":"bad","Achieved":"ok" };
 const MS_STATUS = ["Not Started","In Progress","Blocked","Done"];
 
@@ -1407,6 +1421,34 @@ function metricBlock(g){
           esc(p.on_date + ": " + p.value) + '"></i>').join("") + '</div>'
       : '') +
   '</div>';
+}
+
+/* Health worked out rather than typed. How far the number has come, against
+   how far through the window we are. With no number it falls back to the
+   tasks, and with neither it says so. */
+function derivedGoalStatus(g){
+  const pr = progress(tasksOfGoal(g));
+  const w = goalWindow(g);
+  let timePct = null;
+  if (w.starts && w.ends){
+    const span = daysBetween(w.starts, w.ends) || 1;
+    timePct = Math.max(0, Math.min(1, daysBetween(w.starts, todayISO()) / span));
+  }
+  let valPct = null;
+  if (g.metric_target != null && g.metric_current != null){
+    const base = g.metric_baseline != null ? Number(g.metric_baseline) : 0;
+    const span = Number(g.metric_target) - base;
+    if (span !== 0) valPct = (Number(g.metric_current) - base) / span;
+  }
+  const done = valPct != null ? valPct : (pr.total ? pr.done / pr.total : null);
+  if (done == null) return "Not started";
+  if (done >= 1) return "Achieved";
+  if (done <= 0 && !pr.done) return "Not started";
+  if (timePct == null) return "On track";
+  const gap = done - timePct;
+  if (gap >= -0.1) return "On track";
+  if (gap >= -0.3) return "At risk";
+  return "Off track";
 }
 
 function goalPill(g){
@@ -2884,7 +2926,8 @@ function renderGoalDetail(list){
     '<div class="tree-goal' + (g.horizon === "someday" ? " someday" : "") + '" style="--gc:' + g.color + '">' +
       '<div class="tg-head" style="cursor:default">' +
         '<div style="flex:1;min-width:240px">' +
-          '<div class="ga">' + esc(g.area||"") + ' · ' + esc(g.horizon) + '</div>' +
+          '<div class="ga">' + esc(g.area||"") +
+            (HORIZON_LABEL[g.horizon] ? ' · ' + esc(HORIZON_LABEL[g.horizon]) : '') + '</div>' +
           '<h3 style="font-size:19px;margin:3px 0 6px">' + esc(g.name) + '</h3>' +
           (g.statement ? '<p class="note" style="margin:0;font-size:13px">' + esc(g.statement) + '</p>' : '') +
         '</div>' +
@@ -2903,7 +2946,6 @@ function renderGoalDetail(list){
     '</div>' +
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px">' +
       '<button class="btn btn-ghost btn-sm" data-goal="' + g.id + '">Edit goal</button>' +
-      '<button class="btn btn-ghost btn-sm" id="newMs">+ Milestone</button>' +
       '<button class="btn btn-ghost btn-sm" id="newTaskHere">+ Task</button>' +
     '</div>';
 
@@ -2913,7 +2955,15 @@ function renderGoalDetail(list){
       '</div></div></div>';
   }
 
-  out += '<div class="section-title">Milestones</div>';
+  /* A milestone is a name and a date. Asking for seven fields to write one
+     down is why there are not more of them. */
+  out += '<div class="section-title">Milestones<span class="st-sub">a dated thing that will exist</span></div>' +
+    '<div class="ms-quick">' +
+      '<input class="input" id="msQName" placeholder="Name a milestone, for instance: the onboarding cut is live">' +
+      '<input class="input" id="msQDate" type="date" title="Due">' +
+      '<button class="btn btn-ghost btn-sm" id="msQAdd">Add</button>' +
+      '<button class="btn btn-ghost btn-sm" id="newMs" title="With everything else">More</button>' +
+    '</div>';
   out += mss.length ? mss.map(m => {
     const mAll = tasksOfMs(m);
     const mpr = progress(mAll);
@@ -3516,47 +3566,36 @@ function openGoal(id){
   const g = id ? DATA.goals.find(x => x.id === id) : null;
   const v = (k, dflt) => (g && g[k] != null ? g[k] : (dflt ?? ""));
   const pts = g ? DATA.metrics.filter(m => m.goal_id === g.id).sort((a,b) => a.on_date < b.on_date ? 1 : -1) : [];
+  const worked = g ? derivedGoalStatus(g) : "Not started";
 
+  /* Five things make a goal: what it is, who holds it, the number, the target,
+     and the date. Everything else is detail and lives under More. */
   const close = modal(
     head(g ? "Edit goal" : "New goal", null) +
     '<div class="modal-body">' +
       '<div class="field"><label for="gName">Goal</label>' +
         '<input class="input" id="gName" value="' + esc(v("name")) + '" placeholder="People come back"></div>' +
-      '<div class="field"><label for="gStatement">What we want to be true</label>' +
-        '<textarea class="input" id="gStatement" style="min-height:56px">' + esc(v("statement")) + '</textarea></div>' +
-      '<div class="field"><label for="gWhy">Why it matters</label>' +
-        '<textarea class="input" id="gWhy" style="min-height:56px">' + esc(v("why")) + '</textarea></div>' +
-      '<div class="grid3">' +
-        '<div class="field"><label for="gArea">Area</label><select class="input" id="gArea">' +
-          selOpts(AREAS, v("area"), "Not set") + '</select></div>' +
-        '<div class="field"><label for="gHorizon">Horizon</label><select class="input" id="gHorizon">' +
-          selOpts([{k:"quarter",t:"Quarter"},{k:"year",t:"Year"},{k:"impulse",t:"Mission"}], v("horizon","quarter")) + '</select></div>' +
-        '<div class="field"><label for="gStatus">Health</label><select class="input" id="gStatus">' +
-          selOpts(GOAL_STATUS, v("status","Not started")) + '</select></div>' +
-      '</div>' +
-      '<div class="grid3">' +
-        '<div class="field"><label for="gOwner">Owner</label><select class="input" id="gOwner">' +
-          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "Not set") + '</select></div>' +
-        '<div class="field"><label for="gStarts">Starts</label>' +
-          '<input class="input" id="gStarts" type="date" value="' + esc(v("starts")) + '"></div>' +
-        '<div class="field"><label for="gEnds">Ends</label>' +
+      '<div class="grid2">' +
+        '<div class="field"><label for="gOwner">Who holds it</label><select class="input" id="gOwner">' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "Nobody yet") + '</select></div>' +
+        '<div class="field"><label for="gEnds">By when</label>' +
           '<input class="input" id="gEnds" type="date" value="' + esc(v("ends")) + '"></div>' +
       '</div>' +
-      '<div class="section-title" style="margin:18px 0 8px">The metric</div>' +
-      '<div class="grid2">' +
-        '<div class="field"><label for="gMetric">What we measure</label>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="gMetric">The number</label>' +
           '<input class="input" id="gMetric" value="' + esc(v("metric_name")) + '" placeholder="Repeat-active users"></div>' +
+        '<div class="field"><label for="gTarget">Target</label>' +
+          '<input class="input" id="gTarget" type="number" step="any" value="' + esc(v("metric_target")) + '"></div>' +
         '<div class="field"><label for="gUnit">Unit</label>' +
           '<input class="input" id="gUnit" value="' + esc(v("metric_unit")) + '" placeholder="users"></div>' +
       '</div>' +
-      '<div class="grid3">' +
-        '<div class="field"><label for="gBase">Baseline</label>' +
-          '<input class="input" id="gBase" type="number" step="any" value="' + esc(v("metric_baseline")) + '"></div>' +
-        '<div class="field"><label for="gTarget">Target</label>' +
-          '<input class="input" id="gTarget" type="number" step="any" value="' + esc(v("metric_target")) + '"></div>' +
-        '<div class="field"><label for="gColor">Colour</label>' +
-          '<input class="input" id="gColor" value="' + esc(v("color","#EF6E45")) + '"></div>' +
-      '</div>' +
+      '<div class="field"><label for="gStatus">Health</label><select class="input" id="gStatus">' +
+        '<option value="auto">Work it out from the number and the date' +
+          (g ? " (now: " + esc(worked) + ")" : "") + '</option>' +
+        selOpts(GOAL_STATUS, g ? v("status") : "__none__") + '</select>' +
+        '<span class="hint">Leave it on the first line and the board keeps it honest: ' +
+        'how far the number has come, against how far through the window we are.</span></div>' +
+
       (g ? '<div class="field"><label>Log a reading</label>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
           '<input class="input" id="gPDate" type="date" value="' + todayISO() + '" style="width:auto">' +
@@ -3565,9 +3604,36 @@ function openGoal(id){
           '<button class="btn btn-ghost" id="gPAdd">Log</button>' +
         '</div>' +
         (pts.length ? '<div class="note" style="margin-top:8px">' + pts.slice(0,6).map(p =>
-          esc(p.on_date) + ": <b>" + esc(String(p.value)) + "</b>").join(" · ") + '</div>'
-          : '<span class="hint">No readings yet. Without one, this goal&rsquo;s health is a guess.</span>') +
+          esc(p.on_date) + ": <b>" + esc(String(p.value)) + "</b>").join(" \u00b7 ") + '</div>'
+          : '<span class="hint">No readings yet. Without one, this goal\u2019s health is a guess.</span>') +
         '</div>' : '') +
+
+      '<details class="fold" style="margin:14px 0 0"><summary>More</summary>' +
+        '<div style="padding:12px 2px 2px">' +
+          '<div class="field"><label for="gStatement">What we want to be true</label>' +
+            '<textarea class="input" id="gStatement" style="min-height:52px">' + esc(v("statement")) + '</textarea></div>' +
+          '<div class="field"><label for="gWhy">Why it matters</label>' +
+            '<textarea class="input" id="gWhy" style="min-height:52px">' + esc(v("why")) + '</textarea></div>' +
+          '<div class="grid3">' +
+            '<div class="field"><label for="gArea">Area</label><select class="input" id="gArea">' +
+              selOpts(AREAS, v("area"), "Not set") + '</select></div>' +
+            '<div class="field"><label for="gHorizon">Sits in</label><select class="input" id="gHorizon">' +
+              selOpts(HORIZONS, v("horizon","quarter")) + '</select></div>' +
+            '<div class="field"><label for="gStarts">Starts</label>' +
+              '<input class="input" id="gStarts" type="date" value="' + esc(v("starts")) + '"></div>' +
+          '</div>' +
+          '<div class="grid3">' +
+            '<div class="field"><label for="gBase">Baseline</label>' +
+              '<input class="input" id="gBase" type="number" step="any" value="' + esc(v("metric_baseline")) + '"></div>' +
+            '<div class="field"><label for="gColor">Colour</label>' +
+              '<input class="input" id="gColor" value="' + esc(v("color","#EF6E45")) + '"></div>' +
+            '<div class="field" style="display:flex;align-items:flex-end">' +
+              '<label style="display:flex;gap:8px;align-items:center;font-size:12.5px;cursor:pointer">' +
+                '<input type="checkbox" id="gLower"' + (v("lower_is_better") ? " checked" : "") + '> ' +
+                'A win when it falls</label></div>' +
+          '</div>' +
+        '</div>' +
+      '</details>' +
     '</div>' +
     foot(g ? "Save goal" : "Create goal",
          g ? '<button class="btn btn-danger" id="gDel">Archive</button>' : ""), { wide:false });
@@ -3588,12 +3654,18 @@ function openGoal(id){
     if (!name) return toast("Give the goal a name", true);
     const payload = {
       name, statement:$("#gStatement").value.trim(), why:$("#gWhy").value.trim(),
-      area:$("#gArea").value, horizon:$("#gHorizon").value, status:$("#gStatus").value,
+      area:$("#gArea").value, horizon:$("#gHorizon").value,
       owner:$("#gOwner").value, starts:$("#gStarts").value, ends:$("#gEnds").value,
       metric_name:$("#gMetric").value.trim(), metric_unit:$("#gUnit").value.trim(),
       metric_baseline:$("#gBase").value, metric_target:$("#gTarget").value,
-      color:$("#gColor").value.trim()
+      lower_is_better:$("#gLower").checked, color:$("#gColor").value.trim()
     };
+    /* "auto" is not a stored value: it means work the health out now and
+       write the answer, so there is still one source of truth in the column */
+    const picked = $("#gStatus").value;
+    payload.status = picked === "auto"
+      ? derivedGoalStatus(Object.assign({}, g || {}, payload, { id: g ? g.id : null }))
+      : picked;
     if (g) payload.id = g.id;
     $("#mSave").disabled = true;
     try { await rpc("pm_save_goal", { p_token:TOKEN, p_goal:payload, p_actor:ME });
@@ -3601,7 +3673,7 @@ function openGoal(id){
     catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
   };
   if (g) $("#gDel").onclick = async () => {
-    if (!confirm("Archive the goal “" + g.name + "”? Its tasks stay, but lose their goal.")) return;
+    if (!confirm("Archive the goal \u201c" + g.name + "\u201d? Its tasks stay, but lose their goal.")) return;
     try { await rpc("pm_delete_goal", { p_token:TOKEN, p_id:g.id, p_actor:ME });
           close(); await refresh(true); toast("Goal archived"); }
     catch(err){ fail(err, "Could not archive"); }
@@ -3609,33 +3681,39 @@ function openGoal(id){
 }
 
 /* ---------------- milestone ---------------- */
-function openMilestone(id){
+function openMilestone(id, seed){
   const m = id ? DATA.milestones.find(x => x.id === id) : null;
-  const v = (k, dflt) => (m && m[k] != null ? m[k] : (dflt ?? ""));
+  const v = (k, dflt) => (m && m[k] != null ? m[k] : ((seed && seed[k]) ?? dflt ?? ""));
   const w = m ? msWindow(m) : null;
+  /* A milestone is a dated deliverable under a goal. Name it, date it, say who
+     has it. What done looks like is worth writing, but not worth blocking on. */
   const close = modal(
     head(m ? "Edit milestone" : "New milestone", m && m.code) +
     '<div class="modal-body">' +
       '<div class="field"><label for="sName">Milestone</label>' +
         '<input class="input" id="sName" value="' + esc(v("name")) + '" placeholder="Meal Prep works end to end"></div>' +
-      '<div class="field"><label for="sDesc">What done looks like</label>' +
-        '<textarea class="input" id="sDesc" style="min-height:56px">' + esc(v("description")) + '</textarea></div>' +
-      '<div class="grid2">' +
-        '<div class="field"><label for="sGoal">Goal</label><select class="input" id="sGoal">' +
-          selOpts(DATA.goals.filter(g => g.horizon !== "impulse"), v("goal_id"), "No goal") + '</select></div>' +
-        '<div class="field"><label for="sOwner">Owner</label><select class="input" id="sOwner">' +
-          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "Not set") + '</select></div>' +
-      '</div>' +
       '<div class="grid3">' +
-        '<div class="field"><label for="sStatus">Status</label><select class="input" id="sStatus">' +
-          selOpts(MS_STATUS, v("status","Not Started")) + '</select></div>' +
-        '<div class="field"><label for="sStarts">Starts</label>' +
-          '<input class="input" id="sStarts" type="date" value="' + esc(v("starts")) + '"></div>' +
         '<div class="field"><label for="sEnds">Due</label>' +
           '<input class="input" id="sEnds" type="date" value="' + esc(v("ends")) + '"></div>' +
+        '<div class="field"><label for="sOwner">Who has it</label><select class="input" id="sOwner">' +
+          selOpts(DATA.people.filter(p => p.active).map(p => p.name), v("owner"), "Nobody yet") + '</select></div>' +
+        '<div class="field"><label for="sStatus">Status</label><select class="input" id="sStatus">' +
+          selOpts(MS_STATUS, v("status","Not Started")) + '</select></div>' +
       '</div>' +
-      (m && w && w.starts ? '<div class="note">The Gantt draws this from the tasks under it: ' +
-        fmtDateY(w.starts) + ' → ' + fmtDateY(w.ends) + '. The dates above are the fallback when it has no dated tasks.</div>' : '') +
+      '<details class="fold" style="margin:12px 0 0"' + (m && !m.description ? "" : " open") + '>' +
+        '<summary>More</summary><div style="padding:12px 2px 2px">' +
+        '<div class="field"><label for="sDesc">What done looks like</label>' +
+          '<textarea class="input" id="sDesc" style="min-height:56px">' + esc(v("description")) + '</textarea></div>' +
+        '<div class="grid2">' +
+          '<div class="field"><label for="sGoal">Goal</label><select class="input" id="sGoal">' +
+            selOpts(DATA.goals.filter(g => g.horizon !== "impulse"), v("goal_id"), "No goal") + '</select></div>' +
+          '<div class="field"><label for="sStarts">Starts</label>' +
+            '<input class="input" id="sStarts" type="date" value="' + esc(v("starts")) + '"></div>' +
+        '</div>' +
+        (m && w && w.starts ? '<div class="note">The Gantt draws this from the tasks under it: ' +
+          fmtDateY(w.starts) + ' to ' + fmtDateY(w.ends) + '. The dates here are the fallback ' +
+          'when it has no dated tasks.</div>' : '') +
+        '</div></details>' +
     '</div>' +
     foot(m ? "Save milestone" : "Create milestone",
          m ? '<button class="btn btn-danger" id="sDel">Archive</button>' : ""));
@@ -3653,7 +3731,7 @@ function openMilestone(id){
     catch(err){ $("#mSave").disabled = false; fail(err, "Could not save"); }
   };
   if (m) $("#sDel").onclick = async () => {
-    if (!confirm("Archive “" + m.name + "”? Its tasks stay but lose their milestone.")) return;
+    if (!confirm("Archive \u201c" + m.name + "\u201d? Its tasks stay but lose their milestone.")) return;
     try { await rpc("pm_delete_milestone", { p_token:TOKEN, p_id:m.id, p_actor:ME });
           close(); await refresh(true); toast("Archived"); }
     catch(err){ fail(err, "Could not archive"); }
@@ -4873,7 +4951,22 @@ function wireMain(){
 
   const nd = $("#newDoc");   if (nd) nd.onclick = () => openDoc(null);
   const ng = $("#newGoal");  if (ng) ng.onclick = () => openGoal(null);
-  const nm = $("#newMs");    if (nm) nm.onclick = () => openMilestone(null);
+  const nm = $("#newMs");    if (nm) nm.onclick = () => openMilestone(null, { goal_id: UI.goal });
+
+  /* a milestone in one line: a name and a date is enough to start */
+  const msAdd = $("#msQAdd");
+  if (msAdd) msAdd.onclick = async () => {
+    const name = $("#msQName").value.trim();
+    if (!name) return toast("Name it first", true);
+    msAdd.disabled = true;
+    try {
+      await rpc("pm_save_milestone", { p_token:TOKEN, p_actor:ME,
+        p_ms: { name, goal_id: UI.goal, ends: $("#msQDate").value, status:"Not Started" } });
+      await refresh(true); toast("Milestone added");
+    } catch(err){ msAdd.disabled = false; fail(err, "Could not add that"); }
+  };
+  const msName = $("#msQName");
+  if (msName) msName.addEventListener("keydown", e => { if (e.key === "Enter") $("#msQAdd").click(); });
   const np = $("#newProv");  if (np) np.onclick = () => openProvider(null);
 
   /* credentials: reading one is a separate, logged call */

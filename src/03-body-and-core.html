@@ -133,6 +133,15 @@ const EFFORTS = [
    date when nobody set one -- a Gantt needs a beginning, not just a deadline */
 const EFFORT_DAYS = { S:1, M:3, L:10, XL:21 };
 const GOAL_STATUS = ["Not started","On track","At risk","Off track","Achieved"];
+/* The stored horizon values never changed; only what we call them did.
+   See the rename gotcha in CONTEXT.md section 11 before touching the data. */
+const HORIZON_LABEL = { impulse:"Mission", quarter:"This quarter", year:"This year", someday:"Someday" };
+const HORIZONS = [
+  { k:"quarter", t:"This quarter" },
+  { k:"year",    t:"This year" },
+  { k:"someday", t:"Someday, nothing scheduled" },
+  { k:"impulse", t:"The mission, above all the others" }
+];
 const GOAL_STATUS_TONE = { "Not started":"mute","On track":"ok","At risk":"warn","Off track":"bad","Achieved":"ok" };
 const MS_STATUS = ["Not Started","In Progress","Blocked","Done"];
 

@@ -143,7 +143,22 @@ function wireMain(){
 
   const nd = $("#newDoc");   if (nd) nd.onclick = () => openDoc(null);
   const ng = $("#newGoal");  if (ng) ng.onclick = () => openGoal(null);
-  const nm = $("#newMs");    if (nm) nm.onclick = () => openMilestone(null);
+  const nm = $("#newMs");    if (nm) nm.onclick = () => openMilestone(null, { goal_id: UI.goal });
+
+  /* a milestone in one line: a name and a date is enough to start */
+  const msAdd = $("#msQAdd");
+  if (msAdd) msAdd.onclick = async () => {
+    const name = $("#msQName").value.trim();
+    if (!name) return toast("Name it first", true);
+    msAdd.disabled = true;
+    try {
+      await rpc("pm_save_milestone", { p_token:TOKEN, p_actor:ME,
+        p_ms: { name, goal_id: UI.goal, ends: $("#msQDate").value, status:"Not Started" } });
+      await refresh(true); toast("Milestone added");
+    } catch(err){ msAdd.disabled = false; fail(err, "Could not add that"); }
+  };
+  const msName = $("#msQName");
+  if (msName) msName.addEventListener("keydown", e => { if (e.key === "Enter") $("#msQAdd").click(); });
   const np = $("#newProv");  if (np) np.onclick = () => openProvider(null);
 
   /* credentials: reading one is a separate, logged call */

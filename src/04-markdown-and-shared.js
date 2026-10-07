@@ -221,6 +221,34 @@ function metricBlock(g){
   '</div>';
 }
 
+/* Health worked out rather than typed. How far the number has come, against
+   how far through the window we are. With no number it falls back to the
+   tasks, and with neither it says so. */
+function derivedGoalStatus(g){
+  const pr = progress(tasksOfGoal(g));
+  const w = goalWindow(g);
+  let timePct = null;
+  if (w.starts && w.ends){
+    const span = daysBetween(w.starts, w.ends) || 1;
+    timePct = Math.max(0, Math.min(1, daysBetween(w.starts, todayISO()) / span));
+  }
+  let valPct = null;
+  if (g.metric_target != null && g.metric_current != null){
+    const base = g.metric_baseline != null ? Number(g.metric_baseline) : 0;
+    const span = Number(g.metric_target) - base;
+    if (span !== 0) valPct = (Number(g.metric_current) - base) / span;
+  }
+  const done = valPct != null ? valPct : (pr.total ? pr.done / pr.total : null);
+  if (done == null) return "Not started";
+  if (done >= 1) return "Achieved";
+  if (done <= 0 && !pr.done) return "Not started";
+  if (timePct == null) return "On track";
+  const gap = done - timePct;
+  if (gap >= -0.1) return "On track";
+  if (gap >= -0.3) return "At risk";
+  return "Off track";
+}
+
 function goalPill(g){
   return '<span class="pill ' + (GOAL_STATUS_TONE[g.status] || "mute") + '">' + esc(g.status) + '</span>';
 }
