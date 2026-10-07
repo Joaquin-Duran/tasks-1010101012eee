@@ -39,6 +39,16 @@ function plannerItem(o){
   '</div>';
 }
 
+/* The area a piece of work belongs to is the area of the goal it serves. A task
+   also carries a category, which is a smaller and different idea: Bug, Feature.
+   Areas come from pm_areas, which is what bands the goals on Where we are. */
+function areaOfGoalId(id){
+  const g = id ? byId(DATA.goals)[id] : null;
+  return g ? (g.area || "") : "";
+}
+function areaOfTask(t){ return areaOfGoalId(t.goal_id); }
+function weekAreaOk(key){ return !UI.weekArea || UI.weekArea === key; }
+
 function plannerItems(list){
   const items = [];
   list.forEach(t => {
@@ -52,7 +62,8 @@ function plannerItems(list){
     if (!m.ends || m.status === "Done") return;
     const g = byId(DATA.goals)[m.goal_id];
     if (F.goal && m.goal_id !== F.goal) return;
-    if (UI.plannerScope === "me" && ME && m.owner !== ME) return;
+    if (UI.weekPeople.size && !UI.weekPeople.has(m.owner)) return;
+    if (!weekAreaOk(areaOfGoalId(m.goal_id))) return;
     items.push({ kind:"milestone", id:m.id, title:m.name, sub: g ? g.name : "", due:m.ends,
                  owners: m.owner ? [m.owner] : [], badge:"milestone", tone:"mute",
                  colour: g ? g.color : "" });
@@ -60,7 +71,8 @@ function plannerItems(list){
   liveGoals().forEach(g => {
     if (!g.ends || g.status === "Achieved") return;
     if (F.goal && g.id !== F.goal) return;
-    if (UI.plannerScope === "me" && ME && g.owner !== ME) return;
+    if (UI.weekPeople.size && !UI.weekPeople.has(g.owner)) return;
+    if (!weekAreaOk(g.area || "")) return;
     items.push({ kind:"goal", id:g.id, title:g.name, sub:g.area || "", due:g.ends,
                  owners: g.owner ? [g.owner] : [], badge:"goal",
                  tone: GOAL_STATUS_TONE[g.status] || "mute", colour:g.color });

@@ -513,5 +513,26 @@
 .person-bio{font-size:13px;color:var(--ink-2);margin:0;max-width:46ch;line-height:1.5}
 .linky:hover{color:var(--orange)}
 .roster-card:hover{border-color:rgba(43,44,44,.24);box-shadow:var(--shadow)}
+
+/* ---------- Next and Back through a destination that reads in order ---------- */
+.pager{display:flex;align-items:center;gap:12px;max-width:1240px;margin:0 0 16px}
+.pager.bottom{margin:22px 0 4px;padding-top:14px;border-top:1px solid var(--line-2)}
+.pager .pg-end{flex:none;width:1px}
+.pg-dots{display:flex;gap:5px;margin:0 auto}
+.pg-dots i{width:6px;height:6px;border-radius:50%;background:var(--line);display:block}
+.pg-dots i.on{background:var(--orange);transform:scale(1.25)}
+
+/* ---------- the people bubbles on My week: pick several, see them together ---------- */
+.bubbles{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.bub{display:inline-flex;align-items:center;gap:7px;padding:4px 12px 4px 5px;border-radius:22px;
+     border:1px solid var(--line);background:var(--white);font-size:12.5px;font-weight:600;
+     color:var(--ink-2);transition:.15s;line-height:1}
+.bub:hover{border-color:var(--ink-3);transform:translateY(-1px)}
+.bub .av{width:24px;height:24px;font-size:9.5px;flex:none}
+.bub.on{border-color:var(--pc,var(--orange));color:var(--ink);
+        box-shadow:0 0 0 2px color-mix(in srgb, var(--pc,var(--orange)) 22%, transparent)}
+.bub.all{padding:7px 14px}
+.bub small{font-weight:500;color:var(--ink-3);font-size:11px}
+.bub.on small{color:var(--ink-2)}
 </style>
 </head>

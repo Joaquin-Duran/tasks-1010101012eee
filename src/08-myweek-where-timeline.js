@@ -89,13 +89,53 @@ function companyStrip(){
 /* ============================================================
    1 · MY WEEK  · the landing page
    ============================================================ */
+/* The bubbles: who this week is about. Several at once is the point, so two
+   people can see where their work sits against each other. None means everybody. */
+function peopleBubbles(open){
+  const picked = UI.weekPeople;
+  const roster = DATA.people.filter(p => p.active);
+  return '<div class="bubbles" id="wPeople">' +
+    '<button class="bub all' + (picked.size ? "" : " on") + '" data-bub="">Everyone</button>' +
+    roster.map(p => {
+      const n = open.filter(t => (t.owners||[]).includes(p.name)).length;
+      return '<button class="bub' + (picked.has(p.name) ? " on" : "") + '" data-bub="' + esc(p.name) +
+        '" style="--pc:' + p.color + '" title="' + esc(p.name + " \u00b7 " + n + " open") + '">' +
+        avatar(p.name) + esc(p.name) + ' <small>' + n + '</small></button>';
+    }).join("") +
+  '</div>';
+}
+
+/* Areas, from pm_areas, counted over whoever is picked. */
+const NO_AREA = "none";
+function areaChips(list){
+  const meta = byKey(DATA.areas || [], "key");
+  const counts = {};
+  list.forEach(t => { const a = areaOfTask(t); counts[a] = (counts[a] || 0) + 1; });
+  const keys = Object.keys(counts).filter(Boolean)
+    .sort((a,b) => ((meta[a]||{}).sort_order || 99) - ((meta[b]||{}).sort_order || 99));
+  if (!keys.length) return "";
+  const chip = (k, label, n, colour) =>
+    '<button class="chip' + (UI.weekArea === k ? " on" : "") + '" data-warea="' + esc(k) + '">' +
+    (colour ? '<i style="display:inline-block;width:7px;height:7px;border-radius:2px;' +
+              'background:' + colour + ';margin-right:5px"></i>' : '') +
+    esc(label) + ' <b style="font-weight:600;opacity:.55">' + n + '</b></button>';
+  return '<div class="chip-row" id="wAreas" style="margin:0 0 14px">' +
+    chip("", "All areas", list.length, "") +
+    keys.map(k => chip(k, (meta[k]||{}).label || k, counts[k], (meta[k]||{}).color)).join("") +
+    (counts[""] ? chip(NO_AREA, "Serving no goal", counts[""], "") : "") +
+  '</div>';
+}
+
 function renderMyWeek(){
   const today = todayISO();
   const w = plannerWindow();
-  const meName = ME || "";
-  const justMe = UI.plannerScope === "me" && meName;
+  const picked = UI.weekPeople;
+  const names = DATA.people.filter(p => p.active && picked.has(p.name)).map(p => p.name);
   const open = DATA.tasks.filter(isOpen);
-  const mine = justMe ? open.filter(t => (t.owners||[]).includes(meName)) : open;
+  const byPerson = picked.size ? open.filter(t => (t.owners||[]).some(o => picked.has(o))) : open;
+  const mine = !UI.weekArea ? byPerson
+    : UI.weekArea === NO_AREA ? byPerson.filter(t => !areaOfTask(t))
+    : byPerson.filter(t => areaOfTask(t) === UI.weekArea);
   const items = plannerItems(mine);
   const myOverdue = mine.filter(isLate);
   const myDue = mine.filter(t => t.target_date && t.target_date >= today && t.target_date <= w.e);
@@ -111,19 +151,26 @@ function renderMyWeek(){
 
   let out = '<div class="wrap">' + companyStrip();
 
+  const areaLabel = UI.weekArea && UI.weekArea !== NO_AREA
+    ? ((byKey(DATA.areas || [], "key")[UI.weekArea] || {}).label || UI.weekArea)
+    : UI.weekArea === NO_AREA ? "serving no goal" : "";
+  const title = !names.length ? "The team’s week"
+    : names.length === 1 ? names[0] + "’s week"
+    : names.length === 2 ? names[0] + " and " + names[1] + "’s week"
+    : names.length + " people’s week";
+
   out += '<div class="panel-head" style="border:none;padding:18px 0 10px">' +
-    (justMe ? avatar(meName) : "") +
-    '<h2 style="font-size:19px;letter-spacing:-.02em">' +
-      (justMe ? esc(meName) + "’s week" : "The team’s week") + '</h2>' +
+    names.slice(0,4).map(n => avatar(n)).join("") +
+    '<h2 style="font-size:19px;letter-spacing:-.02em">' + esc(title) +
+      (areaLabel ? ' <span class="sub" style="font-weight:500">· ' + esc(areaLabel) + '</span>' : '') +
+    '</h2>' +
     '<div class="spacer"></div>' +
     '<div class="seg" id="plRange">' + ["week","month","quarter"].map(k =>
       '<button data-r="' + k + '"' + (UI.plannerRange===k?' class="on"':'') + '>' +
       k[0].toUpperCase()+k.slice(1) + '</button>').join("") + '</div>' +
-    '<div class="seg" id="plScope">' +
-      '<button data-sc="me"' + (UI.plannerScope==="me"?' class="on"':'') + '>Just me</button>' +
-      '<button data-sc="team"' + (UI.plannerScope==="team"?' class="on"':'') + '>Everyone</button>' +
-    '</div>' +
-  '</div>';
+  '</div>' +
+  '<div style="margin:0 0 12px">' + peopleBubbles(open) + '</div>' +
+  areaChips(byPerson);
 
   /* each tile opens the list it counts, and closes again on a second click */
   const tiles = [
@@ -166,12 +213,13 @@ function renderMyWeek(){
 
   out += '<div class="panel"><div class="panel-body">' +
     (body || '<div class="empty">Nothing due in this window. ' +
-      (undated.length ? undated.length + ' of your tasks have no date at all.' : 'You are clear.') + '</div>') +
+      (undated.length ? undated.length + ' of these have no date at all.' : 'Nothing is waiting.') + '</div>') +
     '</div></div>';
 
   if (undated.length){
     out += '<details class="fold"><summary>' + undated.length +
-      ' of your tasks have no date <span class="note">· they appear in no plan</span></summary>' +
+      ' task' + (undated.length === 1 ? "" : "s") + ' here with no date ' +
+      '<span class="note">· they appear in no plan</span></summary>' +
       '<div class="pl-rows" style="margin-top:8px">' + undated.map(t => plannerItem({
         kind:"task", id:t.id, title:t.title, sub:t.code, owners:t.owners||[],
         badge:t.priority||"task", tone:"mute", colour:PRIO_HEX[t.priority]||"" })).join("") +

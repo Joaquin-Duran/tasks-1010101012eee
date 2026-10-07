@@ -48,12 +48,31 @@ function renderNav(){
   $("#views").classList.toggle("hidden", !subs.length);
 }
 
+/* Next and Back through a destination that reads in order. Rendered above and
+   below the page, because the bottom is where you are when you finish reading. */
+function pager(pos){
+  const home = VIEW_HOME[VIEW];
+  if (!PAGED.has(home)) return "";
+  const subs = SUB_VIEWS[home] || [];
+  const i = subs.findIndex(v => v.k === VIEW);
+  if (i < 0 || subs.length < 2) return "";
+  const prev = subs[i-1], next = subs[i+1];
+  const btn = (v, dir) => '<button class="btn btn-ghost btn-sm" data-goview="' + esc(v.k) + '">' +
+    (dir < 0 ? "\u2190 " : "") + esc(v.label) + (dir > 0 ? " \u2192" : "") + '</button>';
+  return '<nav class="pager ' + pos + '" aria-label="Move through ' + esc(home) + '">' +
+    (prev ? btn(prev, -1) : '<span class="pg-end"></span>') +
+    '<span class="pg-dots">' + subs.map((v,j) =>
+      '<i' + (j === i ? ' class="on"' : '') + ' title="' + esc(v.label) + '"></i>').join("") + '</span>' +
+    (next ? btn(next, 1) : '<span class="pg-end"></span>') +
+  '</nav>';
+}
+
 function render(){
   renderNav();
   const list = visible();
   $("#filters").classList.toggle("hidden", !TASKY.has(VIEW));
   const fn = RENDERERS[VIEW] || renderMyWeek;
-  $("#main").innerHTML = fn(list);
+  $("#main").innerHTML = pager("top") + fn(list) + pager("bottom");
   if (TASKY.has(VIEW)) renderStats(list);
   wireMain();
 }
@@ -159,7 +178,21 @@ function wireMain(){
   seg("#tlMode",  "t",  "timelineMode", "gp_tlmode");
   seg("#tGroup",  "tg", "taskGroup",    "gp_tgroup");
   seg("#plRange", "r",  "plannerRange", "gp_prange");
-  seg("#plScope", "sc", "plannerScope", "gp_pscope");
+
+  /* the people bubbles: click to add somebody to the week, click again to drop
+     them. Everyone clears the lot. */
+  $$("#wPeople .bub").forEach(b => b.onclick = () => {
+    const n = b.dataset.bub;
+    if (!n) UI.weekPeople.clear();
+    else UI.weekPeople.has(n) ? UI.weekPeople.delete(n) : UI.weekPeople.add(n);
+    store.set("gp_wpeople", JSON.stringify(Array.from(UI.weekPeople)));
+    render();
+  });
+  $$("#wAreas .chip").forEach(b => b.onclick = () => {
+    UI.weekArea = UI.weekArea === b.dataset.warea ? "" : b.dataset.warea;
+    store.set("gp_warea", UI.weekArea);
+    render();
+  });
 
   /* quick-access cards jump straight to a handbook page */
   $$(".qcard[data-doc]").forEach(el => el.onclick = () => {
@@ -393,15 +426,10 @@ $("#fsM5").addEventListener("click", () => spAdjust(-5));
 $("#fsP1").addEventListener("click", () => spAdjust(1));
 $("#fsP5").addEventListener("click", () => spAdjust(5));
 $("#sbStop").addEventListener("click", () => spStop());
-/* "+ New" makes whatever the current view is about */
-$("#newBtn").addEventListener("click", () => {
-  if (VIEW === "where") openGoal(null);
-  else if (VIEW === "handbook") openDoc(null);
-  else if (VIEW === "stack") openProvider(null);
-  else if (VIEW === "files") openAsset(null);
-  else if (VIEW === "ideas") openIdea(null);
-  else openTask(null);
-});
+/* "+ New task" means a task, wherever you are. Everything else that can be
+   created has its own button on the page that holds it, so nothing is lost by
+   this button meaning one thing. */
+$("#newBtn").addEventListener("click", () => openTask(null));
 
 /* a view stored before the nav was reorganised should not strand anyone */
 if (!RENDERERS[VIEW]) VIEW = "my";

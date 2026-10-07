@@ -660,6 +660,27 @@ main{flex:1;overflow:auto;padding:20px}
 .person-bio{font-size:13px;color:var(--ink-2);margin:0;max-width:46ch;line-height:1.5}
 .linky:hover{color:var(--orange)}
 .roster-card:hover{border-color:rgba(43,44,44,.24);box-shadow:var(--shadow)}
+
+/* ---------- Next and Back through a destination that reads in order ---------- */
+.pager{display:flex;align-items:center;gap:12px;max-width:1240px;margin:0 0 16px}
+.pager.bottom{margin:22px 0 4px;padding-top:14px;border-top:1px solid var(--line-2)}
+.pager .pg-end{flex:none;width:1px}
+.pg-dots{display:flex;gap:5px;margin:0 auto}
+.pg-dots i{width:6px;height:6px;border-radius:50%;background:var(--line);display:block}
+.pg-dots i.on{background:var(--orange);transform:scale(1.25)}
+
+/* ---------- the people bubbles on My week: pick several, see them together ---------- */
+.bubbles{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.bub{display:inline-flex;align-items:center;gap:7px;padding:4px 12px 4px 5px;border-radius:22px;
+     border:1px solid var(--line);background:var(--white);font-size:12.5px;font-weight:600;
+     color:var(--ink-2);transition:.15s;line-height:1}
+.bub:hover{border-color:var(--ink-3);transform:translateY(-1px)}
+.bub .av{width:24px;height:24px;font-size:9.5px;flex:none}
+.bub.on{border-color:var(--pc,var(--orange));color:var(--ink);
+        box-shadow:0 0 0 2px color-mix(in srgb, var(--pc,var(--orange)) 22%, transparent)}
+.bub.all{padding:7px 14px}
+.bub small{font-weight:500;color:var(--ink-3);font-size:11px}
+.bub.on small{color:var(--ink-2)}
 </style>
 </head>
 <body>
@@ -735,7 +756,7 @@ main{flex:1;overflow:auto;padding:20px}
         <select class="input" id="whoSel" style="padding:6px 9px;font-size:12.5px;width:auto" title="Who are you?"></select>
         <button class="btn btn-ghost" id="focusBtn" title="Start a focus sprint" style="padding:7px 12px">Focus</button>
         <button class="btn btn-ghost" id="refreshBtn" title="Reload from the database" style="padding:7px 12px">Refresh</button>
-        <button class="btn btn-primary" id="newBtn" style="padding:8px 14px">+ New</button>
+        <button class="btn btn-primary" id="newBtn" style="padding:8px 14px">+ New task</button>
       </div>
     </div>
     <nav class="subtabs" id="views"></nav>
@@ -800,19 +821,25 @@ const GOAL_STATUS = ["Not started","On track","At risk","Off track","Achieved"];
 const GOAL_STATUS_TONE = { "Not started":"mute","On track":"ok","At risk":"warn","Off track":"bad","Achieved":"ok" };
 const MS_STATUS = ["Not Started","In Progress","Blocked","Done"];
 
-/* Six destinations, every one a concrete noun. A first-time visitor should be
-   able to guess what is behind each label without being told. */
+/* Destinations, every one a concrete noun. A first-time visitor should be
+   able to guess what is behind each label without being told. The four ways of
+   reading the work all live behind Tasks, because they are the same work. */
 const NAV = [
   { k:"company",  label:"Company",       view:"start" },
-  { k:"my",       label:"My week",       view:"my" },
-  { k:"where",    label:"Where we are",  view:"where" },
-  { k:"timeline", label:"Timeline",      view:"timeline" },
+  { k:"tasks",    label:"Tasks",         view:"my" },
   { k:"marketing",label:"Marketing",     view:"mkt-strategy" },
+  { k:"ads",      label:"Ads",           view:"ads" },
   { k:"subs",     label:"Subscriptions", view:"stack" },
   { k:"ideas",    label:"Ideas",         view:"ideas" }
 ];
-/* the two destinations deep enough to want a second row */
+/* the destinations deep enough to want a second row */
 const SUB_VIEWS = {
+  tasks: [
+    { k:"my",       label:"My week" },
+    { k:"where",    label:"Where we are" },
+    { k:"timeline", label:"Timeline" },
+    { k:"tasks",    label:"Every task" }
+  ],
   marketing: [
     { k:"mkt-strategy",    label:"Strategy" },
     { k:"mkt-q1",          label:"Q1 plan" },
@@ -829,12 +856,16 @@ const SUB_VIEWS = {
     { k:"activity", label:"Activity" }
   ]
 };
+/* destinations whose second row is a reading order rather than four ways of
+   looking at one thing: these get Next and Back, top and bottom */
+const PAGED = new Set(["company","marketing"]);
 /* which destination lights up, including drill-downs with no tab of their own */
 const VIEW_HOME = {
-  my:"my", tasks:"my",
-  where:"where", goal:"where",
-  timeline:"timeline",
+  my:"tasks", tasks:"tasks",
+  where:"tasks", goal:"tasks",
+  timeline:"tasks",
   "journey-user":"marketing", "journey-value":"marketing",
+  ads:"ads", "ad-board":"ads",
   ideas:"ideas",
   "mkt-strategy":"marketing", "mkt-q1":"marketing", "mkt-persona":"marketing",
   "mkt-competitors":"marketing", files:"marketing",
@@ -869,6 +900,11 @@ const UI = {
   taskGroup:    store.get("gp_tgroup") || "status",   // status | person | goal | area
   fileFolder:   store.get("gp_ffolder") || null,
   weekOpen:     new Set(JSON.parse(store.get("gp_weekopen") || "[]")),
+  /* who My week is about: empty means everybody. Several names at once is the
+     point, so two people can see where their work collides. */
+  weekPeople:   new Set(JSON.parse(store.get("gp_wpeople") || "null") || (ME ? [ME] : [])),
+  weekArea:     store.get("gp_warea") || "",
+  adCampaign:   store.get("gp_adcamp") || null,
   openTile:     store.get("gp_tile") || null,
   openGoals:    new Set(JSON.parse(store.get("gp_opengoals") || "[]")),
   goal: null,                                          // the goal being drilled into
@@ -876,7 +912,6 @@ const UI = {
   ganttLevel: store.get("gp_glevel") || "ms",     // goal | ms | task
   collapsed: new Set(JSON.parse(store.get("gp_collapsed") || "[]")),
   plannerRange: store.get("gp_prange") || "week", // week | month | quarter
-  plannerScope: store.get("gp_pscope") || "me",   // me | team
   plannerBy: store.get("gp_pby") || "date",       // date | person
   doc: null,
   revealed: {}
@@ -1597,6 +1632,16 @@ function plannerItem(o){
   '</div>';
 }
 
+/* The area a piece of work belongs to is the area of the goal it serves. A task
+   also carries a category, which is a smaller and different idea: Bug, Feature.
+   Areas come from pm_areas, which is what bands the goals on Where we are. */
+function areaOfGoalId(id){
+  const g = id ? byId(DATA.goals)[id] : null;
+  return g ? (g.area || "") : "";
+}
+function areaOfTask(t){ return areaOfGoalId(t.goal_id); }
+function weekAreaOk(key){ return !UI.weekArea || UI.weekArea === key; }
+
 function plannerItems(list){
   const items = [];
   list.forEach(t => {
@@ -1610,7 +1655,8 @@ function plannerItems(list){
     if (!m.ends || m.status === "Done") return;
     const g = byId(DATA.goals)[m.goal_id];
     if (F.goal && m.goal_id !== F.goal) return;
-    if (UI.plannerScope === "me" && ME && m.owner !== ME) return;
+    if (UI.weekPeople.size && !UI.weekPeople.has(m.owner)) return;
+    if (!weekAreaOk(areaOfGoalId(m.goal_id))) return;
     items.push({ kind:"milestone", id:m.id, title:m.name, sub: g ? g.name : "", due:m.ends,
                  owners: m.owner ? [m.owner] : [], badge:"milestone", tone:"mute",
                  colour: g ? g.color : "" });
@@ -1618,7 +1664,8 @@ function plannerItems(list){
   liveGoals().forEach(g => {
     if (!g.ends || g.status === "Achieved") return;
     if (F.goal && g.id !== F.goal) return;
-    if (UI.plannerScope === "me" && ME && g.owner !== ME) return;
+    if (UI.weekPeople.size && !UI.weekPeople.has(g.owner)) return;
+    if (!weekAreaOk(g.area || "")) return;
     items.push({ kind:"goal", id:g.id, title:g.name, sub:g.area || "", due:g.ends,
                  owners: g.owner ? [g.owner] : [], badge:"goal",
                  tone: GOAL_STATUS_TONE[g.status] || "mute", colour:g.color });
@@ -2203,13 +2250,53 @@ function companyStrip(){
 /* ============================================================
    1 · MY WEEK  · the landing page
    ============================================================ */
+/* The bubbles: who this week is about. Several at once is the point, so two
+   people can see where their work sits against each other. None means everybody. */
+function peopleBubbles(open){
+  const picked = UI.weekPeople;
+  const roster = DATA.people.filter(p => p.active);
+  return '<div class="bubbles" id="wPeople">' +
+    '<button class="bub all' + (picked.size ? "" : " on") + '" data-bub="">Everyone</button>' +
+    roster.map(p => {
+      const n = open.filter(t => (t.owners||[]).includes(p.name)).length;
+      return '<button class="bub' + (picked.has(p.name) ? " on" : "") + '" data-bub="' + esc(p.name) +
+        '" style="--pc:' + p.color + '" title="' + esc(p.name + " \u00b7 " + n + " open") + '">' +
+        avatar(p.name) + esc(p.name) + ' <small>' + n + '</small></button>';
+    }).join("") +
+  '</div>';
+}
+
+/* Areas, from pm_areas, counted over whoever is picked. */
+const NO_AREA = "none";
+function areaChips(list){
+  const meta = byKey(DATA.areas || [], "key");
+  const counts = {};
+  list.forEach(t => { const a = areaOfTask(t); counts[a] = (counts[a] || 0) + 1; });
+  const keys = Object.keys(counts).filter(Boolean)
+    .sort((a,b) => ((meta[a]||{}).sort_order || 99) - ((meta[b]||{}).sort_order || 99));
+  if (!keys.length) return "";
+  const chip = (k, label, n, colour) =>
+    '<button class="chip' + (UI.weekArea === k ? " on" : "") + '" data-warea="' + esc(k) + '">' +
+    (colour ? '<i style="display:inline-block;width:7px;height:7px;border-radius:2px;' +
+              'background:' + colour + ';margin-right:5px"></i>' : '') +
+    esc(label) + ' <b style="font-weight:600;opacity:.55">' + n + '</b></button>';
+  return '<div class="chip-row" id="wAreas" style="margin:0 0 14px">' +
+    chip("", "All areas", list.length, "") +
+    keys.map(k => chip(k, (meta[k]||{}).label || k, counts[k], (meta[k]||{}).color)).join("") +
+    (counts[""] ? chip(NO_AREA, "Serving no goal", counts[""], "") : "") +
+  '</div>';
+}
+
 function renderMyWeek(){
   const today = todayISO();
   const w = plannerWindow();
-  const meName = ME || "";
-  const justMe = UI.plannerScope === "me" && meName;
+  const picked = UI.weekPeople;
+  const names = DATA.people.filter(p => p.active && picked.has(p.name)).map(p => p.name);
   const open = DATA.tasks.filter(isOpen);
-  const mine = justMe ? open.filter(t => (t.owners||[]).includes(meName)) : open;
+  const byPerson = picked.size ? open.filter(t => (t.owners||[]).some(o => picked.has(o))) : open;
+  const mine = !UI.weekArea ? byPerson
+    : UI.weekArea === NO_AREA ? byPerson.filter(t => !areaOfTask(t))
+    : byPerson.filter(t => areaOfTask(t) === UI.weekArea);
   const items = plannerItems(mine);
   const myOverdue = mine.filter(isLate);
   const myDue = mine.filter(t => t.target_date && t.target_date >= today && t.target_date <= w.e);
@@ -2225,19 +2312,26 @@ function renderMyWeek(){
 
   let out = '<div class="wrap">' + companyStrip();
 
+  const areaLabel = UI.weekArea && UI.weekArea !== NO_AREA
+    ? ((byKey(DATA.areas || [], "key")[UI.weekArea] || {}).label || UI.weekArea)
+    : UI.weekArea === NO_AREA ? "serving no goal" : "";
+  const title = !names.length ? "The team’s week"
+    : names.length === 1 ? names[0] + "’s week"
+    : names.length === 2 ? names[0] + " and " + names[1] + "’s week"
+    : names.length + " people’s week";
+
   out += '<div class="panel-head" style="border:none;padding:18px 0 10px">' +
-    (justMe ? avatar(meName) : "") +
-    '<h2 style="font-size:19px;letter-spacing:-.02em">' +
-      (justMe ? esc(meName) + "’s week" : "The team’s week") + '</h2>' +
+    names.slice(0,4).map(n => avatar(n)).join("") +
+    '<h2 style="font-size:19px;letter-spacing:-.02em">' + esc(title) +
+      (areaLabel ? ' <span class="sub" style="font-weight:500">· ' + esc(areaLabel) + '</span>' : '') +
+    '</h2>' +
     '<div class="spacer"></div>' +
     '<div class="seg" id="plRange">' + ["week","month","quarter"].map(k =>
       '<button data-r="' + k + '"' + (UI.plannerRange===k?' class="on"':'') + '>' +
       k[0].toUpperCase()+k.slice(1) + '</button>').join("") + '</div>' +
-    '<div class="seg" id="plScope">' +
-      '<button data-sc="me"' + (UI.plannerScope==="me"?' class="on"':'') + '>Just me</button>' +
-      '<button data-sc="team"' + (UI.plannerScope==="team"?' class="on"':'') + '>Everyone</button>' +
-    '</div>' +
-  '</div>';
+  '</div>' +
+  '<div style="margin:0 0 12px">' + peopleBubbles(open) + '</div>' +
+  areaChips(byPerson);
 
   /* each tile opens the list it counts, and closes again on a second click */
   const tiles = [
@@ -2280,12 +2374,13 @@ function renderMyWeek(){
 
   out += '<div class="panel"><div class="panel-body">' +
     (body || '<div class="empty">Nothing due in this window. ' +
-      (undated.length ? undated.length + ' of your tasks have no date at all.' : 'You are clear.') + '</div>') +
+      (undated.length ? undated.length + ' of these have no date at all.' : 'Nothing is waiting.') + '</div>') +
     '</div></div>';
 
   if (undated.length){
     out += '<details class="fold"><summary>' + undated.length +
-      ' of your tasks have no date <span class="note">· they appear in no plan</span></summary>' +
+      ' task' + (undated.length === 1 ? "" : "s") + ' here with no date ' +
+      '<span class="note">· they appear in no plan</span></summary>' +
       '<div class="pl-rows" style="margin-top:8px">' + undated.map(t => plannerItem({
         kind:"task", id:t.id, title:t.title, sub:t.code, owners:t.owners||[],
         badge:t.priority||"task", tone:"mute", colour:PRIO_HEX[t.priority]||"" })).join("") +
@@ -3724,12 +3819,31 @@ function renderNav(){
   $("#views").classList.toggle("hidden", !subs.length);
 }
 
+/* Next and Back through a destination that reads in order. Rendered above and
+   below the page, because the bottom is where you are when you finish reading. */
+function pager(pos){
+  const home = VIEW_HOME[VIEW];
+  if (!PAGED.has(home)) return "";
+  const subs = SUB_VIEWS[home] || [];
+  const i = subs.findIndex(v => v.k === VIEW);
+  if (i < 0 || subs.length < 2) return "";
+  const prev = subs[i-1], next = subs[i+1];
+  const btn = (v, dir) => '<button class="btn btn-ghost btn-sm" data-goview="' + esc(v.k) + '">' +
+    (dir < 0 ? "\u2190 " : "") + esc(v.label) + (dir > 0 ? " \u2192" : "") + '</button>';
+  return '<nav class="pager ' + pos + '" aria-label="Move through ' + esc(home) + '">' +
+    (prev ? btn(prev, -1) : '<span class="pg-end"></span>') +
+    '<span class="pg-dots">' + subs.map((v,j) =>
+      '<i' + (j === i ? ' class="on"' : '') + ' title="' + esc(v.label) + '"></i>').join("") + '</span>' +
+    (next ? btn(next, 1) : '<span class="pg-end"></span>') +
+  '</nav>';
+}
+
 function render(){
   renderNav();
   const list = visible();
   $("#filters").classList.toggle("hidden", !TASKY.has(VIEW));
   const fn = RENDERERS[VIEW] || renderMyWeek;
-  $("#main").innerHTML = fn(list);
+  $("#main").innerHTML = pager("top") + fn(list) + pager("bottom");
   if (TASKY.has(VIEW)) renderStats(list);
   wireMain();
 }
@@ -3835,7 +3949,21 @@ function wireMain(){
   seg("#tlMode",  "t",  "timelineMode", "gp_tlmode");
   seg("#tGroup",  "tg", "taskGroup",    "gp_tgroup");
   seg("#plRange", "r",  "plannerRange", "gp_prange");
-  seg("#plScope", "sc", "plannerScope", "gp_pscope");
+
+  /* the people bubbles: click to add somebody to the week, click again to drop
+     them. Everyone clears the lot. */
+  $$("#wPeople .bub").forEach(b => b.onclick = () => {
+    const n = b.dataset.bub;
+    if (!n) UI.weekPeople.clear();
+    else UI.weekPeople.has(n) ? UI.weekPeople.delete(n) : UI.weekPeople.add(n);
+    store.set("gp_wpeople", JSON.stringify(Array.from(UI.weekPeople)));
+    render();
+  });
+  $$("#wAreas .chip").forEach(b => b.onclick = () => {
+    UI.weekArea = UI.weekArea === b.dataset.warea ? "" : b.dataset.warea;
+    store.set("gp_warea", UI.weekArea);
+    render();
+  });
 
   /* quick-access cards jump straight to a handbook page */
   $$(".qcard[data-doc]").forEach(el => el.onclick = () => {
@@ -4069,15 +4197,10 @@ $("#fsM5").addEventListener("click", () => spAdjust(-5));
 $("#fsP1").addEventListener("click", () => spAdjust(1));
 $("#fsP5").addEventListener("click", () => spAdjust(5));
 $("#sbStop").addEventListener("click", () => spStop());
-/* "+ New" makes whatever the current view is about */
-$("#newBtn").addEventListener("click", () => {
-  if (VIEW === "where") openGoal(null);
-  else if (VIEW === "handbook") openDoc(null);
-  else if (VIEW === "stack") openProvider(null);
-  else if (VIEW === "files") openAsset(null);
-  else if (VIEW === "ideas") openIdea(null);
-  else openTask(null);
-});
+/* "+ New task" means a task, wherever you are. Everything else that can be
+   created has its own button on the page that holds it, so nothing is lost by
+   this button meaning one thing. */
+$("#newBtn").addEventListener("click", () => openTask(null));
 
 /* a view stored before the nav was reorganised should not strand anyone */
 if (!RENDERERS[VIEW]) VIEW = "my";

@@ -71,7 +71,7 @@
         <select class="input" id="whoSel" style="padding:6px 9px;font-size:12.5px;width:auto" title="Who are you?"></select>
         <button class="btn btn-ghost" id="focusBtn" title="Start a focus sprint" style="padding:7px 12px">Focus</button>
         <button class="btn btn-ghost" id="refreshBtn" title="Reload from the database" style="padding:7px 12px">Refresh</button>
-        <button class="btn btn-primary" id="newBtn" style="padding:8px 14px">+ New</button>
+        <button class="btn btn-primary" id="newBtn" style="padding:8px 14px">+ New task</button>
       </div>
     </div>
     <nav class="subtabs" id="views"></nav>
@@ -136,19 +136,25 @@ const GOAL_STATUS = ["Not started","On track","At risk","Off track","Achieved"];
 const GOAL_STATUS_TONE = { "Not started":"mute","On track":"ok","At risk":"warn","Off track":"bad","Achieved":"ok" };
 const MS_STATUS = ["Not Started","In Progress","Blocked","Done"];
 
-/* Six destinations, every one a concrete noun. A first-time visitor should be
-   able to guess what is behind each label without being told. */
+/* Destinations, every one a concrete noun. A first-time visitor should be
+   able to guess what is behind each label without being told. The four ways of
+   reading the work all live behind Tasks, because they are the same work. */
 const NAV = [
   { k:"company",  label:"Company",       view:"start" },
-  { k:"my",       label:"My week",       view:"my" },
-  { k:"where",    label:"Where we are",  view:"where" },
-  { k:"timeline", label:"Timeline",      view:"timeline" },
+  { k:"tasks",    label:"Tasks",         view:"my" },
   { k:"marketing",label:"Marketing",     view:"mkt-strategy" },
+  { k:"ads",      label:"Ads",           view:"ads" },
   { k:"subs",     label:"Subscriptions", view:"stack" },
   { k:"ideas",    label:"Ideas",         view:"ideas" }
 ];
-/* the two destinations deep enough to want a second row */
+/* the destinations deep enough to want a second row */
 const SUB_VIEWS = {
+  tasks: [
+    { k:"my",       label:"My week" },
+    { k:"where",    label:"Where we are" },
+    { k:"timeline", label:"Timeline" },
+    { k:"tasks",    label:"Every task" }
+  ],
   marketing: [
     { k:"mkt-strategy",    label:"Strategy" },
     { k:"mkt-q1",          label:"Q1 plan" },
@@ -165,12 +171,16 @@ const SUB_VIEWS = {
     { k:"activity", label:"Activity" }
   ]
 };
+/* destinations whose second row is a reading order rather than four ways of
+   looking at one thing: these get Next and Back, top and bottom */
+const PAGED = new Set(["company","marketing"]);
 /* which destination lights up, including drill-downs with no tab of their own */
 const VIEW_HOME = {
-  my:"my", tasks:"my",
-  where:"where", goal:"where",
-  timeline:"timeline",
+  my:"tasks", tasks:"tasks",
+  where:"tasks", goal:"tasks",
+  timeline:"tasks",
   "journey-user":"marketing", "journey-value":"marketing",
+  ads:"ads", "ad-board":"ads",
   ideas:"ideas",
   "mkt-strategy":"marketing", "mkt-q1":"marketing", "mkt-persona":"marketing",
   "mkt-competitors":"marketing", files:"marketing",
@@ -205,6 +215,11 @@ const UI = {
   taskGroup:    store.get("gp_tgroup") || "status",   // status | person | goal | area
   fileFolder:   store.get("gp_ffolder") || null,
   weekOpen:     new Set(JSON.parse(store.get("gp_weekopen") || "[]")),
+  /* who My week is about: empty means everybody. Several names at once is the
+     point, so two people can see where their work collides. */
+  weekPeople:   new Set(JSON.parse(store.get("gp_wpeople") || "null") || (ME ? [ME] : [])),
+  weekArea:     store.get("gp_warea") || "",
+  adCampaign:   store.get("gp_adcamp") || null,
   openTile:     store.get("gp_tile") || null,
   openGoals:    new Set(JSON.parse(store.get("gp_opengoals") || "[]")),
   goal: null,                                          // the goal being drilled into
@@ -212,7 +227,6 @@ const UI = {
   ganttLevel: store.get("gp_glevel") || "ms",     // goal | ms | task
   collapsed: new Set(JSON.parse(store.get("gp_collapsed") || "[]")),
   plannerRange: store.get("gp_prange") || "week", // week | month | quarter
-  plannerScope: store.get("gp_pscope") || "me",   // me | team
   plannerBy: store.get("gp_pby") || "date",       // date | person
   doc: null,
   revealed: {}
