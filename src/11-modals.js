@@ -720,3 +720,109 @@ function openProfile(name){
     }
   };
 }
+
+/* ---------------- one change, before and after ---------------- */
+/* Field names as a person would say them, and ids resolved to the thing
+   they point at. A log that reads as "goal_id: null -> 7f3a" helps nobody. */
+const FIELD_LABEL = {
+  target_date:"Due", start_date:"Starts", goal_id:"Goal", milestone_id:"Milestone",
+  campaign_id:"Campaign", file_id:"File", phase_key:"Phase", metric_name:"What we measure",
+  metric_unit:"Unit", metric_baseline:"Baseline", metric_target:"Target",
+  metric_current:"Latest reading", lower_is_better:"A win when it falls",
+  link_url:"Points at", ref_url:"Reference", cost_amount:"Cost", cost_cycle:"Billed",
+  cost_currency:"Currency", renewal_date:"Renews", account_email:"Account",
+  vault_location:"Where the password lives", access_note:"How to get in",
+  budget_amount:"Budget", budget_currency:"Currency", headline:"The hook",
+  body:"The words", cta:"Button", visual:"The picture, in words", stage:"Where it is",
+  horizon:"Sits in", statement:"What we want to be true", why:"Why it matters",
+  sensitivity:"Kind", task_title:"Title", updated_by:"Written by", has_shot:"Picture"
+};
+function fieldLabel(k){
+  if (FIELD_LABEL[k]) return FIELD_LABEL[k];
+  return k.replace(/_/g, " ").replace(/^./, c => c.toUpperCase());
+}
+function nameOfId(field, id){
+  if (!id) return null;
+  const find = (list) => (list || []).find(x => x.id === id);
+  let row = null;
+  if (field === "goal_id") row = find(DATA.goals);
+  else if (field === "milestone_id") row = find(DATA.milestones);
+  else if (field === "campaign_id") row = find(DATA.campaigns);
+  else if (field === "file_id") row = find(DATA.files);
+  return row ? (row.name || row.title) : null;
+}
+const LONG_FIELDS = new Set(["body","description","notes","brief","statement","why",
+                             "audience","visual","summary","purpose","access_note"]);
+
+function fieldValue(field, v){
+  if (v === null || v === undefined || v === "") return '<i class="none">nothing</i>';
+  if (Array.isArray(v)) return v.length ? esc(v.join(", ")) : '<i class="none">nobody</i>';
+  if (typeof v === "boolean") return v ? "yes" : "no";
+  if (field === "phase_key"){
+    const p = byKey(DATA.phases, "key")[v];
+    return esc(p ? p.name : v);
+  }
+  if (/_id$/.test(field)){
+    const n = nameOfId(field, v);
+    return n ? esc(n) : '<i class="none">something that is gone</i>';
+  }
+  if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) return esc(fmtDateY(v));
+  return esc(String(v));
+}
+
+function openActivity(id){
+  const a = (DATA.activity || []).find(x => String(x.id) === String(id));
+  if (!a) return;
+  const ch = a.changes || {};
+  const keys = Object.keys(ch).sort((x, y) =>
+    (LONG_FIELDS.has(x) ? 1 : 0) - (LONG_FIELDS.has(y) ? 1 : 0) || x.localeCompare(y));
+  const when = new Date(a.at).toLocaleString(undefined,
+    { weekday:"short", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" });
+
+  let body;
+  if (!keys.length){
+    body = '<div class="empty">' + (a.changes
+      ? 'Nothing changed on the row itself.'
+      : 'This one was written before the board started keeping a before and after. ' +
+        'Everything from now on carries one.') + '</div>';
+  } else {
+    body = '<div class="diff">' + keys.map(k => {
+      const from = fieldValue(k, ch[k].from), to = fieldValue(k, ch[k].to);
+      const long = LONG_FIELDS.has(k) ||
+        String(ch[k].from || "").length > 90 || String(ch[k].to || "").length > 90;
+      return '<div class="drow' + (long ? " long" : "") + '">' +
+        '<div class="dk">' + esc(fieldLabel(k)) + '</div>' +
+        '<div class="dv before">' + from + '</div>' +
+        '<div class="darrow">→</div>' +
+        '<div class="dv after">' + to + '</div>' +
+      '</div>';
+    }).join("") + '</div>';
+  }
+
+  /* where the thing itself lives, so you can go and look at it */
+  const goes = { task:"task", goal:"goal", milestone:"milestone", ad:"ad" }[a.entity];
+
+  modal(
+    head("What changed") +
+    '<div class="modal-body">' +
+      '<div class="act-head">' + avatar(a.actor) +
+        '<div><b>' + esc(a.actor) + '</b> ' + esc(a.action) +
+        (a.detail ? ' <span class="note">(' + esc(a.detail) + ')</span>' : '') +
+        '<div class="note">' + esc(a.task_title || "") + ' · ' + esc(when) + '</div></div>' +
+      '</div>' + body +
+    '</div>' +
+    '<div class="modal-foot">' +
+      (goes ? '<button class="btn btn-ghost" id="actOpen">Open the ' + esc(goes) + '</button>' : '') +
+      '<div class="spacer"></div>' +
+      '<button class="btn btn-ghost" id="mCancel">Close</button>' +
+    '</div>', { wide:true });
+
+  const go = $("#actOpen");
+  if (go) go.onclick = () => {
+    $("#scrim").remove();
+    if (a.entity === "task") openTask(a.task_id);
+    else if (a.entity === "goal") goView("goal", { goal:a.task_id });
+    else if (a.entity === "milestone") openMilestone(a.task_id);
+    else if (a.entity === "ad") openAd(a.task_id);
+  };
+}

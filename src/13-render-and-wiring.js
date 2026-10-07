@@ -241,6 +241,7 @@ function wireMain(){
     render();
   });
 
+  $$("[data-act]").forEach(el => el.onclick = () => openActivity(el.dataset.act));
   $$("[data-editidea]").forEach(el => el.onclick = () => openIdea(el.dataset.editidea));
   const ni = $("#newIdea"); if (ni) ni.onclick = () => openIdea(null);
 

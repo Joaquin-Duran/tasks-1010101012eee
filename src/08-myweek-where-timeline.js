@@ -233,12 +233,8 @@ function renderMyWeek(){
 
   const recent = DATA.activity.slice(0,5);
   if (recent.length){
-    out += '<div class="section-title">Lately<span class="st-sub">what changed on the board</span></div><div class="feed">' + recent.map(a =>
-      '<div class="ev' + (String(a.action).indexOf("revealed") === 0 ? " sec" : "") + '">' +
-        '<span class="actor" style="color:' + personColor(a.actor) + '">' + esc(a.actor) + '</span>' +
-        '<span class="act">' + esc(a.action) + '</span>' +
-        '<span class="ttl">' + esc(a.task_title) + '</span>' +
-        '<span class="when">' + ago(a.at) + '</span></div>').join("") + '</div>';
+    out += '<div class="section-title">Lately<span class="st-sub">what changed on the board</span></div>' +
+      '<div class="feed">' + recent.map(eventRow).join("") + '</div>';
   }
   return out + '</div>';
 }

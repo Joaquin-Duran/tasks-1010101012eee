@@ -252,13 +252,28 @@ function renderPhases(list){
   }).join("") + '</div>';
 }
 
+/* one line of the feed. Click it to see exactly what moved. */
+function eventRow(a){
+  const n = a.changes ? Object.keys(a.changes).length : 0;
+  return '<div class="ev tappable' + (String(a.action).indexOf("revealed") === 0 ? " sec" : "") +
+      '" data-act="' + a.id + '">' +
+    '<span class="actor" style="color:' + personColor(a.actor) + '">' + esc(a.actor) + '</span>' +
+    '<span class="act">' + esc(a.action) + (a.detail ? " (" + esc(a.detail) + ")" : "") + '</span>' +
+    '<span class="ttl">' + esc(a.task_title) + '</span>' +
+    (n ? '<span class="nfields">' + n + (n === 1 ? ' field' : ' fields') + '</span>' : '') +
+    '<span class="when">' + ago(a.at) + '</span>' +
+  '</div>';
+}
+
 function renderActivity(){
   if (!DATA.activity.length) return '<div class="empty">No activity yet.</div>';
-  return '<div class="feed">' + DATA.activity.map(a =>
-    '<div class="ev' + (String(a.action).indexOf("revealed") === 0 ? " sec" : "") + '">' +
-      '<span class="actor" style="color:' + personColor(a.actor) + '">' + esc(a.actor) + '</span>' +
-      '<span class="act">' + esc(a.action) + (a.detail ? " (" + esc(a.detail) + ")" : "") + '</span>' +
-      '<span class="ttl">' + esc(a.task_title) + '</span>' +
-      '<span class="when">' + ago(a.at) + '</span>' +
-    '</div>').join("") + '</div>';
+  const withChanges = DATA.activity.filter(a => a.changes && Object.keys(a.changes).length).length;
+  return '<div class="wrap">' +
+    '<div class="panel-head" style="border:none;padding:0 0 10px">' +
+      '<h2 style="font-size:17px">Activity</h2>' +
+      '<span class="sub">the last ' + DATA.activity.length + ' changes' +
+        (withChanges ? ', ' + withChanges + ' of them with a before and after' : '') +
+        '. Click one to see what moved.</span>' +
+    '</div>' +
+    '<div class="feed">' + DATA.activity.map(eventRow).join("") + '</div></div>';
 }
